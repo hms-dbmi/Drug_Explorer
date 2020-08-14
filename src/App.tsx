@@ -1,25 +1,30 @@
 import React from 'react';
-import logo from './logo.svg';
+import Drug from 'components/Drug'
+import Viral from 'components/Viral'
+import Model from 'components/Model'
+import { Layout, Divider, Row, Col } from 'antd'
 import './App.css';
 
+const { Header, Footer, Sider, Content } = Layout;
+
 function App() {
+  let allWidth = window.innerWidth, allHeight = window.innerHeight,
+    headerHeight = 64, footHeight = 60, mainHeight = allHeight-headerHeight-footHeight,
+    virusWidth = 0.15*allWidth, modelWidth = 0.5 * allWidth, drugWidth = allWidth - virusWidth - modelWidth
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Layout>
+      <Header className='header' style={{height: headerHeight}}>Header</Header>
+      <Content className="main" style={{height: mainHeight}}>
+        <svg className="main">
+          <Viral height= {mainHeight} width= {virusWidth}/>
+          <Model height= {mainHeight} width= {modelWidth}/>
+          <Drug height= {mainHeight} width= {drugWidth}/>
+        </svg>
+        
+      </Content>
+      <Footer className='footer' style={{height:footHeight}}>Footer</Footer>
+    </Layout>
   );
 }
 
