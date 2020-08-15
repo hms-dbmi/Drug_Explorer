@@ -108,11 +108,9 @@ export default class Drug extends React.Component<Props, State>{
             let previousX = xScale.range()[0], previousY = yScale(idx+1) + this.labelHeight/2
             return <g key={idx}>{rankMethods.map(name=>{
                 let ranking = rankList[name][idx]
+                if (ranking==0) return <g key={name}/> // missing ranking, don't draw
                 let currentX = xScale(name)||0, currentY = yScale(ranking) + this.labelHeight/2
-                if ( Math.max(previousY, currentY) > yScale.range()[1] || Math.min(previousY, currentY) < this.labelHeight/2) return <g key={name}/>
-                // if ( Math.min(previousY, currentY) < this.labelHeight/2 ) {
-                //     console.info(idx, ranking, yScale(ranking), name)
-                // }
+                if ( Math.max(previousY, currentY) > yScale.range()[1] ) return <g key={name}/> // exceed maxrank, don't draw
                 return <g key={name}>
                     <line key={name} x1={previousX} y1={previousY} x2={currentX} y2={currentY} stroke="gray" 
                      marker-start="url(#dot)" marker-mid="url(#dot)"  marker-end="url(#dot)"/> 
@@ -123,8 +121,6 @@ export default class Drug extends React.Component<Props, State>{
             })}
             </g>
         })
-        // console.info(rankMethods.map(name=>rankList[name][12]))
-        // console.info(rankMethods.map(name=>rankList[name][13]))
         let linkGroup = <g className="linkGroup" key="linkGroup">
             {links}
         </g>
