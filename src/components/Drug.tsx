@@ -13,7 +13,8 @@ interface State {
     drugIDs: number[],
     rankList: {
         [listname: string]: number[]
-    }
+    },
+    selectedDrugIdx: number,
 }
 
 export default class Drug extends React.Component<Props, State>{
@@ -23,7 +24,8 @@ export default class Drug extends React.Component<Props, State>{
         this.state = {
             drugNames: [],
             drugIDs: [],
-            rankList: {}
+            rankList: {},
+            selectedDrugIdx: -1
         }
     }
     componentDidMount() {
@@ -71,11 +73,13 @@ export default class Drug extends React.Component<Props, State>{
 
 
         let labels = drugNames.map((name, i) => {
-            return <g key={name} transform={`translate(0, ${yScale(i + 1)})`}>
-                <rect width={this.labelWidth} height={this.labelHeight} fill='none' stroke='gray' />
+            let isSelected = (this.state.selectedDrugIdx==i)
+            return <g key={name} transform={`translate(0, ${yScale(i + 1)})`} cursor="pointer" onClick={()=>this.selectDrug(i)}>
+                <rect width={this.labelWidth} height={this.labelHeight} fill={isSelected?'#1890ff':"white"} stroke={isSelected?'none':'gray'} />
                 <text
                     x={this.labelWidth / 2} y={this.labelHeight / 2 + this.fontSize / 2}
                     fontSize={this.fontSize} textAnchor="middle"
+                    fill={isSelected?'white':'black'}
                 >
                     {name}
                 </text>
@@ -105,8 +109,10 @@ export default class Drug extends React.Component<Props, State>{
         </g>
 
         let links = rankList[rankMethods[0]].map((_, idx)=>{
-            let previousX = xScale.range()[0], previousY = yScale(idx+1) + this.labelHeight/2
-            return <g key={idx}>{rankMethods.map(name=>{
+            let previousX = xScale.range()[0], previousY = yScale(idx+1) + this.labelHeight/2,
+            isSelected = (idx==this.state.selectedDrugIdx),
+            opacity = (this.state.selectedDrugIdx==-1?1:(isSelected?1:0.2))
+            return <g key={idx} style={{opacity:opacity}}>{rankMethods.map(name=>{
                 let ranking = rankList[name][idx]
                 if (ranking==0) return <g key={name}/> // missing ranking, don't draw
                 let currentX = xScale(name)||0, currentY = yScale(ranking) + this.labelHeight/2
@@ -127,6 +133,14 @@ export default class Drug extends React.Component<Props, State>{
 
 
         return [labelGroup, rankGroup, linkGroup]
+    }
+
+    selectDrug(drugIdx:number){
+        if(drugIdx==this.state.selectedDrugIdx){
+            this.setState({selectedDrugIdx:-1})
+        }else{
+            this.setState({selectedDrugIdx:drugIdx})
+        }
     }
     render() {
 
