@@ -5,16 +5,17 @@ import axios from "axios"
 interface Props {
     height: number,
     width: number,
-    offsetX: number
+    offsetX: number,
+    selectedDrugID: string,
+    selectDrug: (id:string)=>void
 }
 
 interface State {
     drugNames: string[],
-    drugIDs: number[],
+    drugIDs: string[],
     rankList: {
         [listname: string]: number[]
-    },
-    selectedDrugIdx: number,
+    }
 }
 
 export default class Drug extends React.Component<Props, State>{
@@ -24,8 +25,7 @@ export default class Drug extends React.Component<Props, State>{
         this.state = {
             drugNames: [],
             drugIDs: [],
-            rankList: {},
-            selectedDrugIdx: -1
+            rankList: {}
         }
     }
     componentDidMount() {
@@ -73,9 +73,9 @@ export default class Drug extends React.Component<Props, State>{
 
 
         let labels = drugNames.map((name, i) => {
-            let isSelected = (this.state.selectedDrugIdx==i)
-            return <g key={name} transform={`translate(0, ${yScale(i + 1)})`} cursor="pointer" onClick={()=>this.selectDrug(i)}>
-                <rect width={this.labelWidth} height={this.labelHeight} fill={isSelected?'#1890ff':"white"} stroke={isSelected?'none':'gray'} />
+            let isSelected = (this.props.selectedDrugID==drugIDs[i])
+            return <g key={name} transform={`translate(0, ${yScale(i + 1)})`} cursor="pointer" onClick={()=>this.props.selectDrug(drugIDs[i])}>
+                <rect width={this.labelWidth} height={this.labelHeight} fill={isSelected?'#1890ff':"transparent"} stroke={isSelected?'none':'gray'} />
                 <text
                     x={this.labelWidth / 2} y={this.labelHeight / 2 + this.fontSize / 2}
                     fontSize={this.fontSize} textAnchor="middle"
@@ -110,17 +110,17 @@ export default class Drug extends React.Component<Props, State>{
 
         let links = rankList[rankMethods[0]].map((_, idx)=>{
             let previousX = xScale.range()[0], previousY = yScale(idx+1) + this.labelHeight/2,
-            isSelected = (idx==this.state.selectedDrugIdx),
-            opacity = (this.state.selectedDrugIdx==-1?1:(isSelected?1:0.2))
-            return <g key={idx} style={{opacity:opacity}}>{rankMethods.map(name=>{
+            isSelected = (drugIDs[idx]==this.props.selectedDrugID),
+            opacity = (this.props.selectedDrugID==''?1:(isSelected?1:0.2))
+            return <g key={idx} style={{opacity:opacity}}>{rankMethods.map((name)=>{
                 let ranking = rankList[name][idx]
                 if (ranking==0) return <g key={name}/> // missing ranking, don't draw
                 let currentX = xScale(name)||0, currentY = yScale(ranking) + this.labelHeight/2
                 if ( Math.max(previousY, currentY) > yScale.range()[1] ) return <g key={name}/> // exceed maxrank, don't draw
                 return <g key={name}>
                     <line key={name} x1={previousX} y1={previousY} x2={currentX} y2={currentY} stroke="gray" 
-                     marker-start="url(#dot)" marker-mid="url(#dot)"  marker-end="url(#dot)"/> 
-                    <text x={previousX} y={previousY + this.dotR*0.5} textAnchor="middle" fontSize={this.dotR*1.2}>{idx+1}</text>
+                     markerStart={previousX == xScale.range()[0]?`url(#dot)`:''} markerEnd="url(#dot)"/> 
+                    {previousX == xScale.range()[0]?<text x={previousX} y={previousY + this.dotR*0.5} textAnchor="middle" fontSize={this.dotR*1.2}>{idx+1}</text>:<text/>}
                      <text x={previousX = currentX} y={( previousY = currentY) +this.dotR*0.5} textAnchor="middle" fontSize={this.dotR*1.2}>{ranking}</text>
                      
                 </g>
@@ -135,13 +135,7 @@ export default class Drug extends React.Component<Props, State>{
         return [labelGroup, rankGroup, linkGroup]
     }
 
-    selectDrug(drugIdx:number){
-        if(drugIdx==this.state.selectedDrugIdx){
-            this.setState({selectedDrugIdx:-1})
-        }else{
-            this.setState({selectedDrugIdx:drugIdx})
-        }
-    }
+    
     render() {
 
         return <g className='drug' transform={`translate(${this.props.offsetX + this.padding}, ${this.padding})`}>
