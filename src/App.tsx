@@ -45,7 +45,7 @@ export default class App extends React.Component<Props, State>{
         <Content className="main" style={{ height: mainHeight }}>
           <svg className="main">
             <Viral height={mainHeight} width={virusWidth} />
-            <Model height={mainHeight} width={modelWidth} selectedDrugID={selectedDrugID}/>
+            <Model height={mainHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth}/>
             {/* <Drug height={mainHeight} width={drugWidth} offsetX={virusWidth + modelWidth} selectedDrugID={selectedDrugID} selectDrug={this.selectDrug} /> */}
             <DrugHeat height={mainHeight} width={drugWidth} offsetX={virusWidth + modelWidth} selectedDrugID={selectedDrugID} selectDrug={this.selectDrug} />
           </svg>

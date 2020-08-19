@@ -4,7 +4,11 @@
 /node_modules
 /.pnp
 .pnp.js
-data/
+
+
+public/data/*
+!public/data/data_proc.py
+
 # testing
 /coverage
 
