@@ -34,7 +34,7 @@ interface ILink {
     target: string
 }
 
-export default class Model extends React.Component<Props, State>{
+export default class ModelNode extends React.Component<Props, State>{
     public padding = 10;
     getDrugPaths() {
         const drugJson = './data/drug_graph_top10.json'

@@ -9,8 +9,8 @@ os.chdir(os.path.dirname(__file__))
 class DataProc:
     def __init__(self):
         current_loc = os.getcwd()
-        self.knowledge_folder = os.path.join(current_loc, '../marinka-data/knowledge-graph')
-        self.prediction_folder = os.path.join(current_loc, '../marinka-data/predictions')
+        self.knowledge_folder = os.path.join(current_loc, '../../../marinka-data/knowledge-graph')
+        self.prediction_folder = os.path.join(current_loc, '../../../marinka-data/predictions')
         self.virus_file = os.path.join(self.knowledge_folder, "SARS-COV2-protein.csv")
         self.protein_file = os.path.join(self.knowledge_folder, "protein-protein.csv")
         self.drug_file = os.path.join(self.knowledge_folder, "protein-drug2.tsv")
@@ -125,7 +125,8 @@ class DataProc:
                 # "nodes": list(drug_target_graph.nodes), 
                 # "edges": list(drug_target_graph.edges),
                 "drugID": drugID,
-                "edges": list(self.protein_graph.subgraph(involved_nodes).edges),       
+                "edges": list(self.protein_graph.subgraph(involved_nodes).edges),   
+                'targets': drug_protein_dict[drugID]['proteins'],     
                 "paths": involved_paths
                 }
 
@@ -135,10 +136,74 @@ class DataProc:
         with open(drug_graph_json_filename , 'w') as f:
             json.dump(drugs_graph, f)
         
+    
+    def summarize_drug_target_path(self):
+        MAX_RANKING = 50
+
+        drug_df = pd.read_csv(self.drug_file, sep='\t', quoting=csv.QUOTE_NONE) # need to add the quoting to avoid missing rows when reading tsv
+        top_drugs = pd.read_csv(self.prediction_file, sep='\t', quoting=csv.QUOTE_NONE).loc[:, 'DrugBank_ID'].values[:MAX_RANKING]
+        drug_protein_dict = {} # record the target proteins of each drug
+
+        for _, row in drug_df.iterrows():
+            drugID = row['ID']
+            if drugID in top_drugs:
+                drug_protein = row['entrez_id']
+                drug_name = row['Name']
                 
+                if drugID in drug_protein_dict:
+                    drug_protein_dict[drugID]['proteins'].append(drug_protein)
+                else:
+                    drug_protein_dict[drugID] = {
+                        "id": drugID,
+                        "name": drug_name,
+                        "proteins": [drug_protein]
+                    }
 
+        drugs_path_agg = {}
+        for drugID in drug_protein_dict:
+            # drug_target_graph = nx.Graph()
+            # drug_target_graph.add_nodes_from(drug_protein_dict[drugID]['proteins'])
+            involved_paths = []
+            involved_nodes = []
+            for drug_protein in drug_protein_dict[drugID]['proteins']:
+                for virus_target in self.all_targets:
+                    # the shortest path from one drug protein to one viral target protein
+                    try:
+                        path = nx.shortest_path(self.protein_graph, source=drug_protein, target=virus_target)
+                        involved_paths.append(path)
+                        involved_nodes = involved_nodes + path
+                    except Exception: # it is possible there is no path between two nodes
+                        involved_nodes = involved_nodes + [drug_protein, virus_target]
+                        pass
 
-data_proc = DataProc()
-data_proc.parseVirus()
-data_proc.build_protein_graph()
-data_proc.build_drug_target_graph()
+            len_dict = {}      
+            for path in involved_paths:
+                path_len = len(path)
+                if path_len in len_dict:
+                    len_dict[path_len] += 1
+                else:
+                    len_dict[path_len] = 1
+            drugs_path_agg[drugID] = {
+                # "nodes": list(drug_target_graph.nodes), 
+                # "edges": list(drug_target_graph.edges),
+                "drugID": drugID,  
+                "pathsDict": len_dict
+                }
+        top_drug_path_summary = []
+        for drugID in top_drugs:
+            top_drug_path_summary.append(drugs_path_agg[drugID])
+
+        drug_graph_json_filename = os.path.join(os.getcwd(), "drug_path_top{}.json".format(MAX_RANKING))
+        with open(drug_graph_json_filename , 'w') as f:
+            json.dump(top_drug_path_summary, f)
+        
+        
+                
+        
+
+if __name__ == '__main__': 
+    data_proc = DataProc()
+    data_proc.parseVirus()
+    data_proc.build_protein_graph()
+    # data_proc.build_drug_target_graph()
+    data_proc.summarize_drug_target_path()

@@ -18,7 +18,7 @@ interface State {
     }
 }
 
-export default class Drug extends React.Component<Props, State>{
+export default class DrugPCP extends React.Component<Props, State>{
     public maxRank = 50; padding = 20; labelWidth = 140; labelHeight = 18; fontSize = 12; dotR = 8
     constructor(props: Props) {
         super(props)
