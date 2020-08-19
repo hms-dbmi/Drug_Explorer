@@ -94,7 +94,7 @@ export default class Model extends React.Component<Props, State>{
                 node.fx = offsetX
             }
             else if (drugIdx > -1) {
-                node.fy = 0.4 * height / drugTargets.length * drugIdx
+                node.fy = 0.4 * height / drugTargets.length * (drugIdx+1)
                 node.fx = offsetX + width
             }
 
