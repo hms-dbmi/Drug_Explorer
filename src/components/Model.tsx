@@ -1,13 +1,13 @@
 import * as React from "react"
 import * as d3 from "d3"
 import axios from "axios"
-import {all_targets as viralTargets} from 'data/virus.json'
+import { all_targets as viralTargets } from 'data/virus.json'
 import { path } from "d3";
 
 interface Props {
     height: number,
     width: number,
-    offsetX:number,
+    offsetX: number,
     selectedDrugID: string
 }
 interface DrugPath {
@@ -24,14 +24,14 @@ interface State {
 }
 
 interface INode extends d3.SimulationNodeDatum {
-    id:string,
+    id: string,
     fx?: number,
-    fy?:number
+    fy?: number
 }
 
-interface ILink{
+interface ILink {
     source: string,
-    target:string
+    target: string
 }
 
 export default class Model extends React.Component<Props, State>{
@@ -54,48 +54,48 @@ export default class Model extends React.Component<Props, State>{
         let { selectedDrugID, offsetX, width, height } = this.props
         if (selectedDrugID == '') return <g className='path no' />
         let { edges, targets: drugTargets, paths } = this.state.drugPaths[selectedDrugID],
-            nodes:INode[] = Array.from(new Set(edges.flat())).map(d=>{return {id:d}}),
-            links:ILink[] = edges.map(edge => { return { source: edge[0].toString(), target: edge[1] } })
-            // nodes: INode[] = [
-            //     { id: "a", fx:100, fy:100},
-            //     { id: "b" },
-            //     { id: "c" }
-            // ],
-            // links: ILink[] = [
-            //     { source: "a", target: "b" },
-            //     { source: "b", target: "c" },
-            //     // { source: "c", target: "a" }
-            // ]
+            nodes: INode[] = Array.from(new Set(edges.flat())).map(d => { return { id: d } }),
+            links: ILink[] = edges.map(edge => { return { source: edge[0].toString(), target: edge[1] } })
+        // nodes: INode[] = [
+        //     { id: "a", fx:100, fy:100},
+        //     { id: "b" },
+        //     { id: "c" }
+        // ],
+        // links: ILink[] = [
+        //     { source: "a", target: "b" },
+        //     { source: "b", target: "c" },
+        //     // { source: "c", target: "a" }
+        // ]
 
-        let allLengths = paths.map(d=>d.length)
+        let allLengths = paths.map(d => d.length)
 
-        let lenDict:any = {}
-        allLengths.forEach(len=>{
-            if (len in lenDict){
+        let lenDict: any = {}
+        allLengths.forEach(len => {
+            if (len in lenDict) {
                 lenDict[len] += 1
-            }else {
-                lenDict[len] = 0
+            } else {
+                lenDict[len] = 1
             }
         })
 
         console.info('number of nodes: ', nodes.length)
         console.info('number of edges: ', edges.length)
         console.info('shortest path from drug proteins to viral targets')
-        Object.keys(lenDict).forEach(len=>{
+        Object.keys(lenDict).forEach(len => {
             console.info('  length of the shortest path is', len, lenDict[len])
         })
-        
-        for (let i =0; i< nodes.length; i++){
-            let node = nodes[i], 
+
+        for (let i = 0; i < nodes.length; i++) {
+            let node = nodes[i],
                 drugIdx = drugTargets.indexOf(node.id),
                 viralIdx = viralTargets.indexOf(parseInt(node.id))
-            if (drugIdx >0){
-                node.fy = 0.4*height/drugTargets.length * drugIdx
-                node.fx = offsetX + width
+            if (viralIdx > -1) {
+                node.fy = height / viralTargets.length * viralIdx
+                node.fx = offsetX
             }
-            else if (viralIdx>0){
-                node.fy = height/viralTargets.length * viralIdx
-                node.fx = offsetX 
+            else if (drugIdx > -1) {
+                node.fy = 0.4 * height / drugTargets.length * drugIdx
+                node.fx = offsetX + width
             }
 
         }
@@ -106,35 +106,35 @@ export default class Model extends React.Component<Props, State>{
             .attr('class', 'drugGraph')
 
         let simulation = d3.forceSimulation<INode, ILink>()
-            .force("charge", d3.forceManyBody<INode>().strength(-50))
-            .force("link", 
+            .force("charge", d3.forceManyBody<INode>().strength(-70))
+            .force("link",
                 d3.forceLink<INode, ILink>()
-                    .id(d=>d.id)
-                    .distance(20)
-                    .strength(1)
+                    .id(d => d.id)
+                // .distance(20)
+                // .strength(1)
             )
-            .force("center", d3.forceCenter<INode>( offsetX + width/ 2, height*0.6))
-            // .force("x", d3.forceX())
-            // .force("y", d3.forceY())
+            .force("center", d3.forceCenter<INode>(offsetX + width / 2, height * 0.6))
+        // .force("x", d3.forceX())
+        // .force("y", d3.forceY())
 
         let svgLinks: any = g.append('g')
             .attr("stroke", "gray")
             .style("opacity", 0.2)
             .selectAll('line')
-        
-        
+
+
         let svgNodes = g.append('g')
             .attr('class', 'nodes')
             .selectAll('circle.node')
-            .data(nodes, (d:any)=>d.id)
+            .data(nodes, (d: any) => d.id)
             .join(
                 (enter: any) => enter.append("circle")
-                    .attr("r", (d:any)=>viralTargets.includes(parseInt(d.id))?'1':'5')
-                    .attr("fill", 'white')
+                    .attr("r", (d: any) => viralTargets.includes(parseInt(d.id)) ? '1' : '5')
+                    .attr("fill", (d: any) => drugTargets.includes(d.id) ? '#1890ff' : 'white')
                     .attr('stroke', 'gray')
             )
 
-       
+
 
         function ticked() {
             svgNodes.attr("cx", (d: any) => d.x)
@@ -147,8 +147,8 @@ export default class Model extends React.Component<Props, State>{
         }
 
         svgLinks = svgLinks
-        .data(links, (d:any) => [d.source, d.target])
-        .join("line");
+            .data(links, (d: any) => [d.source, d.target])
+            .join("line");
 
         simulation.nodes(nodes);
         simulation.force<d3.ForceLink<INode, ILink>>("link")!.links(links);

@@ -117,7 +117,7 @@ export default class DrugHeat extends React.Component<Props, State>{
                     fill = rank==0? 'white': (rank>this.maxRank?'white':colorScale(rank)) // rank = 0 means the value is missing
                 return <g transform={`translate(${x}, ${y})`} key={rankMethod}>
                     <rect x={-0.5*width} y={0} width={width} height={this.labelHeight} fill={fill} />
-                    <text fill={rank>0.5*this.maxRank?'black':'white'} textAnchor="middle" y={this.labelHeight}>{rank>this.maxRank?'':rank}</text>
+                    <text fill={rank>0.5*this.maxRank?'black':'white'} textAnchor="middle" y={this.labelHeight}>{rank>this.maxRank*10?'':rank}</text>
                 </g>
             })
         return <g key={drugIDs[idx]}>{row}</g>
