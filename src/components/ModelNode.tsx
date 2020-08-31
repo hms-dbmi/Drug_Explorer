@@ -20,7 +20,10 @@ interface DrugPath {
 }
 
 interface State {
-    drugPaths: DrugPath
+    drugPaths: DrugPath,
+    expNodes: {
+        [netName:string]: {[drugID:string]:number[]}
+    }
 }
 
 interface INode extends d3.SimulationNodeDatum {
@@ -47,11 +50,25 @@ export default class ModelNode extends React.Component<Props, State>{
                 })
             })
     }
+
+    getDrugExp() {
+        const drugJson = './data/drug_onlyexp_top50.json'
+        axios.get(drugJson)
+            .then(res => {
+                let response = res.data
+
+                this.setState({
+                    expNodes: response
+                })
+            })
+    }
     componentDidMount() {
         this.getDrugPaths()
+        this.getDrugExp()
     }
     drawDrugPath() {
         let { selectedDrugID, offsetX, width, height } = this.props
+        const NETNAME = 'A2'
         if (selectedDrugID == '') return <g className='path no' />
         let { edges, targets: drugTargets, paths } = this.state.drugPaths[selectedDrugID],
             nodes: INode[] = Array.from(new Set(edges.flat())).map(d => { return { id: d } }),
@@ -69,21 +86,21 @@ export default class ModelNode extends React.Component<Props, State>{
 
         let allLengths = paths.map(d => d.length)
 
-        let lenDict: any = {}
-        allLengths.forEach(len => {
-            if (len in lenDict) {
-                lenDict[len] += 1
-            } else {
-                lenDict[len] = 1
-            }
-        })
+        // let lenDict: any = {}
+        // allLengths.forEach(len => {
+        //     if (len in lenDict) {
+        //         lenDict[len] += 1
+        //     } else {
+        //         lenDict[len] = 1
+        //     }
+        // })
 
         console.info('number of nodes: ', nodes.length)
         console.info('number of edges: ', edges.length)
-        console.info('shortest path from drug proteins to viral targets')
-        Object.keys(lenDict).forEach(len => {
-            console.info('  length of the shortest path is', len, lenDict[len])
-        })
+        // console.info('shortest path from drug proteins to viral targets')
+        // Object.keys(lenDict).forEach(len => {
+        //     console.info('  length of the shortest path is', len, lenDict[len])
+        // })
 
         for (let i = 0; i < nodes.length; i++) {
             let node = nodes[i],
@@ -123,6 +140,10 @@ export default class ModelNode extends React.Component<Props, State>{
             .selectAll('line')
 
 
+        const isExpNode = (nodeID:number)=>{
+            if ( this.state.expNodes[NETNAME] == undefined) return false
+            return this.state.expNodes[NETNAME][selectedDrugID].includes(nodeID)
+        }
         let svgNodes = g.append('g')
             .attr('class', 'nodes')
             .selectAll('circle.node')
@@ -130,7 +151,7 @@ export default class ModelNode extends React.Component<Props, State>{
             .join(
                 (enter: any) => enter.append("circle")
                     .attr("r", (d: any) => viralTargets.includes(parseInt(d.id)) ? '1' : '5')
-                    .attr("fill", (d: any) => drugTargets.includes(d.id) ? '#1890ff' : 'white')
+                    .attr("fill", (d: any) => drugTargets.includes(d.id) ? '#1890ff' : (isExpNode(d.id)?'pink':'white'))
                     .attr('stroke', 'gray')
             )
 
