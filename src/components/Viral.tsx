@@ -82,7 +82,8 @@ export default class Viral extends React.Component<Props, State >{
 
         let virusGroup = <g className="virus" key="virus">{virusPoints}</g>,
             targetGroup = <g className="target" key="target">{targetPoints}</g>,
-            linkGroup = <g className="links" key="links">{links}</g>
+            // linkGroup = <g className="links" key="links">{links}</g>
+            linkGroup = <g className="links" key="links" />
 
         return [virusGroup, targetGroup, linkGroup]
 

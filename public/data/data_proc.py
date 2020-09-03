@@ -98,7 +98,9 @@ class DataProc:
         if len(self.protein_graph.nodes) == 0:
             self.build_protein_graph()
         if len(self.all_targets)==0:
-            self.get_viral_target
+            self.get_viral_target()
+
+        LEN_THR = 3
 
         drug_df = pd.read_csv(self.drug_file, sep='\t', quoting=csv.QUOTE_NONE) 
         drug_protein_dict = {} # record the target proteins of each drug
@@ -129,8 +131,9 @@ class DataProc:
                     # the shortest path from one drug protein to one viral target protein
                     try:
                         path = nx.shortest_path(self.protein_graph, source=drug_protein, target=virus_target)
-                        involved_paths.append(path)
-                        involved_nodes = involved_nodes + path
+                        if len(path)<= LEN_THR:
+                            involved_paths.append(path)
+                            involved_nodes = involved_nodes + path
                     except Exception: # it is possible there is no path between two nodes
                         involved_nodes = involved_nodes + [drug_protein, virus_target]
                         pass
@@ -152,7 +155,7 @@ class DataProc:
 
         
 
-        drug_graph_json_filename = os.path.join(os.getcwd(), "drug_graph_top{}.json".format(self.MAX_RANKING))
+        drug_graph_json_filename = os.path.join(os.getcwd(), "drug_graph_top{}_len{}.json".format(self.MAX_RANKING, LEN_THR))
         with open(drug_graph_json_filename , 'w') as f:
             json.dump(drugs_graph, f)
         
@@ -161,7 +164,7 @@ class DataProc:
         if len(self.protein_graph.nodes) == 0:
             self.build_protein_graph()
         if len(self.all_targets)==0:
-            self.get_viral_target
+            self.get_viral_target()
 
 
         drug_df = pd.read_csv(self.drug_file, sep='\t', quoting=csv.QUOTE_NONE) # need to add the quoting to avoid missing rows when reading tsv
@@ -303,9 +306,9 @@ class DataProc:
         
 
 if __name__ == '__main__': 
-    data_proc = DataProc()
-    data_proc.parseVirus()
-    data_proc.build_protein_graph()
-    # data_proc.build_drug_target_graph()
-    data_proc.summarize_drug_target_path()
+    data_proc = DataProc(max_ranking = 50)
+    # data_proc.parseVirus()
+    # data_proc.build_protein_graph()
+    data_proc.build_drug_target_graph()
+    # data_proc.summarize_drug_target_path()
     # data_proc.parseGNNexp()

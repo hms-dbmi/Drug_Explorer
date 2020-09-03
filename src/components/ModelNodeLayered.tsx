@@ -2,12 +2,18 @@ import * as React from "react"
 import * as d3 from "d3"
 import axios from "axios"
 import { all_targets as viralTargets } from 'data/virus.json'
-import { path } from "d3";
+
+// import Dagre from 'lib/@types/dagre/'
+// import dagre from 'lib/dagre.js';
+import * as dagre from 'dagre';
+
+console.info('dagre', dagre)
 
 interface Props {
     height: number,
     width: number,
     offsetX: number,
+    netName:string,
     selectedDrugID: string
 }
 interface DrugPath {
@@ -37,10 +43,17 @@ interface ILink {
     target: string
 }
 
-export default class ModelNode extends React.Component<Props, State>{
+export default class ModelNodeLayered extends React.Component<Props, State>{
     public padding = 10;
+    constructor(props:Props){
+        super(props)
+        this.state={
+            drugPaths:{},
+            expNodes: {}
+        }
+    }
     getDrugPaths() {
-        const drugJson = './data/drug_graph_top10.json'
+        const drugJson = './data/drug_graph_top50.json'
         axios.get(drugJson)
             .then(res => {
                 let response = res.data
@@ -66,9 +79,41 @@ export default class ModelNode extends React.Component<Props, State>{
         this.getDrugPaths()
         this.getDrugExp()
     }
+    drawLayeredGraph(){
+        const nodeW = 110, nodeH = 20, margin = 10
+        let {selectedDrugID} = this.props
+        if (selectedDrugID == '') return <g />
+        let drugPath = this.state.drugPaths[selectedDrugID]
+        let dag = new dagre.graphlib.Graph();
+        dag.setGraph({
+            ranksep: nodeH * .6,
+            marginx: margin,
+            marginy: margin,
+            rankdir: 'TB',
+            edgesep: nodeW * 0.02
+        });
+
+        dag.setDefaultEdgeLabel(() => { return {}; });
+
+        let nodes = Array.from(new Set(drugPath.edges.flat()))
+        nodes.forEach(node=>{
+            dag.setNode(node, {
+                label: node, 
+                width: nodeW, 
+                height: nodeH
+            })
+        })
+
+        drugPath.edges.forEach(edge=>{
+            dag.setEdge(edge[0], edge[1])
+        })
+
+        dagre.layout(dag)
+        console.info(dag.nodes(), dag.edges())
+
+    }
     drawDrugPath() {
-        let { selectedDrugID, offsetX, width, height } = this.props
-        const NETNAME = 'A2'
+        let { selectedDrugID, offsetX, width, height, netName } = this.props
         if (selectedDrugID == '') return <g className='path no' />
         let { edges, targets: drugTargets, paths } = this.state.drugPaths[selectedDrugID],
             nodes: INode[] = Array.from(new Set(edges.flat())).map(d => { return { id: d } }),
@@ -123,14 +168,14 @@ export default class ModelNode extends React.Component<Props, State>{
             .attr('class', 'drugGraph')
 
         let simulation = d3.forceSimulation<INode, ILink>()
-            .force("charge", d3.forceManyBody<INode>().strength(-70))
+            .force("charge", d3.forceManyBody<INode>().strength(-50))
             .force("link",
                 d3.forceLink<INode, ILink>()
                     .id(d => d.id)
                 // .distance(20)
                 // .strength(1)
             )
-            .force("center", d3.forceCenter<INode>(offsetX + width / 2, height * 0.6))
+            .force("center", d3.forceCenter<INode>(offsetX + width * 0.3, height * 0.4))
         // .force("x", d3.forceX())
         // .force("y", d3.forceY())
 
@@ -141,8 +186,8 @@ export default class ModelNode extends React.Component<Props, State>{
 
 
         const isExpNode = (nodeID:number)=>{
-            if ( this.state.expNodes[NETNAME] == undefined) return false
-            return this.state.expNodes[NETNAME][selectedDrugID].includes(nodeID)
+            if ( this.state.expNodes[netName] == undefined) return false
+            return this.state.expNodes[netName][selectedDrugID].includes(nodeID)
         }
         let svgNodes = g.append('g')
             .attr('class', 'nodes')
@@ -154,8 +199,6 @@ export default class ModelNode extends React.Component<Props, State>{
                     .attr("fill", (d: any) => drugTargets.includes(d.id) ? '#1890ff' : (isExpNode(d.id)?'pink':'white'))
                     .attr('stroke', 'gray')
             )
-
-
 
         function ticked() {
             svgNodes.attr("cx", (d: any) => d.x)
@@ -177,10 +220,11 @@ export default class ModelNode extends React.Component<Props, State>{
     }
 
     render() {
-
+        
         return <g className='model'>
             Model
-            {this.drawDrugPath()}
+            {/* {this.drawDrugPath()} */}
+            {this.drawLayeredGraph()}
         </g>
     }
 }
