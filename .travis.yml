@@ -1,30 +1,28 @@
 language: node_js
 node_js:
 - 8.12.0
-before_script: |
-  export NODE_OPTIONS=--max_old_space_size=4096
-
-env:
-  global:
-    - secure: ""
+before_script: 'export NODE_OPTIONS=--max_old_space_size=4096'
 
 jobs:
- include:
-    - stage: Test
-      script:
-        - npm run test
-    
-    - stage: Deploy website to amazon s3
-      script:
-        - CI=false npm run build
-      deploy:
-        provider: s3
-        access_key_id: $AWS_ACCESS_KEY_ID
-        secret_access_key: $AWS_SECRET_ACCESS_KEY
-        bucket: drugmlvis.gehlenborglab.org
-        local_dir: build
-        skip_cleanup: true
-        region: us-east-2
-        acl: public_read
-        on:
-          branch: master
+  include:
+  - stage: Test
+    script:
+    - npm run test
+
+  - stage: Deploy website to amazon s3
+    script:
+    - CI=false npm run build
+    deploy:
+      provider: s3
+      access_key_id: '[access_key_id]'
+      secret_access_key: '[secret_access_key]'
+      bucket: drugmlvis.gehlenborglab.org
+      local_dir: build
+      skip_cleanup: true
+      region: us-east-2
+      acl: public_read
+      on:
+        branch: master
+env:
+  global:
+    secure: rj+UzQvkQVA5sRl9NbqtS7hn93rEeUGZL0yIAVmIcMRu7zWADux2JxtwTVXLJlYeDmWzqTbcqgOc/iURrGV4TAI3xrXo2ywGWKbDSn2Le3Kt/Ygzg2UGYMMx3zTiTUH+yi0P84PdveFKYkH2gM0k/uh84sdpul0L87zDsNmcdO+19/BvCUj2DWpjAtknEJyglB8UP4zWMFBeDpbemi2PYmzUEP5Lu+qzn1aCxQOYkmzqS6VnaDkxGOyK4sdN8MY2J0dlYz8/C2k9hDzwpaNeDi8ekHQqsNbSVLSM77inYrs8qUFwKxKeDYp5NLoS/zDFYT+4TWN3oLaeRuhYZj3NMhHfCRXynVinNj+vJef360qRT1MKgklXoQm9s6U2JM6vvCqmWziCez7VEiNgp+2Kyh1XvnbDawFsTEnaRZH146pwf0gHp8SegQ/hxVi12PzJb/eeOIKBKCdXOpt4BsIxlqEy6zjh/hEnaZ5gzighiMenHjVMcVA63LPIzz+uJMHXlWopglKfZOQZhJ0Nt43oMkvOkPUwb4WYcYEA9kF6L8E67ygyAv4QuNV2wW6maABYq9jRwWX4ztvrLU3T4MUkU0gYdSHPhq6fb9cfwZm2NueyeBfbtN5sQ/AArRh/BRW11Su4rT8jFEp0rZL2AIOEayHEXMVBszUqjBDaOgt/OOQ=
