@@ -225,9 +225,9 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         simulation.on("tick", ticked);
     }
 
-    shouldComponentUpdate(nextProps:Props):boolean{
-        let {selectedDrugID: nextSelectedDrugID} = nextProps, {selectedDrugID} = this.props
-        if (nextSelectedDrugID==selectedDrugID) return false
+    shouldComponentUpdate(nextProps:Props, nextState:State):boolean{
+        let {selectedDrugID: nextSelectedDrugID} = nextProps, {selectedDrugID} = this.props, {drugPaths} = this.state
+        if (nextSelectedDrugID==selectedDrugID && Object.keys(drugPaths).length>0) return false
         return true
     }
 
