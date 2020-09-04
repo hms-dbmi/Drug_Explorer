@@ -3,7 +3,6 @@ import DrugPCP from 'components/DrugPCP'
 import DrugHeat from 'components/DrugHeat'
 import Viral from 'components/Viral'
 import ModelNodeForce from 'components/ModelNodeForce'
-import ModelNodeLayered from 'components/ModelNodeLayered'
 import ModelBar from 'components/ModelBar'
 import { Layout, Switch, Select} from 'antd'
 import './App.css';
