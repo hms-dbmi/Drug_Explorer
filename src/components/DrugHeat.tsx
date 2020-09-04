@@ -19,7 +19,7 @@ interface State {
 }
 
 export default class DrugHeat extends React.Component<Props, State>{
-    public maxRank = 50; padding = 20; labelWidth = 140; labelHeight = 18; fontSize = 12; dotR = 8
+    public maxRank = 50; padding = 20; labelWidth = 140; labelHeight = 14; fontSize = 10; dotR = 8
     constructor(props: Props) {
         super(props)
         this.state = {
@@ -81,8 +81,10 @@ export default class DrugHeat extends React.Component<Props, State>{
             return <g key={name} transform={`translate(0, ${yScale(i + 1)})`} cursor="pointer" onClick={()=>this.props.selectDrug(drugIDs[i])}>
                 <rect width={this.labelWidth} height={this.labelHeight} fill={isSelected?'#1890ff':"transparent"} stroke={isSelected?'none':'gray'} />
                 <text
-                    x={this.labelWidth / 2} y={this.labelHeight / 2 + this.fontSize / 2}
-                    fontSize={this.fontSize} textAnchor="middle"
+                    x={this.labelWidth / 2} y={this.fontSize}
+                    // style={{fontSize:this.fontSize+'px'}}
+                    // fontSize={this.fontSize+'px'} 
+                    textAnchor="middle"
                     fill={isSelected?'white':'black'}
                 >
                     {name}
@@ -117,7 +119,7 @@ export default class DrugHeat extends React.Component<Props, State>{
                     fill = rank==0? 'white': (rank>this.maxRank?'white':colorScale(rank)) // rank = 0 means the value is missing
                 return <g transform={`translate(${x}, ${y})`} key={rankMethod}>
                     <rect x={-0.5*width} y={0} width={width} height={this.labelHeight} fill={fill} />
-                    <text fill={rank>0.5*this.maxRank?'black':'white'} textAnchor="middle" y={this.labelHeight}>{rank>this.maxRank*10?'':rank}</text>
+                    <text fill={rank>0.5*this.maxRank?'black':'white'} textAnchor="middle" y={this.labelHeight} fontSize={this.fontSize}>{rank>this.maxRank*10?'':rank}</text>
                 </g>
             })
         return <g key={drugIDs[idx]}>{row}</g>

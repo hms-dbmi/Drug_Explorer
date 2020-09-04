@@ -40,6 +40,13 @@ interface ILink {
 
 export default class ModelNodeForce extends React.Component<Props, State>{
     public padding = 10; RADIUS = 8;
+    constructor(props:Props){
+        super(props)
+        this.state={
+            drugPaths:{},
+            expNodes:{}
+        }
+    }
     getDrugPaths() {
         const drugJson = './data/drug_graph_top50_len3.json'
         axios.get(drugJson)
@@ -71,17 +78,25 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         let data = [1, 1, 1, 1];
 
         let arcData = d3.pie()(data)
+        // reorder arc data, start from -0.5pi
+        let last = arcData.pop() as d3.PieArcDatum<number> 
+        arcData.unshift(last)
+
         let pieGene = d3.arc<any, any>()
             .innerRadius(0)
             .outerRadius(this.RADIUS)
 
         let pies = arcData.map(arc => pieGene(arc))
+
         return pies[idx]
     }
     drawDrugPath() {
         let { selectedDrugID, offsetX, width, height, netName } = this.props
-        if (selectedDrugID == '') return <g className='path no' />
-        let { edges, targets: drugTargets, paths } = this.state.drugPaths[selectedDrugID],
+        let {drugPaths, expNodes} = this.state
+        if (selectedDrugID == '' || Object.keys(drugPaths).length==0 || Object.keys(expNodes).length==0) return <g className='path no' />
+
+        
+        let { edges, targets: drugTargets, paths } = drugPaths[selectedDrugID],
             nodes: INode[] = Array.from(new Set(edges.flat())).map(d => { return { id: d } }),
             links: ILink[] = edges.map(edge => { return { source: edge[0].toString(), target: edge[1] } })
 
@@ -97,7 +112,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
                 node.fx = offsetX
             }
             else if (drugIdx > -1) {
-                node.fy = 0.4 * height / drugTargets.length * (drugIdx + 1)
+                node.fy = 0.9 * height / drugTargets.length * (drugIdx + 1)
                 node.fx = offsetX + width
             }
 
@@ -109,19 +124,20 @@ export default class ModelNodeForce extends React.Component<Props, State>{
             .attr('class', 'drugGraph')
 
         let simulation = d3.forceSimulation<INode, ILink>()
-            .force("charge", d3.forceManyBody<INode>().strength(-50))
+            .force("charge", 
+                d3.forceManyBody<INode>()
+                .strength(-180)
+            )
             .force("link",
                 d3.forceLink<INode, ILink>()
                     .id(d => d.id)
-                    .distance(10)
+                    .distance(30)
                     .strength(1)
             )
-            .force("center", d3.forceCenter<INode>(offsetX + width * 0.1, height * 0.5))
-        // .force("x", d3.forceX())
-        // .force("y", d3.forceY())
+            .force('collision', d3.forceCollide().radius(this.RADIUS*4))
 
         let svgLinks: any = g.append('g')
-            .attr("stroke", "gray")
+            .attr("stroke", "#333")
             .style("opacity", 0.2)
             .selectAll('line')
 
@@ -161,21 +177,27 @@ export default class ModelNodeForce extends React.Component<Props, State>{
             .join(
                 (enter: any) => enter.append("g")
                     .attr('class', 'nodeGroup')
+                    .attr('cursor', 'pointer')
             )
+        
+        svgNodes.append('title')
+            .text((d:INode)=>`entrez_id:${d.id}`)
+    
 
         svgNodes.append('circle')
-            .attr("r", (d: any) => viralTargets.includes(parseInt(d.id)) ? '1' : this.RADIUS)
-            .attr("fill", (d: any) => drugTargets.includes(d.id) ? '#1890ff' : 'white')
+            .attr("r", (d: INode) => viralTargets.includes(parseInt(d.id)) ? '1' : this.RADIUS)
+            .attr("fill", (d: INode) => drugTargets.includes(d.id) ? '#1890ff' : 'white')
             .attr('stroke', 'gray')
 
+        
 
         svgNodes
         .selectAll('path.arc')
         .data((d:any)=>getExpNetIdx(parseInt(d.id)))
         .join(
             (enter: any) => enter.append("path")
-                .attr('class', 'arc')
-                .attr('d', (d:any)=>this.pieGenerator(d))
+                .attr('class', (d:number)=>`arc ${d}`)
+                .attr('d', (d:number)=>this.pieGenerator(d))
                 .attr('fill', 'red')
         )
         // .attr("r", (d: any) => viralTargets.includes(parseInt(d.id)) ? '1' : this.RADIUS)
@@ -204,8 +226,15 @@ export default class ModelNodeForce extends React.Component<Props, State>{
     }
 
     render() {
+        let {offsetX, height, width} = this.props
+        let legendW = 100
         return <g className='model'>
-            Model
+            <g className="legend" transform={`translate(${offsetX+width-legendW}, ${height-legendW})`}>
+            <foreignObject width={legendW} height={legendW} >
+                <img src='./assets/node_legend.png' width={legendW} />
+            </foreignObject>
+            </g>
+
             {this.drawDrugPath()}
         </g>
     }

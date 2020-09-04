@@ -27,7 +27,7 @@ export default class App extends React.Component<Props, State>{
     super(props)
     this.state = {
       // selectedDrugIDs: [],
-      selectedDrugID:'',
+      selectedDrugID:'DB13179',
       netName: 'A1',
       drugFlag: true,
       modelFlag: true
@@ -96,13 +96,13 @@ export default class App extends React.Component<Props, State>{
         <Header className='header' style={{ height: headerHeight }}>
           Header
           <span style={{float:'right', fontSize: '12px'}}>
-            Explanation for  
+            {/* Explanation for  
             <Select defaultValue="A1" style={{ width: 120 }} onChange={this.changeNet}>
             <Option value="A1">A1</Option>
             <Option value="A2">A2</Option>
             <Option value="A3">A3</Option>
             <Option value="A4">A4</Option>
-          </Select>
+          </Select> */}
           Model <Switch checkedChildren="node-link" unCheckedChildren="bar-agg" defaultChecked onChange={this.toggleModelFlag}/>
           Drug <Switch checkedChildren="heat" unCheckedChildren="pcp" defaultChecked onChange={this.toggleDrugFlag}/>
           </span>
