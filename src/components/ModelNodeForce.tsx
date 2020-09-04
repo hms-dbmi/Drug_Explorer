@@ -225,6 +225,12 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         simulation.on("tick", ticked);
     }
 
+    shouldComponentUpdate(nextProps:Props):boolean{
+        let {selectedDrugID: nextSelectedDrugID} = nextProps, {selectedDrugID} = this.props
+        if (nextSelectedDrugID==selectedDrugID) return false
+        return true
+    }
+
     render() {
         let {offsetX, height, width} = this.props
         let legendW = 100
