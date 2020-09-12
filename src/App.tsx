@@ -4,18 +4,20 @@ import DrugHeat from 'components/DrugHeat'
 import Viral from 'components/Viral'
 import ModelNodeForce from 'components/ModelNodeForce'
 import ModelBar from 'components/ModelBar'
-import { Layout, Switch, Select} from 'antd'
+import { Layout, Switch, Select, Button, InputNumber } from 'antd'
 import './App.css';
+import {virus_target as virus2target} from 'data/virus.json'
 
 const { Header, Footer, Sider, Content } = Layout;
-const {Option} = Select
+const { Option } = Select
 
 interface State {
   selectedDrugID: string,
   // selectedDrugIDs: string[],
   drugFlag: boolean,
   modelFlag: boolean,
-  netName:string,
+  netName: string,
+  maxPathLen: number,
 }
 interface Props {
 
@@ -26,19 +28,21 @@ export default class App extends React.Component<Props, State>{
     super(props)
     this.state = {
       // selectedDrugIDs: [],
-      selectedDrugID:'DB13179',
+      selectedDrugID: 'DB13179',
       netName: 'A1',
       drugFlag: true,
-      modelFlag: true
+      modelFlag: true,
+      maxPathLen: 1
     }
     this.selectDrug = this.selectDrug.bind(this)
     this.toggleDrugFlag = this.toggleDrugFlag.bind(this)
     this.toggleModelFlag = this.toggleModelFlag.bind(this)
     this.changeNet = this.changeNet.bind(this)
+    this.changeMaxPathLen = this.changeMaxPathLen.bind(this)
   }
 
   selectDrug(drugID: string) {
-    if (drugID == this.state.selectedDrugID) {
+    if (drugID === this.state.selectedDrugID) {
       this.setState({ selectedDrugID: '' })
     } else {
       this.setState({ selectedDrugID: drugID })
@@ -52,68 +56,102 @@ export default class App extends React.Component<Props, State>{
     // }
   }
 
-  toggleDrugFlag(){
-    let {drugFlag} = this.state
+  toggleDrugFlag() {
+    let { drugFlag } = this.state
     this.setState({
       drugFlag: !drugFlag
     })
   }
 
-  toggleModelFlag(){
-    let {modelFlag} = this.state
+  toggleModelFlag() {
+    let { modelFlag } = this.state
     this.setState({
       modelFlag: !modelFlag
     })
   }
 
-  changeNet(netName:string){
-    if (netName!== this.state.netName){
-      this.setState({netName})
+  changeNet(netName: string) {
+    if (netName !== this.state.netName) {
+      this.setState({ netName })
     }
   }
 
+  changeMaxPathLen(len:number|undefined|string){
+    console.info('change max path len', len)
+    if (typeof(len) ==='undefined') return
+    else{
+      this.setState({
+        maxPathLen:len as number
+      })
+    }
+    
+  }
+
   render() {
-    let allWidth = window.innerWidth, allHeight = window.innerHeight,
-      headerHeight = 64, footHeight = 60, mainHeight = allHeight - headerHeight - footHeight,
-      virusWidth = 0.15 * allWidth, modelWidth = 0.6 * allWidth, drugWidth = allWidth - virusWidth - modelWidth
+    let siderWidth = 200, mainViewWidth = window.innerWidth - 200, mainViewHeight = window.innerHeight,
+      headerHeight = 64, footHeight = 60, mainHeight = mainViewHeight - headerHeight - footHeight,
+      virusWidth = 0.1 * mainViewWidth, modelWidth = 0.6 * mainViewWidth, drugWidth = mainViewWidth - virusWidth - modelWidth
 
-    let {selectedDrugID, drugFlag, modelFlag, netName} = this.state
+    let { selectedDrugID, drugFlag, modelFlag, netName, maxPathLen } = this.state
 
-    let modelComponent = modelFlag?
-      <ModelNodeForce height={mainHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth} netName={netName}/>
+    let modelComponent = modelFlag ?
+      <ModelNodeForce height={mainHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth} netName={netName} maxPathLen={maxPathLen} />
       :
-      <ModelBar height={mainHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth}/>
+      <ModelBar height={mainHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth} />
 
 
-    let drugComponent = drugFlag?
+    let drugComponent = drugFlag ?
       <DrugHeat height={mainHeight} width={drugWidth} offsetX={virusWidth + modelWidth} selectedDrugID={selectedDrugID} selectDrug={this.selectDrug} />
       :
-      <DrugPCP height={mainHeight} width={drugWidth} offsetX={virusWidth + modelWidth} selectedDrugID={selectedDrugID} selectDrug={this.selectDrug} /> 
+      <DrugPCP height={mainHeight} width={drugWidth} offsetX={virusWidth + modelWidth} selectedDrugID={selectedDrugID} selectDrug={this.selectDrug} />
+
+
+    let header = <Header className='header' style={{ height: headerHeight }}>
+      Header
+    <span style={{ float: 'right', fontSize: '12px' }}>
+        {/* Explanation for  
+      <Select defaultValue="A1" style={{ width: 120 }} onChange={this.changeNet}>
+      <Option value="A1">A1</Option>
+      <Option value="A2">A2</Option>
+      <Option value="A3">A3</Option>
+      <Option value="A4">A4</Option>
+    </Select> */}
+    Model <Switch checkedChildren="node-link" unCheckedChildren="bar-agg" defaultChecked onChange={this.toggleModelFlag} />
+    Drug <Switch checkedChildren="heat" unCheckedChildren="pcp" defaultChecked onChange={this.toggleDrugFlag} />
+      </span>
+    </Header>
+
+
+    let sider = <Sider width={siderWidth} theme="light" style={{padding: "5px"}}>
+         <Select defaultValue="SARS-COV2" style={{ width: siderWidth -10}} onChange={this.changeNet}>
+        <Option value="SARS-COVID2">SARS-COV2</Option>
+      </Select> 
+    <br/>
+    <div style={{marginBottom: "5px", borderBottom: "lightgray solid 1px", paddingBottom: "5px"}}>
+      <h4>viral proteins</h4> 
+      <div>{Object.keys(virus2target).map(viralProtein=>{
+        return <Button size="small" style={{margin: " 2px 4px"}} >{viralProtein.replace('sars-cov2','')}</Button>
+      })}
+      </div>
+    </div>
+      <h4>longest path included</h4> <InputNumber min={1} max={5} defaultValue={maxPathLen} onChange={this.changeMaxPathLen}/>
+    </Sider>
 
     return (
       <Layout>
-        <Header className='header' style={{ height: headerHeight }}>
-          Header
-          <span style={{float:'right', fontSize: '12px'}}>
-            {/* Explanation for  
-            <Select defaultValue="A1" style={{ width: 120 }} onChange={this.changeNet}>
-            <Option value="A1">A1</Option>
-            <Option value="A2">A2</Option>
-            <Option value="A3">A3</Option>
-            <Option value="A4">A4</Option>
-          </Select> */}
-          Model <Switch checkedChildren="node-link" unCheckedChildren="bar-agg" defaultChecked onChange={this.toggleModelFlag}/>
-          Drug <Switch checkedChildren="heat" unCheckedChildren="pcp" defaultChecked onChange={this.toggleDrugFlag}/>
-          </span>
-        </Header>
-        <Content className="main" style={{ height: mainHeight }}>
-          <svg className="main">
-            <Viral height={mainHeight} width={virusWidth} />
-            {modelComponent}
-            {drugComponent}
-          </svg>
+        {header}
 
-        </Content>
+        <Layout>
+          {sider}
+          <Content className="main" style={{ height: mainHeight }}>
+            <svg className="main">
+              <Viral height={mainHeight} width={virusWidth} />
+              {modelComponent}
+              {drugComponent}
+            </svg>
+
+          </Content>
+        </Layout>
         <Footer className='footer' style={{ height: footHeight }}>Footer</Footer>
       </Layout>
     );

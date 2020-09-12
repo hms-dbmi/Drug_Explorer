@@ -1,6 +1,6 @@
 import * as React from "react"
 import * as d3 from 'd3'
-import {virus_target as virus2target, all_targets, target_links as targetLinks} from 'data/virus.json'
+import {virus_target as virus2target, all_targets as allTargets, target_links as targetLinks} from 'data/virus.json'
 
 interface Props {
     height: number,
@@ -82,15 +82,44 @@ export default class Viral extends React.Component<Props, State >{
 
         let virusGroup = <g className="virus" key="virus">{virusPoints}</g>,
             targetGroup = <g className="target" key="target">{targetPoints}</g>,
-            // linkGroup = <g className="links" key="links">{links}</g>
-            linkGroup = <g className="links" key="links" />
+            linkGroup = <g className="links" key="links">{links}</g>
+            // linkGroup = <g className="links" key="links" />
 
         return [virusGroup, targetGroup, linkGroup]
 
     }
+
+    drawTargetLinks(){
+        let {height, width} = this.props
+        
+
+
+        let yTargetScale = d3.scalePoint()
+            .domain(allTargets.map(d=>d.toString()))
+            .range([this.padding, height - 2* this.padding])
+        
+       
+
+        let links = targetLinks.map((link,i)=>{
+            let pathGene = d3.path()
+            let proteinA = link[0], proteinB = link[1], x = width ,
+            yA = yTargetScale(proteinA.toString())||0, yB = yTargetScale(proteinB.toString())||0
+            pathGene.moveTo(x, yA)
+            let deltaY =  Math.abs( yB - yA) ,
+            centerY = (yB+yA)/2 
+            // pathGene.arcTo(x, yTargetScale(proteinB.toString())||0, x-20, yTargetScale(proteinB.toString())||0, r)
+            pathGene.arc(x+deltaY/2, centerY, deltaY/Math.sqrt(2), 0.75*Math.PI, 1.25*Math.PI)
+            return <path key={`link_${i}`} d={pathGene.toString()} fill='none' stroke='gray' opacity='0.4' xlinkTitle={`${proteinA}_${proteinB}`}/>
+        })
+
+        let linkGroup = <g className="links" key="links">{links}</g>
+            // linkGroup = <g className="links" key="links" />
+
+        return linkGroup
+    }
     render(){
         return <g className='virus'>
-            {this.draw()}
+            {this.drawTargetLinks()}
         </g>
     }
 }

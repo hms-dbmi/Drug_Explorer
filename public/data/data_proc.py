@@ -302,13 +302,41 @@ class DataProc:
         return gnn_exp
         
 
-                
+
+def hostParser():
+    virus_json_filename = os.path.join(os.getcwd(), "virus.json")
+    jsonfile = open(virus_json_filename, 'r')
+    virusFile = json.load(jsonfile)  
+    jsonfile.close()
+    host_graph = nx.Graph()
+
+    for node in virusFile['all_targets']:
+        host_graph.add_node(node)
+    for link in virusFile['target_links']:
+        host_graph.add_edge(link[0], link[1])
+
+    all_subgraphs = []
+    for c in nx.connected_components(host_graph):
+        all_subgraphs.append(c)
+
+    all_subgraphs.sort(key=lambda c: len(c), reverse=True)    
+
+    virusFile['all_targets'] = []
+
+    for c in all_subgraphs:
+        virusFile['all_targets'] = virusFile['all_targets'] + list(c)
+
+    jsonfile = open(virus_json_filename, 'w')
+    json.dump(virusFile, jsonfile)  
+    jsonfile.close()
         
 
 if __name__ == '__main__': 
-    data_proc = DataProc(max_ranking = 50)
+    # data_proc = DataProc(max_ranking = 50)
     # data_proc.parseVirus()
-    # data_proc.build_protein_graph()
-    data_proc.build_drug_target_graph()
-    # data_proc.summarize_drug_target_path()
-    # data_proc.parseGNNexp()
+    # # data_proc.build_protein_graph()
+    # data_proc.build_drug_target_graph()
+    # # data_proc.summarize_drug_target_path()
+    # # data_proc.parseGNNexp()
+
+    hostParser()

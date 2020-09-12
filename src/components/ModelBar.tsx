@@ -145,8 +145,8 @@ export default class ModelBar extends React.Component<Props, State>{
 
         return <g className='model'>
             Model
-            {/* {this.drawDrugPathHistogram()} */}
-            {this.drawExpNodeSummary()}
+            {this.drawDrugPathHistogram()}
+            {/* {this.drawExpNodeSummary()} */}
         </g>
     }
 }

@@ -1,15 +1,15 @@
 import * as React from "react"
 import * as d3 from "d3"
 import axios from "axios"
-import { all_targets as viralTargets } from 'data/virus.json'
-import { path } from "d3";
+import { all_targets as viralTargets} from 'data/virus.json'
 
 interface Props {
     height: number,
     width: number,
     offsetX: number,
     netName: string,
-    selectedDrugID: string
+    selectedDrugID: string,
+    maxPathLen:number
 }
 interface DrugPath {
     [id: string]: {
@@ -91,29 +91,48 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         return pies[idx]
     }
     drawDrugPath() {
-        let { selectedDrugID, offsetX, width, height, netName } = this.props
+        let { selectedDrugID, offsetX, width, height, netName , maxPathLen} = this.props
         let {drugPaths, expNodes} = this.state
-        if (selectedDrugID == '' || Object.keys(drugPaths).length==0 || Object.keys(expNodes).length==0) return <g className='path no' />
+        if (selectedDrugID === '' || Object.keys(drugPaths).length===0 || Object.keys(expNodes).length===0) return <g className='path no' />
 
         
-        let { edges, targets: drugTargets, paths } = drugPaths[selectedDrugID],
-            nodes: INode[] = Array.from(new Set(edges.flat())).map(d => { return { id: d } }),
-            links: ILink[] = edges.map(edge => { return { source: edge[0].toString(), target: edge[1] } })
+        let { edges, targets: drugTargets, paths } = drugPaths[selectedDrugID]
+
+
+            paths = paths.filter(path=>path.length<=maxPathLen+1)
+
+        let nodes: INode[] = Array.from(new Set(paths.flat()))
+            .concat(viralTargets.map(d=>d.toString()))
+            .concat(drugTargets)
+            .map(d => { return { id: d } }),
+
+        links: ILink[] = edges.filter(edge=>paths.flat().includes(edge[0])&&paths.flat().includes(edge[1]))
+            .map(edge => { return { source: edge[0].toString(), target: edge[1] } })
+            // links: ILink[] = edges.map(edge => { return { source: edge[0].toString(), target: edge[1] } })
 
         console.info('number of nodes: ', nodes.length)
-        console.info('number of edges: ', edges.length)       
+        console.info('number of edges: ', links.length)  
+        
+        let yHostScale = d3.scalePoint()
+            .domain(viralTargets.map(d=>d.toString()))
+            .range([this.padding, height - 2* this.padding])
+
+        // // show the virus host proteins
+        // let nodes:INode[] =  viralTargets.map(d => { return { id: d.toString() } }),
+        //     links:ILink[] = targetLinks.map(edge => { return { source: edge[0].toString(), target: edge[1].toString() } })
 
         for (let i = 0; i < nodes.length; i++) {
             let node = nodes[i],
                 drugIdx = drugTargets.indexOf(node.id),
                 viralIdx = viralTargets.indexOf(parseInt(node.id))
+            if (drugIdx > -1) {
+                    node.fy = 0.9 * height / drugTargets.length * (drugIdx + 1)
+                    node.fx = offsetX + width
+                }
             if (viralIdx > -1) {
-                node.fy = height / viralTargets.length * viralIdx
+                // node.fy = this.padding + (height - this.padding) / viralTargets.length * viralIdx
+                node.fy = yHostScale(node.id)
                 node.fx = offsetX
-            }
-            else if (drugIdx > -1) {
-                node.fy = 0.9 * height / drugTargets.length * (drugIdx + 1)
-                node.fx = offsetX + width
             }
 
         }
@@ -126,7 +145,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         let simulation = d3.forceSimulation<INode, ILink>()
             .force("charge", 
                 d3.forceManyBody<INode>()
-                .strength(-180)
+                .strength(-10)
             )
             .force("link",
                 d3.forceLink<INode, ILink>()
@@ -135,11 +154,13 @@ export default class ModelNodeForce extends React.Component<Props, State>{
                     .strength(1)
             )
             .force('collision', d3.forceCollide().radius(this.RADIUS*4))
+            // .force("center", d3.forceCenter(width / 2, height*0.6))
 
         let svgLinks: any = g.append('g')
             .attr("stroke", "#333")
             .style("opacity", 0.2)
             .selectAll('line')
+
 
 
         // const isExpNode = (nodeID:number)=>{
@@ -175,9 +196,13 @@ export default class ModelNodeForce extends React.Component<Props, State>{
             .selectAll('g.nodeGroup')
             .data(nodes, (d: any) => d.id)
             .join(
-                (enter: any) => enter.append("g")
+                enter => enter.append("g")
                     .attr('class', 'nodeGroup')
-                    .attr('cursor', 'pointer')
+                    .attr('cursor', 'pointer'),
+
+                update => update.attr("transform", d => `translate(${d.x}, ${d.y})`),
+
+                exit=> exit.remove()
             )
         
         svgNodes.append('title')
@@ -185,8 +210,9 @@ export default class ModelNodeForce extends React.Component<Props, State>{
     
 
         svgNodes.append('circle')
-            .attr("r", (d: INode) => viralTargets.includes(parseInt(d.id)) ? '1' : this.RADIUS)
-            .attr("fill", (d: INode) => drugTargets.includes(d.id) ? '#1890ff' : 'white')
+            .attr("r", (d: INode) => viralTargets.includes(parseInt(d.id)) ? '2' : this.RADIUS)
+            // .attr("r", 5)
+            .attr("fill", (d: INode) => drugTargets.includes(d.id) ? '#1890ff' :( viralTargets.includes(parseInt(d.id)) ? 'gray' : 'white'))
             .attr('stroke', 'gray')
 
         
@@ -195,7 +221,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         .selectAll('path.arc')
         .data((d:any)=>getExpNetIdx(parseInt(d.id)))
         .join(
-            (enter: any) => enter.append("path")
+            enter => enter.append("path")
                 .attr('class', (d:number)=>`arc ${d}`)
                 .attr('d', (d:number)=>this.pieGenerator(d))
                 .attr('fill', 'red')
@@ -227,7 +253,13 @@ export default class ModelNodeForce extends React.Component<Props, State>{
 
     shouldComponentUpdate(nextProps:Props, nextState:State):boolean{
         let {selectedDrugID: nextSelectedDrugID} = nextProps, {selectedDrugID} = this.props, {drugPaths} = this.state
-        if (nextSelectedDrugID==selectedDrugID && Object.keys(drugPaths).length>0) return false
+        console.info(nextProps.maxPathLen)
+        if (
+            nextSelectedDrugID===selectedDrugID && 
+            Object.keys(drugPaths).length === Object.keys(nextState.drugPaths).length
+            && nextProps.maxPathLen === this.props.maxPathLen) {
+            return false
+        }
         return true
     }
 
