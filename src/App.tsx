@@ -97,8 +97,22 @@ export default class App extends React.Component<Props, State>{
     
   }
 
-  hoverViralProtein(e:any){
-    let viralProtein = e.target.value
+  // hoverViralProtein(e:any){
+  //   let viralProtein = e.target.value
+  //   if (viralProtein!==undefined){
+  //     this.setState({viralProtein})
+  //   }
+  //   // let hosts = (virus2target as VT)[viralProtein]
+
+  //   // if (hosts===undefined)  return
+
+  //   // d3.selectAll('.virus_host')
+  //   //   .style('opacity', 0.2)
+    
+  // }
+
+  hoverViralProtein(viralProtein:string){
+    
     if (viralProtein!==undefined){
       this.setState({viralProtein})
     }
@@ -110,6 +124,7 @@ export default class App extends React.Component<Props, State>{
     //   .style('opacity', 0.2)
     
   }
+
 
   unhoverViralProtein(){
     // d3.selectAll('.virus_host')
@@ -159,11 +174,13 @@ export default class App extends React.Component<Props, State>{
     <br/>
     <div style={{marginBottom: "5px", borderBottom: "lightgray solid 1px", paddingBottom: "5px"}}>
       <h4>viral proteins</h4> 
-      <div>{Object.keys(virus2target).map(viralProtein=>{
+      <div >{Object.keys(virus2target).map(viralProtein=>{
         let name = viralProtein.replace('sars-cov2','')
-        return <Button size="small" style={{margin: " 2px 4px"}} onMouseEnter={this.hoverViralProtein} value={viralProtein} onMouseLeave={this.unhoverViralProtein}>
+        return <span style={{margin: " 2px 4px", padding:"2px 4px", border:"solid 1px gray", cursor:"pointer", display:"inline-block"}} 
+          onMouseEnter={()=>this.hoverViralProtein(viralProtein)}  
+          onMouseLeave={this.unhoverViralProtein}>
           {name}
-        </Button>
+        </span>
       })}
       </div>
     </div>

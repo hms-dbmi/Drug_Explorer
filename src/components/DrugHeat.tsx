@@ -81,10 +81,12 @@ export default class DrugHeat extends React.Component<Props, State>{
             return <g key={name} transform={`translate(0, ${yScale(i + 1)})`} cursor="pointer" onClick={()=>this.props.selectDrug(drugIDs[i])}>
                 <rect width={this.labelWidth} height={this.labelHeight} fill={isSelected?'#1890ff':"transparent"} stroke={isSelected?'none':'gray'} />
                 <text
-                    x={this.labelWidth / 2} y={this.fontSize}
+                    // x={this.labelWidth / 2} 
+                    y={this.fontSize}
                     // style={{fontSize:this.fontSize+'px'}}
                     // fontSize={this.fontSize+'px'} 
-                    textAnchor="middle"
+                    // textAnchor="middle"
+                    x="2"
                     fill={isSelected?'white':'black'}
                 >
                     {name}

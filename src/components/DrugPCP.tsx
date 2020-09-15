@@ -77,8 +77,11 @@ export default class DrugPCP extends React.Component<Props, State>{
             return <g key={name} transform={`translate(0, ${yScale(i + 1)})`} cursor="pointer" onClick={()=>this.props.selectDrug(drugIDs[i])}>
                 <rect width={this.labelWidth} height={this.labelHeight} fill={isSelected?'#1890ff':"transparent"} stroke={isSelected?'none':'gray'} />
                 <text
-                    x={this.labelWidth / 2} y={this.labelHeight / 2 + this.fontSize / 2}
-                    fontSize={this.fontSize} textAnchor="middle"
+                    // x={this.labelWidth / 2} 
+                    x="2"
+                    y={this.labelHeight / 2 + this.fontSize / 2}
+                    fontSize={this.fontSize} 
+                    // textAnchor="middle"
                     fill={isSelected?'white':'black'}
                 >
                     {name}

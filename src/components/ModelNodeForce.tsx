@@ -159,7 +159,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
                     .distance(30)
                     .strength(1)
             )
-            .force('collision', d3.forceCollide().radius(this.RADIUS*4))
+            .force('collision', d3.forceCollide().radius(this.RADIUS*2))
             // .force("center", d3.forceCenter(width / 2, height*0.6))
 
         let svgLinks: any = g.append('g')
