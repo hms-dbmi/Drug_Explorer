@@ -7,7 +7,7 @@ interface Props {
     width: number
 }
 
-interface VT {
+export interface VT {
     [virus:string]: number[]
 }
 
@@ -98,13 +98,15 @@ export default class Viral extends React.Component<Props, State >{
             .domain(allTargets.map(d=>d.toString()))
             .range([this.padding, height - 2* this.padding])
         
-       
+        let viralTargetPoints = allTargets.map(v=>{
+                return <circle key={`target_protein_${v}`} cx={width} cy={yTargetScale(v.toString())} r={0.5} fill="gray"/>
+            })
 
         let links = targetLinks.map((link,i)=>{
             let pathGene = d3.path()
             let proteinA = link[0], proteinB = link[1], x = width ,
             yA = yTargetScale(proteinA.toString())||0, yB = yTargetScale(proteinB.toString())||0
-            pathGene.moveTo(x, yA)
+            pathGene.moveTo(x, Math.max(yA, yB))
             let deltaY =  Math.abs( yB - yA) ,
             centerY = (yB+yA)/2 
             // pathGene.arcTo(x, yTargetScale(proteinB.toString())||0, x-20, yTargetScale(proteinB.toString())||0, r)
@@ -112,10 +114,11 @@ export default class Viral extends React.Component<Props, State >{
             return <path key={`link_${i}`} d={pathGene.toString()} fill='none' stroke='gray' opacity='0.4' xlinkTitle={`${proteinA}_${proteinB}`}/>
         })
 
-        let linkGroup = <g className="links" key="links">{links}</g>
+        let linkGroup = <g className="links" key="links">{links}</g>,
+            viralTargetGroup = <g className="target" key="target">{viralTargetPoints}</g>
             // linkGroup = <g className="links" key="links" />
 
-        return linkGroup
+        return [linkGroup, viralTargetGroup]
     }
     render(){
         return <g className='virus'>

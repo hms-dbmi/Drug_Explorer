@@ -39,7 +39,8 @@ interface ILink {
 }
 
 export default class ModelNodeForce extends React.Component<Props, State>{
-    public padding = 10; RADIUS = 8;
+    public padding = 10; RADIUS = 8; 
+    drugTargetLinkWidth =70; // width to draw links between drug target proteins
     constructor(props:Props){
         super(props)
         this.state={
@@ -107,15 +108,20 @@ export default class ModelNodeForce extends React.Component<Props, State>{
             .map(d => { return { id: d } }),
 
         links: ILink[] = edges.filter(edge=>paths.flat().includes(edge[0])&&paths.flat().includes(edge[1]))
+            .filter(edge=>! (drugTargets.includes(edge[0])&&drugTargets.includes(edge[1])))
             .map(edge => { return { source: edge[0].toString(), target: edge[1] } })
             // links: ILink[] = edges.map(edge => { return { source: edge[0].toString(), target: edge[1] } })
 
         console.info('number of nodes: ', nodes.length)
         console.info('number of edges: ', links.length)  
         
-        let yHostScale = d3.scalePoint()
+        let yViralTargetScake = d3.scalePoint()
             .domain(viralTargets.map(d=>d.toString()))
             .range([this.padding, height - 2* this.padding])
+
+        let yDrugTargetScale = d3.scalePoint()
+        .domain(drugTargets.map(d=>d.toString()))
+        .range([this.padding + 0.1*height, 0.9*height - 2* this.padding])
 
         // // show the virus host proteins
         // let nodes:INode[] =  viralTargets.map(d => { return { id: d.toString() } }),
@@ -126,12 +132,12 @@ export default class ModelNodeForce extends React.Component<Props, State>{
                 drugIdx = drugTargets.indexOf(node.id),
                 viralIdx = viralTargets.indexOf(parseInt(node.id))
             if (drugIdx > -1) {
-                    node.fy = 0.9 * height / drugTargets.length * (drugIdx + 1)
-                    node.fx = offsetX + width
+                    node.fy = yDrugTargetScale(node.id)
+                    node.fx = offsetX + width - this.drugTargetLinkWidth
                 }
             if (viralIdx > -1) {
                 // node.fy = this.padding + (height - this.padding) / viralTargets.length * viralIdx
-                node.fy = yHostScale(node.id)
+                node.fy = yViralTargetScake(node.id)
                 node.fx = offsetX
             }
 
@@ -210,13 +216,16 @@ export default class ModelNodeForce extends React.Component<Props, State>{
     
 
         svgNodes.append('circle')
-            .attr("r", (d: INode) => viralTargets.includes(parseInt(d.id)) ? '2' : this.RADIUS)
+            .filter(d=>!viralTargets.includes(parseInt(d.id)))
+            // .filter(d=>!drugTargets.includes(d.id))
+            .attr("r", (d: INode) => viralTargets.includes(parseInt(d.id)) ? '0.5' : this.RADIUS)
             // .attr("r", 5)
+            .attr('class', 'virus_host')
+            .attr('id', d=>d.id)
             .attr("fill", (d: INode) => drugTargets.includes(d.id) ? '#1890ff' :( viralTargets.includes(parseInt(d.id)) ? 'gray' : 'white'))
             .attr('stroke', 'gray')
 
         
-
         svgNodes
         .selectAll('path.arc')
         .data((d:any)=>getExpNetIdx(parseInt(d.id)))
@@ -251,6 +260,40 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         simulation.on("tick", ticked);
     }
 
+    drugTargetConnections(){
+        let { selectedDrugID, height, width, offsetX} = this.props
+        let {drugPaths, expNodes} = this.state
+        if (selectedDrugID === '' || Object.keys(drugPaths).length===0 || Object.keys(expNodes).length===0) return <g className='path no' />
+
+        
+        let { edges, targets: drugTargets, paths } = drugPaths[selectedDrugID]
+
+        
+
+        let targetEdges = edges
+            .filter(edge=> (drugTargets.includes(edge[0])&&drugTargets.includes(edge[1])))
+
+        console.info(targetEdges)
+
+        let yDrugTargetScale = d3.scalePoint()
+        .domain(drugTargets.map(d=>d.toString()))
+        .range([this.padding + 0.1*height, 0.9*height - 2* this.padding])
+
+        let links = targetEdges.map((link,i)=>{
+            let pathGene = d3.path()
+            let proteinA = link[0], proteinB = link[1], x = width + offsetX - this.drugTargetLinkWidth ,
+            yA = yDrugTargetScale(proteinA.toString())||0, yB = yDrugTargetScale(proteinB.toString())||0
+            pathGene.moveTo(x, Math.min(yA, yB))
+            let deltaY =  Math.abs( yB - yA) ,
+            centerY = (yB+yA)/2 
+            // pathGene.arcTo(x, yTargetScale(proteinB.toString())||0, x-20, yTargetScale(proteinB.toString())||0, r)
+            pathGene.arc(x-deltaY/2, centerY, deltaY/Math.sqrt(2), -0.25*Math.PI, 0.25*Math.PI)
+            return <path key={`link_${i}`} d={pathGene.toString()} fill='none' stroke='gray' opacity='0.4' xlinkTitle={`${proteinA}_${proteinB}`}/>
+        })
+
+    return <g key="drugTargetLinks" className="drugTargetLinks">{links}</g>
+    }
+
     shouldComponentUpdate(nextProps:Props, nextState:State):boolean{
         let {selectedDrugID: nextSelectedDrugID} = nextProps, {selectedDrugID} = this.props, {drugPaths} = this.state
         console.info(nextProps.maxPathLen)
@@ -272,7 +315,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
                 <img src='./assets/node_legend.png' width={legendW} />
             </foreignObject>
             </g>
-
+            {this.drugTargetConnections()}
             {this.drawDrugPath()}
         </g>
     }

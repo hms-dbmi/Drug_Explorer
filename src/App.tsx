@@ -7,6 +7,12 @@ import ModelBar from 'components/ModelBar'
 import { Layout, Switch, Select, Button, InputNumber } from 'antd'
 import './App.css';
 import {virus_target as virus2target} from 'data/virus.json'
+import {VT} from 'components/Viral'
+
+
+import * as d3 from "d3"
+
+
 
 const { Header, Footer, Sider, Content } = Layout;
 const { Option } = Select
@@ -87,6 +93,22 @@ export default class App extends React.Component<Props, State>{
     
   }
 
+  hoverViralProtein(e:any){
+    let viralProtein = e.target.value
+    let hosts = (virus2target as VT)[viralProtein]
+
+    if (hosts===undefined)  return
+
+    d3.selectAll('.virus_host')
+      .style('opacity', 0.2)
+    
+  }
+
+  unhoverViralProtein(){
+    d3.selectAll('.virus_host')
+      .style('opacity', 1)
+  }
+
   render() {
     let siderWidth = 200, mainViewWidth = window.innerWidth - 200, mainViewHeight = window.innerHeight,
       headerHeight = 64, footHeight = 60, mainHeight = mainViewHeight - headerHeight - footHeight,
@@ -130,7 +152,10 @@ export default class App extends React.Component<Props, State>{
     <div style={{marginBottom: "5px", borderBottom: "lightgray solid 1px", paddingBottom: "5px"}}>
       <h4>viral proteins</h4> 
       <div>{Object.keys(virus2target).map(viralProtein=>{
-        return <Button size="small" style={{margin: " 2px 4px"}} >{viralProtein.replace('sars-cov2','')}</Button>
+        let name = viralProtein.replace('sars-cov2','')
+        return <Button size="small" style={{margin: " 2px 4px"}} onMouseEnter={this.hoverViralProtein} value={viralProtein} onMouseLeave={this.unhoverViralProtein}>
+          {name}
+        </Button>
       })}
       </div>
     </div>
