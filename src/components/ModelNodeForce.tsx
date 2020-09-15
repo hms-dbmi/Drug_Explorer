@@ -296,7 +296,6 @@ export default class ModelNodeForce extends React.Component<Props, State>{
 
     shouldComponentUpdate(nextProps:Props, nextState:State):boolean{
         let {selectedDrugID: nextSelectedDrugID} = nextProps, {selectedDrugID} = this.props, {drugPaths} = this.state
-        console.info(nextProps.maxPathLen)
         if (
             nextSelectedDrugID===selectedDrugID && 
             Object.keys(drugPaths).length === Object.keys(nextState.drugPaths).length

@@ -4,12 +4,14 @@ import {virus_target as virus2target, all_targets as allTargets, target_links as
 
 interface Props {
     height: number,
-    width: number
+    width: number,
+    viralProtein:string
 }
 
 export interface VT {
     [virus:string]: number[]
 }
+
 
 interface State {
 
@@ -90,16 +92,26 @@ export default class Viral extends React.Component<Props, State >{
     }
 
     drawTargetLinks(){
-        let {height, width} = this.props
-        
-
+        let {height, width, viralProtein} = this.props
+        let hosts = (virus2target as VT)[viralProtein]
+                    console.info('hosts', hosts)
 
         let yTargetScale = d3.scalePoint()
             .domain(allTargets.map(d=>d.toString()))
             .range([this.padding, height - 2* this.padding])
         
         let viralTargetPoints = allTargets.map(v=>{
-                return <circle key={`target_protein_${v}`} cx={width} cy={yTargetScale(v.toString())} r={0.5} fill="gray"/>
+                let fill = "gray", r=0.5
+                if (viralProtein!==''){
+                    
+                    if (hosts.includes(v)){
+                        fill='back'
+                        r=3
+                    }else{
+                        fill='lightgray'
+                    }
+                }
+                return <circle key={`target_protein_${v}`} cx={width} cy={yTargetScale(v.toString())} r={r} fill={fill}/>
             })
 
         let links = targetLinks.map((link,i)=>{
@@ -114,8 +126,8 @@ export default class Viral extends React.Component<Props, State >{
             return <path key={`link_${i}`} d={pathGene.toString()} fill='none' stroke='gray' opacity='0.4' xlinkTitle={`${proteinA}_${proteinB}`}/>
         })
 
-        let linkGroup = <g className="links" key="links">{links}</g>,
-            viralTargetGroup = <g className="target" key="target">{viralTargetPoints}</g>
+        let linkGroup = <g className="links" key="links">{links}</g>
+        let viralTargetGroup = <g className="target" key="target">{viralTargetPoints}</g>
             // linkGroup = <g className="links" key="links" />
 
         return [linkGroup, viralTargetGroup]

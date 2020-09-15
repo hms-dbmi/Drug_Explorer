@@ -23,6 +23,7 @@ interface State {
   drugFlag: boolean,
   modelFlag: boolean,
   netName: string,
+  viralProtein:string,
   maxPathLen: number,
 }
 interface Props {
@@ -35,6 +36,7 @@ export default class App extends React.Component<Props, State>{
     this.state = {
       // selectedDrugIDs: [],
       selectedDrugID: 'DB13179',
+      viralProtein: '',
       netName: 'A1',
       drugFlag: true,
       modelFlag: true,
@@ -45,6 +47,8 @@ export default class App extends React.Component<Props, State>{
     this.toggleModelFlag = this.toggleModelFlag.bind(this)
     this.changeNet = this.changeNet.bind(this)
     this.changeMaxPathLen = this.changeMaxPathLen.bind(this)
+    this.hoverViralProtein = this.hoverViralProtein.bind(this)
+    this.unhoverViralProtein = this.unhoverViralProtein.bind(this)
   }
 
   selectDrug(drugID: string) {
@@ -83,7 +87,7 @@ export default class App extends React.Component<Props, State>{
   }
 
   changeMaxPathLen(len:number|undefined|string){
-    console.info('change max path len', len)
+    // console.info('change max path len', len)
     if (typeof(len) ==='undefined') return
     else{
       this.setState({
@@ -95,18 +99,22 @@ export default class App extends React.Component<Props, State>{
 
   hoverViralProtein(e:any){
     let viralProtein = e.target.value
-    let hosts = (virus2target as VT)[viralProtein]
+    if (viralProtein!==undefined){
+      this.setState({viralProtein})
+    }
+    // let hosts = (virus2target as VT)[viralProtein]
 
-    if (hosts===undefined)  return
+    // if (hosts===undefined)  return
 
-    d3.selectAll('.virus_host')
-      .style('opacity', 0.2)
+    // d3.selectAll('.virus_host')
+    //   .style('opacity', 0.2)
     
   }
 
   unhoverViralProtein(){
-    d3.selectAll('.virus_host')
-      .style('opacity', 1)
+    // d3.selectAll('.virus_host')
+    //   .style('opacity', 1)
+    this.setState({viralProtein:''})
   }
 
   render() {
@@ -159,7 +167,7 @@ export default class App extends React.Component<Props, State>{
       })}
       </div>
     </div>
-      <h4>longest path included</h4> <InputNumber min={1} max={5} defaultValue={maxPathLen} onChange={this.changeMaxPathLen}/>
+      <h4>longest path included</h4> <InputNumber min={1} max={2} defaultValue={maxPathLen} onChange={this.changeMaxPathLen}/>
     </Sider>
 
     return (
@@ -170,7 +178,7 @@ export default class App extends React.Component<Props, State>{
           {sider}
           <Content className="main" style={{ height: mainHeight }}>
             <svg className="main">
-              <Viral height={mainHeight} width={virusWidth} />
+              <Viral height={mainHeight} width={virusWidth} viralProtein={this.state.viralProtein} />
               {modelComponent}
               {drugComponent}
             </svg>
