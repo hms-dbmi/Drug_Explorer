@@ -92,7 +92,7 @@ export default class DrugPCP extends React.Component<Props, State>{
         let ranks = rankMethods.map(rankName => {
             return <g transform={`translate(${xScale(rankName)}, 0)`} key={rankName}>
                 <text textAnchor="middle">{rankName}</text>
-                <line x1={0} x2={0} y1={yScale.range()[0]} y2={yScale.range()[1]} stroke='gray'/>
+                <line x1={0} x2={0} y1={yScale.range()[0]} y2={yScale.range()[1]} stroke='lightgray'/>
             </g>
         })
 
