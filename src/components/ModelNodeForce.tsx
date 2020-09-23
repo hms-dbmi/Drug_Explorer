@@ -151,7 +151,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         let simulation = d3.forceSimulation<INode, ILink>()
             .force("charge", 
                 d3.forceManyBody<INode>()
-                .strength(-10)
+                .strength(-270)
             )
             .force("link",
                 d3.forceLink<INode, ILink>()
@@ -159,7 +159,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
                     .distance(30)
                     .strength(1)
             )
-            .force('collision', d3.forceCollide().radius(this.RADIUS*2))
+            .force('collision', d3.forceCollide().radius(this.RADIUS+2))
             // .force("center", d3.forceCenter(width / 2, height*0.6))
 
         let svgLinks: any = g.append('g')

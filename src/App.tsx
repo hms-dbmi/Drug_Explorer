@@ -4,10 +4,9 @@ import DrugHeat from 'components/DrugHeat'
 import Viral from 'components/Viral'
 import ModelNodeForce from 'components/ModelNodeForce'
 import ModelBar from 'components/ModelBar'
-import { Layout, Switch, Select, Button, InputNumber } from 'antd'
+import { Layout, Switch, Select, InputNumber } from 'antd'
 import './App.css';
 import {virus_target as virus2target} from 'data/virus.json'
-import {VT} from 'components/Viral'
 
 
 import * as d3 from "d3"
@@ -49,6 +48,9 @@ export default class App extends React.Component<Props, State>{
     this.changeMaxPathLen = this.changeMaxPathLen.bind(this)
     this.hoverViralProtein = this.hoverViralProtein.bind(this)
     this.unhoverViralProtein = this.unhoverViralProtein.bind(this)
+
+    
+    
   }
 
   selectDrug(drugID: string) {
@@ -176,7 +178,12 @@ export default class App extends React.Component<Props, State>{
       <h4>viral proteins</h4> 
       <div >{Object.keys(virus2target).map(viralProtein=>{
         let name = viralProtein.replace('sars-cov2','')
-        return <span style={{margin: " 2px 4px", padding:"2px 4px", border:"solid 1px gray", cursor:"pointer", display:"inline-block"}} 
+        let isHovered = (viralProtein===this.state.viralProtein)
+        return <span 
+          style={{
+            margin: " 2px 4px", padding:"2px 4px", border:`solid ${isHovered?'2px black':'1px lightgray'}`, cursor:"pointer", display:"inline-block",
+            color: `${isHovered?'black':'gray'}`
+          }} 
           onMouseEnter={()=>this.hoverViralProtein(viralProtein)}  
           onMouseLeave={this.unhoverViralProtein}>
           {name}
