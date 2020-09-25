@@ -94,7 +94,6 @@ export default class Viral extends React.Component<Props, State >{
     drawTargetLinks(){
         let {height, width, viralProtein} = this.props
         let hosts = (virus2target as VT)[viralProtein]
-                    console.info('hosts', hosts)
 
         let yTargetScale = d3.scalePoint()
             .domain(allTargets.map(d=>d.toString()))

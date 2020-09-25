@@ -3,6 +3,7 @@ import DrugPCP from 'components/DrugPCP'
 import DrugHeat from 'components/DrugHeat'
 import Viral from 'components/Viral'
 import ModelNodeForce from 'components/ModelNodeForce'
+import ModelNodeLayered from 'components/ModelNodeLayered'
 import ModelBar from 'components/ModelBar'
 import { Layout, Switch, Select, InputNumber } from 'antd'
 import './App.css';
@@ -24,6 +25,7 @@ interface State {
   netName: string,
   viralProtein:string,
   maxPathLen: number,
+  onlyExp:boolean
 }
 interface Props {
 
@@ -39,7 +41,8 @@ export default class App extends React.Component<Props, State>{
       netName: 'A1',
       drugFlag: true,
       modelFlag: true,
-      maxPathLen: 1
+      maxPathLen: 1,
+      onlyExp: true,
     }
     this.selectDrug = this.selectDrug.bind(this)
     this.toggleDrugFlag = this.toggleDrugFlag.bind(this)
@@ -136,13 +139,13 @@ export default class App extends React.Component<Props, State>{
 
   render() {
     let siderWidth = 200, mainViewWidth = window.innerWidth - 200, mainViewHeight = window.innerHeight,
-      headerHeight = 64, footHeight = 60, mainHeight = mainViewHeight - headerHeight - footHeight,
+      headerHeight = 64, footHeight = 40, mainHeight = mainViewHeight - headerHeight - footHeight,
       virusWidth = 0.1 * mainViewWidth, modelWidth = 0.6 * mainViewWidth, drugWidth = mainViewWidth - virusWidth - modelWidth
 
-    let { selectedDrugID, drugFlag, modelFlag, netName, maxPathLen } = this.state
+    let { selectedDrugID, drugFlag, modelFlag, netName, maxPathLen, onlyExp } = this.state
 
     let modelComponent = modelFlag ?
-      <ModelNodeForce height={mainHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth} netName={netName} maxPathLen={maxPathLen} />
+      <ModelNodeLayered height={mainHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth} netName={netName} maxPathLen={maxPathLen} onlyExp={onlyExp}/>
       :
       <ModelBar height={mainHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth} />
 
@@ -154,7 +157,7 @@ export default class App extends React.Component<Props, State>{
 
 
     let header = <Header className='header' style={{ height: headerHeight }}>
-      Header
+      DrugExplorer
     <span style={{ float: 'right', fontSize: '12px' }}>
         {/* Explanation for  
       <Select defaultValue="A1" style={{ width: 120 }} onChange={this.changeNet}>
@@ -191,7 +194,11 @@ export default class App extends React.Component<Props, State>{
       })}
       </div>
     </div>
-      <h4>longest path included</h4> <InputNumber min={1} max={2} defaultValue={maxPathLen} onChange={this.changeMaxPathLen}/>
+      <h4>longest path included</h4> <InputNumber min={1} max={5} defaultValue={maxPathLen} onChange={this.changeMaxPathLen}/>
+      only pathes contains explanation nodes <Switch checkedChildren="yes" unCheckedChildren="no" defaultChecked onChange={()=>{
+        let {onlyExp} = this.state
+        this.setState({onlyExp: !onlyExp})
+      }}/>
     </Sider>
 
     return (
@@ -209,7 +216,7 @@ export default class App extends React.Component<Props, State>{
 
           </Content>
         </Layout>
-        <Footer className='footer' style={{ height: footHeight }}>Footer</Footer>
+        <Footer className='footer' style={{ height: footHeight }}>@2020</Footer>
       </Layout>
     );
   }
