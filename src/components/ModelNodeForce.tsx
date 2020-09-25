@@ -2,7 +2,6 @@ import * as React from "react"
 import * as d3 from "d3"
 import axios from "axios"
 import { all_targets as viralTargets } from 'data/virus.json'
-import { path } from "d3";
 
 interface Props {
     height: number,
@@ -50,7 +49,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
             expNodes: {}
         }
 
-        const graphWorker = new Worker("../workers/graphWorker.ts");
+        // const graphWorker = new Worker("../workers/graphWorker.ts");
     }
     getDrugPaths() {
         const drugJson = './data/drug_graph_top50.json'
@@ -232,7 +231,9 @@ export default class ModelNodeForce extends React.Component<Props, State>{
             let {source:target, target:source} = linkData
             let pathGene = d3.path()
             pathGene.moveTo(source.x, source.y);
-            pathGene.quadraticCurveTo(source.x, target.y, target.x, target.y);
+            // pathGene.quadraticCurveTo(source.x, target.y, target.x, target.y);
+            let midX = source.x+Math.abs(source.x-target.x)/4
+            pathGene.bezierCurveTo(midX, source.y, midX , target.y, target.x, target.y);
             return pathGene.toString()
         }
 
