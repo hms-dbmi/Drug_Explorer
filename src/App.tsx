@@ -145,7 +145,7 @@ export default class App extends React.Component<Props, State>{
     let { selectedDrugID, drugFlag, modelFlag, netName, maxPathLen, onlyExp } = this.state
 
     let modelComponent = modelFlag ?
-      <ModelNodeLayered height={mainHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth} netName={netName} maxPathLen={maxPathLen} onlyExp={onlyExp}/>
+      <ModelNodeForce height={mainHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth} netName={netName} maxPathLen={maxPathLen} onlyExp={onlyExp}/>
       :
       <ModelBar height={mainHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth} />
 

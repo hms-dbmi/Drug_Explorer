@@ -2,6 +2,7 @@ import * as React from "react"
 import * as d3 from "d3"
 import axios from "axios"
 import { all_targets as viralTargets } from 'data/virus.json'
+import { path } from "d3";
 
 interface Props {
     height: number,
@@ -48,6 +49,8 @@ export default class ModelNodeForce extends React.Component<Props, State>{
             drugPaths: {},
             expNodes: {}
         }
+
+        const graphWorker = new Worker("../workers/graphWorker.ts");
     }
     getDrugPaths() {
         const drugJson = './data/drug_graph_top50.json'
@@ -147,6 +150,9 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         paths.forEach(path => {
             for (let i = 0; i < path.length - 1; i++) {
                 let source = path[i].toString(), target = path[i + 1].toString()
+                if (drugTargets.includes(source)&&drugTargets.includes(target)){
+                    continue
+                }
                 links.push({ source, target })
             }
         })
@@ -200,10 +206,10 @@ export default class ModelNodeForce extends React.Component<Props, State>{
             )
             .force('collision', d3.forceCollide().radius(this.RADIUS + 2))
         // .force("center", d3.forceCenter(width / 2, height*0.6))
+        .alphaMin(0.2) // force quick simulation
+        .stop()
 
-
-
-
+        
         // const isExpNode = (nodeID:number)=>{
         //     if ( this.state.expNodes[netName] == undefined) return false
         //     return this.state.expNodes[netName][selectedDrugID].includes(nodeID)
@@ -222,6 +228,40 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         //             .attr("fill", (d: any) => drugTargets.includes(d.id) ? '#1890ff' : 'white')
         //             .attr('stroke', 'gray')
         //     )
+        let linkGene = (linkData: any)=>{
+            let {source:target, target:source} = linkData
+            let pathGene = d3.path()
+            pathGene.moveTo(source.x, source.y);
+            pathGene.quadraticCurveTo(source.x, target.y, target.x, target.y);
+            return pathGene.toString()
+        }
+
+
+
+        let svgLinks: any = g.append('g')
+            .attr("stroke", "#333")
+            .style("opacity", 0.2)
+            .selectAll('.link')
+
+
+        svgLinks = svgLinks
+            .data(links, (d: ILink) => [d.source, d.target])
+            // .join("line")
+            .join(
+                (enter: any) => enter.append("path")
+                    .attr('class', 'link')
+                    // .attr('d', (d:any)=>linkGene(d))
+                    .attr('fill', 'none')
+                    .attr('stroke', "black")
+                    .attr('stroke-width', "2")
+                    .attr("opacity", 0.4),
+
+                (update:any)=>update
+                .attr('d', (d:any)=>linkGene(d)),
+
+                (exit:any)=>exit.remove()
+            );
+
 
         let svgNodes = g.append('g')
             .attr('class', 'nodes')
@@ -230,8 +270,8 @@ export default class ModelNodeForce extends React.Component<Props, State>{
             .join(
                 enter => enter.append("g")
                     .attr('class', 'nodeGroup')
-                    .attr('cursor', 'pointer')
-                    .attr("transform", d => `translate(${d.x}, ${d.y})`),
+                    // .attr("transform", d => `translate(${d.x}, ${d.y})`)
+                    .attr('cursor', 'pointer'),
 
                 update => update.attr("transform", d => `translate(${d.x}, ${d.y})`),
 
@@ -272,34 +312,11 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         //     .attr('stroke', 'gray')
         // .attr('d', this.pieGenerator())
 
-        let linkGene = d3.linkHorizontal()
-            .x(function(d:any) { return d.x; })
-            .y(function(d:any) { return d.y; });
+        // let linkGene = d3.linkHorizontal()
+        //     .x(function(d:any) { return d.x; })
+        //     .y(function(d:any) { return d.y; });
 
-        let svgLinks: any = g.append('g')
-            .attr("stroke", "#333")
-            .style("opacity", 0.2)
-            .selectAll('.link')
-
-
-        svgLinks = svgLinks
-            .data(links, (d: ILink) => [d.source, d.target])
-            // .join("line")
-            .join(
-                (enter: any) => enter.append("path")
-                    .attr('class', 'link')
-                    .attr('d', (d:any)=>linkGene(d))
-                    .attr('fill', 'none')
-                    .attr('stroke', "black")
-                    .attr('stroke-width', "2")
-                    .attr("opacity", 0.4),
-
-                (update:any)=>update
-                .attr('d', (d:any)=>linkGene(d)),
-
-                (exit:any)=>exit.remove()
-            );
-
+        
         function ticked() {
             // svgNodes.attr("cx", (d: any) => d.x)
             //     .attr("cy", (d: any) => d.y)
@@ -310,12 +327,20 @@ export default class ModelNodeForce extends React.Component<Props, State>{
             //     .attr("x2", (d: any) => d.target.x)
             //     .attr("y2", (d: any) => d.target.y);
 
-            svgLinks.attr('d', (d:any)=>{console.info(d, linkGene(d));return linkGene(d)})
+            svgLinks.attr('d', (d:any)=>linkGene(d))
         }
 
         simulation.nodes(nodes);
         simulation.force<d3.ForceLink<INode, ILink>>("link")!.links(links);
-        simulation.on("tick", ticked);
+        // simulation.on("tick", ticked);
+        
+        for (var i = 0, n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())); i < n; ++i) {
+            simulation.tick(1); // don't know why but simulation.on('tick', ticked) doesn't work
+            
+        }
+        ticked()
+
+        
     }
 
     drugTargetConnections() {
@@ -331,7 +356,6 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         let targetEdges = edges
             .filter(edge => (drugTargets.includes(edge[0]) && drugTargets.includes(edge[1])))
 
-        console.info(targetEdges)
 
         let yDrugTargetScale = d3.scalePoint()
             .domain(drugTargets.map(d => d.toString()))
