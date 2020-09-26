@@ -2,6 +2,7 @@ import * as React from "react"
 import * as d3 from "d3"
 import axios from "axios"
 import { all_targets as viralTargets } from 'data/virus.json'
+import { path } from "d3";
 
 interface Props {
     height: number,
@@ -124,20 +125,45 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         if (onlyExp) {
             paths = paths.filter(path => {
                 let flag = false
-                path.forEach(node => {
-                    if (this.isExp(node)) {
-                        flag = true
+                if(path.length===2){
+                    flag = this.isExp(path[0]) || this.isExp(path[1])
+                }else{
+                    // if path.length>2, the path needs to include an explanation node apart from the source & target node
+                    for (let i=1;i<path.length-1;i++){
+                        let node = path[i]
+                        if (this.isExp(node)){
+                            flag=true
+                            i = path.length
+                        }
                     }
-                })
+                }
+                
                 return flag
             })
         }
 
+        paths.sort((a,b)=>a.length-b.length)
 
-        let nodes: INode[] = Array.from(new Set(paths.flat()))
+        let nodeIDs: string[] = []
+        let nodes: INode[] = []
+        Array.from(new Set(paths.flat()))
             .concat(viralTargets.map(d => d.toString()))
             .concat(drugTargets)
             .map(d => { return { id: d } })
+
+        paths.forEach(path => {
+            for (let i = 0; i < path.length; i++) {
+                let node = path[i]
+                if (!nodeIDs.includes(node)) {
+
+                    nodeIDs.push(node)
+                    nodes.push({
+                        id: node,
+                        fx: offsetX + (width - this.drugTargetLinkWidth) / (path.length-1) * i
+                    })
+                }
+            }
+        })
 
         // let links: ILink[] = edges.filter(edge=>paths.flat().includes(edge[0])&&paths.flat().includes(edge[1]))
         //     .filter(edge=>! (drugTargets.includes(edge[0])&&drugTargets.includes(edge[1]))) //draw the links between drug targets seperately
@@ -226,12 +252,12 @@ export default class ModelNodeForce extends React.Component<Props, State>{
             .force("link",
                 d3.forceLink<INode, ILink>()
                     .id(d => d.id)
-                    .distance(30)
-                    .strength(1)
+                    // .distance(30)
+                    // .strength(1)
             )
             .force('collision', d3.forceCollide().radius(this.RADIUS + 2))
             // .force("center", d3.forceCenter(width / 2, height*0.6))
-            .alphaMin(0.2) // force quick simulation
+            // .alphaMin(0.2) // force quick simulation
             .stop()
 
         let linkGene = (linkData: any) => {
@@ -258,13 +284,13 @@ export default class ModelNodeForce extends React.Component<Props, State>{
             for (var i = 0, n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())); i < n; ++i) {
                 simulation.tick(1); // don't know why but simulation.on('tick', ticked) doesn't work
 
-                if (i>=n-1){
+                if (i >= n - 1) {
                     d3.select('g.loading')
-                    .remove()
-                }else{
+                        .remove()
+                } else {
                     d3.select('rect.loadingbar')
-                    .transition()
-                    .attr('width', loadingIconWidth*i/n)
+                        .transition()
+                        .attr('width', loadingIconWidth * i / n)
                 }
 
 
@@ -282,7 +308,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
                 .join(
                     (enter: any) => enter.append("path")
                         .attr('class', 'link')
-                        .attr('d', (d:any)=>linkGene(d))
+                        .attr('d', (d: any) => linkGene(d))
                         .attr('fill', 'none')
                         .attr('stroke', "black")
                         .attr('stroke-width', "2")
@@ -339,7 +365,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
 
                     (exit: any) => exit.remove()
                 )
-            
+
         })
 
 

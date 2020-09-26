@@ -2,7 +2,7 @@ import React from 'react';
 import DrugPCP from 'components/DrugPCP'
 import DrugHeat from 'components/DrugHeat'
 import Viral from 'components/Viral'
-import ModelNodeForce from 'components/ModelNodeForce'
+import ModelNodeForce from 'components/ModelNodeForceLayered'
 import ModelNodeLayered from 'components/ModelNodeLayered'
 import ModelBar from 'components/ModelBar'
 import { Layout, Switch, Select, InputNumber } from 'antd'
@@ -194,7 +194,8 @@ export default class App extends React.Component<Props, State>{
       })}
       </div>
     </div>
-      <h4>longest path included</h4> <InputNumber min={1} max={5} defaultValue={maxPathLen} onChange={this.changeMaxPathLen}/>
+      <h4>longest path included</h4> <InputNumber min={1} max={5} defaultValue={maxPathLen} onChange={this.changeMaxPathLen} size="small"/>
+      <br/>
       only pathes contains explanation nodes <Switch checkedChildren="yes" unCheckedChildren="no" defaultChecked onChange={()=>{
         let {onlyExp} = this.state
         this.setState({onlyExp: !onlyExp})
