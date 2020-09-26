@@ -116,7 +116,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         if (selectedDrugID === '' || Object.keys(drugPaths).length === 0 || Object.keys(expNodes).length === 0) return <g className='path no' />
 
 
-        let { edges, targets: drugTargets, paths } = drugPaths[selectedDrugID]
+        let { targets: drugTargets, paths } = drugPaths[selectedDrugID]
 
 
         paths = paths.filter(path => path.length <= maxPathLen + 1)
@@ -149,7 +149,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         paths.forEach(path => {
             for (let i = 0; i < path.length - 1; i++) {
                 let source = path[i].toString(), target = path[i + 1].toString()
-                if (drugTargets.includes(source)&&drugTargets.includes(target)){
+                if (drugTargets.includes(source) && drugTargets.includes(target)) {
                     continue
                 }
                 links.push({ source, target })
@@ -192,10 +192,36 @@ export default class ModelNodeForce extends React.Component<Props, State>{
             .append('g')
             .attr('class', 'drugGraph')
 
+
+        // loading icon
+        let loadingIcon = g.append('g')
+            .attr('class', 'loading')
+        let loadingIconWidth = 300, loadingIconHeight = 30
+
+        loadingIcon.append('rect')
+            .attr('class', 'bg')
+            .attr('width', loadingIconWidth)
+            .attr('height', loadingIconHeight)
+            .attr('rx', 15)
+            .attr('x', width / 2)
+            .attr('y', height / 2)
+            .attr('fill', 'white')
+            .attr("stroke", "gray")
+            .attr("strokeWidth", '4')
+
+        loadingIcon.append('rect')
+            .attr('class', 'loadingbar')
+            .attr('width', loadingIconWidth * 0.3)
+            .attr('height', loadingIconHeight)
+            .attr('rx', loadingIconHeight * 0.3)
+            .attr('x', width / 2)
+            .attr('y', height / 2)
+            .attr('fill', '#1890ff')
+
         let simulation = d3.forceSimulation<INode, ILink>()
             .force("charge",
                 d3.forceManyBody<INode>()
-                    .strength(-70)
+                    .strength(-170)
             )
             .force("link",
                 d3.forceLink<INode, ILink>()
@@ -204,144 +230,119 @@ export default class ModelNodeForce extends React.Component<Props, State>{
                     .strength(1)
             )
             .force('collision', d3.forceCollide().radius(this.RADIUS + 2))
-        // .force("center", d3.forceCenter(width / 2, height*0.6))
-        .alphaMin(0.2) // force quick simulation
-        .stop()
+            // .force("center", d3.forceCenter(width / 2, height*0.6))
+            .alphaMin(0.2) // force quick simulation
+            .stop()
 
-        
-        // const isExpNode = (nodeID:number)=>{
-        //     if ( this.state.expNodes[netName] == undefined) return false
-        //     return this.state.expNodes[netName][selectedDrugID].includes(nodeID)
-        // }
-
-
-
-
-        // let svgNodes = g.append('g')
-        //     .attr('class', 'nodes')
-        //     .selectAll('circle.node')
-        //     .data(nodes, (d: any) => d.id)
-        //     .join(
-        //         (enter: any) => enter.append("circle")
-        //             .attr("r", (d: any) => viralTargets.includes(parseInt(d.id)) ? '1' : this.RADIUS)
-        //             .attr("fill", (d: any) => drugTargets.includes(d.id) ? '#1890ff' : 'white')
-        //             .attr('stroke', 'gray')
-        //     )
-        let linkGene = (linkData: any)=>{
-            let {source:target, target:source} = linkData
+        let linkGene = (linkData: any) => {
+            let { source: target, target: source } = linkData
             let pathGene = d3.path()
             pathGene.moveTo(source.x, source.y);
             // pathGene.quadraticCurveTo(source.x, target.y, target.x, target.y);
-            let midX = source.x+Math.abs(source.x-target.x)/4
-            pathGene.bezierCurveTo(midX, source.y, midX , target.y, target.x, target.y);
+            let midX = source.x + Math.abs(source.x - target.x) / 4
+            pathGene.bezierCurveTo(midX, source.y, midX, target.y, target.x, target.y);
             return pathGene.toString()
         }
 
 
 
-        let svgLinks: any = g.append('g')
-            .attr("stroke", "#333")
-            .style("opacity", 0.2)
-            .selectAll('.link')
 
-
-        svgLinks = svgLinks
-            .data(links, (d: ILink) => [d.source, d.target])
-            // .join("line")
-            .join(
-                (enter: any) => enter.append("path")
-                    .attr('class', 'link')
-                    // .attr('d', (d:any)=>linkGene(d))
-                    .attr('fill', 'none')
-                    .attr('stroke', "black")
-                    .attr('stroke-width', "2")
-                    .attr("opacity", 0.4),
-
-                (update:any)=>update
-                .attr('d', (d:any)=>linkGene(d)),
-
-                (exit:any)=>exit.remove()
-            );
-
-
-        let svgNodes = g.append('g')
-            .attr('class', 'nodes')
-            .selectAll('g.nodeGroup')
-            .data(nodes, (d: any) => d.id)
-            .join(
-                enter => enter.append("g")
-                    .attr('class', 'nodeGroup')
-                    // .attr("transform", d => `translate(${d.x}, ${d.y})`)
-                    .attr('cursor', 'pointer'),
-
-                update => update.attr("transform", d => `translate(${d.x}, ${d.y})`),
-
-                exit => exit.remove()
-            )
-
-        svgNodes.append('title')
-            .text((d: INode) => `entrez_id:${d.id}`)
-
-
-        svgNodes.append('circle')
-            .filter(d => !viralTargets.includes(parseInt(d.id)))
-            // .filter(d=>!drugTargets.includes(d.id))
-            .attr("r", (d: INode) => viralTargets.includes(parseInt(d.id)) ? '0.5' : this.RADIUS)
-            // .attr("r", 5)
-            .attr('class', 'virus_host')
-            .attr('id', d => d.id)
-            .attr("fill", (d: INode) => drugTargets.includes(d.id) ? '#1890ff' : (viralTargets.includes(parseInt(d.id)) ? 'gray' : 'white'))
-            .attr('stroke', 'gray')
-
-
-        svgNodes
-            .selectAll('path.arc')
-            .data((d: any) => this.getExpNetIdx(d.id))
-            .join(
-                enter => enter.append("path")
-                    .attr('class', (d: number) => `arc ${d}`)
-                    .attr('d', (d: number) => this.pieGenerator(d))
-                    .attr('fill', 'red'),
-
-                update=>update
-                .attr('d', (d: number) => this.pieGenerator(d)),
-
-                (exit:any)=>exit.remove()
-            )
-        // .attr("r", (d: any) => viralTargets.includes(parseInt(d.id)) ? '1' : this.RADIUS)
-        //     .attr("fill", (d: any) => drugTargets.includes(d.id) ? '#1890ff' : 'red')
-        //     .attr('stroke', 'gray')
-        // .attr('d', this.pieGenerator())
-
-        // let linkGene = d3.linkHorizontal()
-        //     .x(function(d:any) { return d.x; })
-        //     .y(function(d:any) { return d.y; });
-
-        
-        function ticked() {
-            // svgNodes.attr("cx", (d: any) => d.x)
-            //     .attr("cy", (d: any) => d.y)
-            svgNodes.attr("transform", d => `translate(${d.x}, ${d.y})`);
-
-            // svgLinks.attr("x1", (d: any) => d.source.x)
-            //     .attr("y1", (d: any) => d.source.y)
-            //     .attr("x2", (d: any) => d.target.x)
-            //     .attr("y2", (d: any) => d.target.y);
-
-            svgLinks.attr('d', (d:any)=>linkGene(d))
-        }
-
-        simulation.nodes(nodes);
-        simulation.force<d3.ForceLink<INode, ILink>>("link")!.links(links);
         // simulation.on("tick", ticked);
-        
-        for (var i = 0, n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())); i < n; ++i) {
-            simulation.tick(1); // don't know why but simulation.on('tick', ticked) doesn't work
-            
-        }
-        ticked()
 
-        
+        d3.timeout(() => {
+            simulation.nodes(nodes);
+            simulation.force<d3.ForceLink<INode, ILink>>("link")!.links(links);
+
+
+            // run simulation first, then dray graph
+            for (var i = 0, n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())); i < n; ++i) {
+                simulation.tick(1); // don't know why but simulation.on('tick', ticked) doesn't work
+
+                if (i>=n-1){
+                    d3.select('g.loading')
+                    .remove()
+                }else{
+                    d3.select('rect.loadingbar')
+                    .transition()
+                    .attr('width', loadingIconWidth*i/n)
+                }
+
+
+            }
+
+            let svgLinks: any = g.append('g')
+                .attr("stroke", "#333")
+                .style("opacity", 0.2)
+                .selectAll('.link')
+
+
+            svgLinks = svgLinks
+                .data(links, (d: ILink) => [d.source, d.target])
+                // .join("line")
+                .join(
+                    (enter: any) => enter.append("path")
+                        .attr('class', 'link')
+                        .attr('d', (d:any)=>linkGene(d))
+                        .attr('fill', 'none')
+                        .attr('stroke', "black")
+                        .attr('stroke-width', "2")
+                        .attr("opacity", 0.4),
+
+                    (update: any) => update
+                        .attr('d', (d: any) => linkGene(d)),
+
+                    (exit: any) => exit.remove()
+                );
+
+
+            let svgNodes = g.append('g')
+                .attr('class', 'nodes')
+                .selectAll('g.nodeGroup')
+                .data(nodes, (d: any) => d.id)
+                .join(
+                    enter => enter.append("g")
+                        .attr('class', 'nodeGroup')
+                        .attr("transform", d => `translate(${d.x}, ${d.y})`)
+                        .attr('cursor', 'pointer'),
+
+                    update => update.attr("transform", d => `translate(${d.x}, ${d.y})`),
+
+                    exit => exit.remove()
+                )
+
+            svgNodes.append('title')
+                .text((d: INode) => `entrez_id:${d.id}`)
+
+
+            svgNodes.append('circle')
+                .filter(d => !viralTargets.includes(parseInt(d.id)))
+                // .filter(d=>!drugTargets.includes(d.id))
+                .attr("r", (d: INode) => viralTargets.includes(parseInt(d.id)) ? '0.5' : this.RADIUS)
+                // .attr("r", 5)
+                .attr('class', 'virus_host')
+                .attr('id', d => d.id)
+                .attr("fill", (d: INode) => drugTargets.includes(d.id) ? '#1890ff' : (viralTargets.includes(parseInt(d.id)) ? 'gray' : 'white'))
+                .attr('stroke', 'gray')
+
+
+            svgNodes
+                .selectAll('path.arc')
+                .data((d: any) => this.getExpNetIdx(d.id))
+                .join(
+                    enter => enter.append("path")
+                        .attr('class', (d: number) => `arc ${d}`)
+                        .attr('d', (d: number) => this.pieGenerator(d))
+                        .attr('fill', 'red'),
+
+                    update => update
+                        .attr('d', (d: number) => this.pieGenerator(d)),
+
+                    (exit: any) => exit.remove()
+                )
+            
+        })
+
+
     }
 
     drugTargetConnections() {
