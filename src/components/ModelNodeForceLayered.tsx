@@ -149,7 +149,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
             .range([this.padding, height - 2 * this.padding])
 
         let yDrugTargetScale = d3.scalePoint()
-            .domain(drugTargets.map(d => d.toString()))
+            .domain(drugTargets)
             .range([this.padding + 0.1 * height, 0.9 * height - 2 * this.padding])
 
         let nodeIDs: string[] = viralTargets.concat(
@@ -162,13 +162,33 @@ export default class ModelNodeForce extends React.Component<Props, State>{
                 if (i<viralTargets.length){
                     fx = offsetX
                     fy = yViralTargetScake(d)||0
+                    
                 }else{
+
                     fx = offsetX + width - this.drugTargetLinkWidth
                     fy = yDrugTargetScale(d)||0
                 }
                 return { id: d, fx, fy } 
             }
             )
+
+            // let nodeIDs: string[] = drugTargets.concat(
+            //     viralTargets.filter(d=>!drugTargets.includes(d))
+            //     )
+    
+            // let nodes: INode[] = nodeIDs
+            //     .map((d,i) => { 
+            //         let fx:number=0, fy:number=0;
+            //         if (i<drugTargets.length){
+            //             fx = offsetX + width - this.drugTargetLinkWidth
+            //             fy = yDrugTargetScale(d)||0
+            //         }else{
+            //             fx = offsetX
+            //             fy = yViralTargetScake(d)||0
+            //         }
+            //         return { id: d, fx, fy } 
+            //     }
+            //     )
 
 
         paths.forEach(path => {
@@ -178,7 +198,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
                     nodeIDs.push(node)
                     nodes.push({
                         id: node,
-                        fx: offsetX + (width - this.drugTargetLinkWidth) / (path.length-1) * i
+                        fx: offsetX + (width - this.drugTargetLinkWidth) / (maxPathLen) * i
                     })
                 }
             }
@@ -286,7 +306,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
                 .selectAll('.link')
 
 
-            svgLinks = svgLinks
+            svgLinks
                 .data(links, (d: ILink) => [d.source, d.target])
                 // .join("line")
                 .join(
@@ -325,13 +345,14 @@ export default class ModelNodeForce extends React.Component<Props, State>{
 
 
             svgNodes.append('circle')
-                .filter(d => !viralTargets.includes(d.id))
+                .filter(d => (!viralTargets.includes(d.id)) || (viralTargets.includes(d.id) && drugTargets.includes(d.id)))
                 // .filter(d=>!drugTargets.includes(d.id))
-                .attr("r", (d: INode) => viralTargets.includes(d.id) ? '0.5' : this.RADIUS)
+                .attr("r", (d: INode) => (viralTargets.includes(d.id) && ! drugTargets.includes(d.id)) ? '0' : this.RADIUS)
                 // .attr("r", 5)
                 .attr('class', 'virus_host')
-                .attr('id', d => d.id)
+                .attr('id', d =>d.id )
                 .attr("fill", (d: INode) => drugTargets.includes(d.id) ? '#1890ff' : (viralTargets.includes(d.id) ? 'gray' : 'white'))
+                // .attr("fill", (d: INode) => viralTargets.includes(d.id) ? 'gray' : (drugTargets.includes(d.id) ? '#1890ff' : 'white'))
                 .attr('stroke', 'gray')
 
 
