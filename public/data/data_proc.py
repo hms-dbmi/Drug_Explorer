@@ -30,7 +30,7 @@ class DataProc:
         virus_protein_df = pd.read_csv(self.virus_file)  
         for _, row in virus_protein_df.iterrows():
             virus = row['SARS-COV2']
-            target = row['EntrezID']
+            target = str(row['EntrezID'])
             if target not in all_targets:
                 all_targets.append(target)
 
@@ -56,8 +56,8 @@ class DataProc:
 
         protein_df = pd.read_csv(self.protein_file)  
         for _, row in protein_df.iterrows():
-            protein_a = row['proteinA_entrezid']
-            protein_b = row['proteinB_entrezid']
+            protein_a = str(row['proteinA_entrezid'])
+            protein_b = str(row['proteinB_entrezid'])
 
             if ( protein_a in all_targets ) and  (protein_b in all_targets) and (protein_a != protein_b):
                 target_links.append([protein_a, protein_b])
@@ -77,8 +77,8 @@ class DataProc:
     def build_protein_graph(self):
         protein_df = pd.read_csv(self.protein_file) 
         for _, row in protein_df.iterrows():
-            protein_a = row['proteinA_entrezid']
-            protein_b = row['proteinB_entrezid']
+            protein_a = str(row['proteinA_entrezid'])
+            protein_b = str(row['proteinB_entrezid'])
             if protein_a != protein_b:
                 self.protein_graph.add_edge(protein_a, protein_b)
             else:
@@ -108,7 +108,7 @@ class DataProc:
         for _, row in drug_df.iterrows():
             drugID = row['ID']
             if drugID in self.top_drugs:
-                drug_protein = row['entrez_id']
+                drug_protein = str(row['entrez_id'])
                 drug_name = row['Name']
                 
                 if drugID in drug_protein_dict:
@@ -151,9 +151,7 @@ class DataProc:
                 "edges": list(self.protein_graph.subgraph(involved_nodes).edges),   
                 'targets': drug_protein_dict[drugID]['proteins'],     
                 "paths": involved_paths
-                }
-
-        
+                }        
 
         drug_graph_json_filename = os.path.join(os.getcwd(), "drug_graph_top{}_len{}.json".format(self.MAX_RANKING, LEN_THR))
         with open(drug_graph_json_filename , 'w') as f:
@@ -173,7 +171,7 @@ class DataProc:
         for _, row in drug_df.iterrows():
             drugID = row['ID']
             if drugID in self.top_drugs:
-                drug_protein = row['entrez_id']
+                drug_protein = str(row['entrez_id'])
                 drug_name = row['Name']
                 
                 if drugID in drug_protein_dict:
@@ -300,10 +298,71 @@ class DataProc:
         #     json.dump(gnn_exp, f)
 
         return gnn_exp
+
+    def filterDisease(self):
+        # only store disease that are connected to proteins in drug graph path
+        drug_graph_json_filename = os.path.join(os.getcwd(), "drug_graph_top50_len4.json")
+        drug_graph_json = open(drug_graph_json_filename, 'r')
+        drug_graph = json.load(drug_graph_json)
+        drug_graph_json.close()
+
+        involved_protein_nodes = []
+        for drugID in drug_graph:
+            for path in drug_graph[drugID]['paths']:
+                for node in path:
+                    if node not in involved_protein_nodes:
+                        involved_protein_nodes.append(node)
+
+        knowledge_folder = os.path.join(os.getcwd(), './knowledge-graph')
+        disease_protein_filename = os.path.join(knowledge_folder, "protein-disease2.tsv")
+        disease_protein_df = pd.read_csv(disease_protein_filename, sep='\t', quoting=csv.QUOTE_NONE) 
+
+        print('involved proteins', len(involved_protein_nodes))
+
+        disease_dict_filtered = {} 
+        for _, row in disease_protein_df.iterrows():
+            protein = str(row['entrez_id'])
+            disease = row['Name']
+            diseaseID = row['ID']
+            
+            # print('this protein', protein)
+            if (protein in involved_protein_nodes) :
+                if diseaseID in disease_dict_filtered:
+                    disease_dict_filtered[diseaseID]['proteins'].append(protein)
+                else:
+                    disease_dict_filtered[diseaseID] = {
+                        "disease": disease,
+                        "diseaseID": diseaseID,
+                        "proteins": [protein],
+                        "drugs": []
+                    }
+                    
+        disease_drug_filename = os.path.join(knowledge_folder, "drug-disease.tsv")
+        disease_drug_df = pd.read_csv(disease_drug_filename, sep='\t', quoting=csv.QUOTE_NONE) 
+        for _, row in disease_drug_df.iterrows():
+            diseaseID = row['Disease']
+            drugID = row['Drug']
+            status = row['Status']
+            if diseaseID in disease_dict_filtered and status!= "-" and drugID in self.top_drugs:
+                disease_dict_filtered[diseaseID]['drugs'].append(drugID)
+
+        diseaseIDs = [k for k in disease_dict_filtered.keys()]
+        for diseaseID in diseaseIDs:
+            drugs = disease_dict_filtered[diseaseID]['drugs']
+            if len(drugs)==0:
+                del disease_dict_filtered[diseaseID]
+
+        print('filtered diseases', len(disease_dict_filtered))
+
+        disease_json_filename = os.path.join(os.getcwd(), "diseaseFiltered.json")
+        jsonfile = open(disease_json_filename, 'w')
+        json.dump(disease_dict_filtered, jsonfile)  
+        jsonfile.close()
         
 
 
 def hostParser():
+    # reorder viral host proteins based on their community 
     virus_json_filename = os.path.join(os.getcwd(), "virus.json")
     jsonfile = open(virus_json_filename, 'r')
     virusFile = json.load(jsonfile)  
@@ -329,14 +388,17 @@ def hostParser():
     jsonfile = open(virus_json_filename, 'w')
     json.dump(virusFile, jsonfile)  
     jsonfile.close()
-        
+
+
+
 
 if __name__ == '__main__': 
-    # data_proc = DataProc(max_ranking = 50)
+    data_proc = DataProc(max_ranking = 50)
     # data_proc.parseVirus()
     # # data_proc.build_protein_graph()
     # data_proc.build_drug_target_graph()
     # # data_proc.summarize_drug_target_path()
     # # data_proc.parseGNNexp()
 
-    hostParser()
+    
+    # data_proc.filterDisease()

@@ -3,14 +3,12 @@ import DrugPCP from 'components/DrugPCP'
 import DrugHeat from 'components/DrugHeat'
 import Viral from 'components/Viral'
 import ModelNodeForce from 'components/ModelNodeForceLayered'
-import ModelNodeLayered from 'components/ModelNodeLayered'
+import Diseases from 'components/Diseases'
 import ModelBar from 'components/ModelBar'
 import { Layout, Switch, Select, InputNumber } from 'antd'
 import './App.css';
 import {virus_target as virus2target} from 'data/virus.json'
 
-
-import * as d3 from "d3"
 
 
 
@@ -140,20 +138,24 @@ export default class App extends React.Component<Props, State>{
   render() {
     let siderWidth = 200, mainViewWidth = window.innerWidth - 200, mainViewHeight = window.innerHeight,
       headerHeight = 64, footHeight = 40, mainHeight = mainViewHeight - headerHeight - footHeight,
+      PPIHeight = mainHeight * 0.785, diseasesHeight = mainHeight - PPIHeight,
       virusWidth = 0.1 * mainViewWidth, modelWidth = 0.6 * mainViewWidth, drugWidth = mainViewWidth - virusWidth - modelWidth
+      let legendW = 100
 
     let { selectedDrugID, drugFlag, modelFlag, netName, maxPathLen, onlyExp } = this.state
 
     let modelComponent = modelFlag ?
-      <ModelNodeForce height={mainHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth} netName={netName} maxPathLen={maxPathLen} onlyExp={onlyExp}/>
+      <ModelNodeForce height={PPIHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth} netName={netName} maxPathLen={maxPathLen} onlyExp={onlyExp}/>
       :
-      <ModelBar height={mainHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth} />
+      <ModelBar height={PPIHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth} />
 
 
     let drugComponent = drugFlag ?
       <DrugHeat height={mainHeight} width={drugWidth} offsetX={virusWidth + modelWidth} selectedDrugID={selectedDrugID} selectDrug={this.selectDrug} />
       :
       <DrugPCP height={mainHeight} width={drugWidth} offsetX={virusWidth + modelWidth} selectedDrugID={selectedDrugID} selectDrug={this.selectDrug} />
+
+    let diseaseComponet = <Diseases width={modelWidth} height={diseasesHeight} offsetX={virusWidth} offsetY={PPIHeight}/>
 
 
     let header = <Header className='header' style={{ height: headerHeight }}>
@@ -194,7 +196,7 @@ export default class App extends React.Component<Props, State>{
       })}
       </div>
     </div>
-      <h4>longest path included</h4> <InputNumber min={1} max={5} defaultValue={maxPathLen} onChange={this.changeMaxPathLen} size="small"/>
+      <h4>longest path included</h4> <InputNumber min={1} max={4} defaultValue={maxPathLen} onChange={this.changeMaxPathLen} size="small"/>
       <br/>
       only pathes contains explanation nodes <Switch checkedChildren="yes" unCheckedChildren="no" defaultChecked onChange={()=>{
         let {onlyExp} = this.state
@@ -210,9 +212,15 @@ export default class App extends React.Component<Props, State>{
           {sider}
           <Content className="main" style={{ height: mainHeight }}>
             <svg className="main">
-              <Viral height={mainHeight} width={virusWidth} viralProtein={this.state.viralProtein} />
+              <Viral height={PPIHeight} width={virusWidth} viralProtein={this.state.viralProtein} />
               {modelComponent}
               {drugComponent}
+              {diseaseComponet}
+              <g className="legend" transform={`translate(${virusWidth/2-legendW/2}, ${mainHeight - legendW})`}>
+                <foreignObject width={legendW} height={legendW} >
+                    <img src='./assets/node_legend.png' width={legendW} />
+                </foreignObject>
+            </g>
             </svg>
 
           </Content>

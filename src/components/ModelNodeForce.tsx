@@ -174,7 +174,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         for (let i = 0; i < nodes.length; i++) {
             let node = nodes[i],
                 drugIdx = drugTargets.indexOf(node.id),
-                viralIdx = viralTargets.indexOf(parseInt(node.id))
+                viralIdx = viralTargets.indexOf(node.id)
             if (drugIdx > -1) {
                 node.fy = yDrugTargetScale(node.id)
                 node.fx = offsetX + width - this.drugTargetLinkWidth
@@ -315,13 +315,13 @@ export default class ModelNodeForce extends React.Component<Props, State>{
 
 
             svgNodes.append('circle')
-                .filter(d => !viralTargets.includes(parseInt(d.id)))
+                .filter(d => !viralTargets.includes(d.id))
                 // .filter(d=>!drugTargets.includes(d.id))
-                .attr("r", (d: INode) => viralTargets.includes(parseInt(d.id)) ? '0.5' : this.RADIUS)
+                .attr("r", (d: INode) => viralTargets.includes(d.id) ? '0.5' : this.RADIUS)
                 // .attr("r", 5)
                 .attr('class', 'virus_host')
                 .attr('id', d => d.id)
-                .attr("fill", (d: INode) => drugTargets.includes(d.id) ? '#1890ff' : (viralTargets.includes(parseInt(d.id)) ? 'gray' : 'white'))
+                .attr("fill", (d: INode) => drugTargets.includes(d.id) ? '#1890ff' : (viralTargets.includes(d.id) ? 'gray' : 'white'))
                 .attr('stroke', 'gray')
 
 
@@ -360,7 +360,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
 
 
         let yDrugTargetScale = d3.scalePoint()
-            .domain(drugTargets.map(d => d.toString()))
+            .domain(drugTargets)
             .range([this.padding + 0.1 * height, 0.9 * height - 2 * this.padding])
 
         let links = targetEdges.map((link, i) => {

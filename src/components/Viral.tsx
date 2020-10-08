@@ -9,7 +9,7 @@ interface Props {
 }
 
 export interface VT {
-    [virus:string]: number[]
+    [virus:string]: string[]
 }
 
 
@@ -27,7 +27,7 @@ export default class Viral extends React.Component<Props, State >{
             return - virus_target[a].length + virus_target[b].length
         })
 
-        let allTargets:number[] = []
+        let allTargets:string[] = []
         virus.forEach(v=>{
             let targets = virus_target[v]
             targets.forEach(target=>{
