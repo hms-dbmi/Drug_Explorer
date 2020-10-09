@@ -63,20 +63,20 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         return res.data
     }
     async calculateLayout() {
-        if (this.state.isCalculating===false){
-            this.setState({isCalculating:true})
+        if (this.state.isCalculating === false) {
+            this.setState({ isCalculating: true })
         }
-        
+
 
         let { selectedDrugID, offsetX, width, height, maxPathLen, onlyExp } = this.props
-        if (Object.keys(this.expNodes).length===0){
+        if (Object.keys(this.expNodes).length === 0) {
             await this.getDrugExp()
         }
-        if (Object.keys(this.drugPaths).length===0){
+        if (Object.keys(this.drugPaths).length === 0) {
             await this.getDrugPaths()
         }
 
-        let {drugPaths, expNodes} = this
+        let { drugPaths, expNodes } = this
 
 
 
@@ -176,7 +176,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
     }
 
     drawNodes() {
-        let { nodes} = this.state
+        let { nodes } = this.state
 
         let { selectedDrugID } = this.props
         let { drugPaths } = this
@@ -190,10 +190,10 @@ export default class ModelNodeForce extends React.Component<Props, State>{
                 let r = (viralTargets.includes(node.id) && !drugTargets.includes(node.id)) ? '0' : this.RADIUS
                 let fill = drugTargets.includes(node.id) ? '#1890ff' : (viralTargets.includes(node.id) ? 'gray' : 'white')
                 let arcs = this.getExpNetIdx(node.id).map(d => {
-                    return <path key={`arc_${d}`} d={this.pieGenerator(d)!} fill="red" />
+                    return <path key={`arc_${d}`} d={this.pieGenerator(d)!} fill="red" stroke="lightgray"/>
                 })
-                return <g key={`node_${node.id}`} transform={`translate(${node.x}, ${node.y})`}>
-                    <circle r={r} fill={fill} />
+                return <g key={`node_${node.id}`} transform={`translate(${node.x}, ${node.y})`} cursor="pointer">
+                    <circle r={r} fill={fill} stroke="lightgray"/>
                     {arcs}
                 </g>
             })
@@ -216,7 +216,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         })
 
 
-        return <g className="links" style={{opacity:"0.4"}}>{svgLinks}</g>
+        return <g className="links" style={{ opacity: "0.4" }}>{svgLinks}</g>
     }
 
 
@@ -312,27 +312,50 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         this.calculateLayout()
     }
 
-    componentDidUpdate(prevProps: Props){
-        let { selectedDrugID: prevSelectedDrugID, maxPathLen: prevMaxPathLen} = prevProps, { selectedDrugID } = this.props
-            if (
-                prevSelectedDrugID !== selectedDrugID || prevMaxPathLen !== this.props.maxPathLen
-                // && nextProps.onlyExp === this.props.onlyExp
-            ) {
-                
-                this.calculateLayout()
-            }
+    componentDidUpdate(prevProps: Props) {
+        let { selectedDrugID: prevSelectedDrugID, maxPathLen: prevMaxPathLen } = prevProps, { selectedDrugID } = this.props
+        if (
+            prevSelectedDrugID !== selectedDrugID || prevMaxPathLen !== this.props.maxPathLen
+            // && nextProps.onlyExp === this.props.onlyExp
+        ) {
+
+            this.calculateLayout()
+        }
     }
 
     render() {
-        let {offsetX, width, height} = this.props
+        let { offsetX, width, height } = this.props
+
+        let loadingIcon = <g transform={`translate(${offsetX + width / 2}, ${height / 2})`}>
+            <text textAnchor="middle" x="24">LOADING...</text>
+            <rect x="0" y="50" width="14" height="30" fill="#1890ff">
+                <animateTransform attributeType="xml"
+                    attributeName="transform" type="translate"
+                    values="0 0; 0 20; 0 0"
+                    begin="0" dur="0.6s" repeatCount="indefinite" />
+            </rect>
+            <rect x="20" y="50" width="14" height="30" fill="#1890ff">
+                <animateTransform attributeType="xml"
+                    attributeName="transform" type="translate"
+                    values="0 0; 0 20; 0 0"
+                    begin="0.2s" dur="0.6s" repeatCount="indefinite" />
+            </rect>
+            <rect x="40" y="50" width="14" height="30" fill="#1890ff">
+                <animateTransform attributeType="xml"
+                    attributeName="transform" type="translate"
+                    values="0 0; 0 20; 0 0"
+                    begin="0.4s" dur="0.6s" repeatCount="indefinite" />
+            </rect>
+
+        </g>
         let content = this.state.isCalculating ?
-            <g transform={`translate(${offsetX+width/2}, ${height/2})`}><text>loading</text></g> :
+            loadingIcon :
             <g>{this.drawLinks()}
                 {this.drawNodes()}
                 {this.drugTargetConnections()}
             </g>
         return <g className='model'>
-           {content}
+            {content}
         </g>
     }
 }
