@@ -1,10 +1,8 @@
 import React from 'react';
-import DrugPCP from 'components/DrugPCP'
-import DrugHeat from 'components/DrugHeat'
+import Drug from 'components/Drug/'
 import Viral from 'components/Viral'
-import ModelNodeForce from 'components/ModelNodeForceLayered'
+import Model from 'components/Model/'
 import Diseases from 'components/Diseases'
-import ModelBar from 'components/ModelBar'
 import { Layout, Switch, Select, InputNumber } from 'antd'
 import './App.css';
 import {virus_target as virus2target} from 'data/virus.json'
@@ -18,13 +16,15 @@ const { Option } = Select
 interface State {
   selectedDrugID: string,
   // selectedDrugIDs: string[],
-  drugFlag: boolean,
-  modelFlag: boolean,
+  drugMode: TDrugMode,
+  modelMode: 'layered'|'bar'|string,
   netName: string,
   viralProtein:string,
   maxPathLen: number,
   onlyExp:boolean
 }
+
+type TDrugMode = 'heat'|'pcp'
 interface Props {
 
 }
@@ -37,8 +37,8 @@ export default class App extends React.Component<Props, State>{
       selectedDrugID: 'DB13179',
       viralProtein: '',
       netName: 'A1',
-      drugFlag: true,
-      modelFlag: true,
+      drugMode: 'heat',
+      modelMode: 'layered',
       maxPathLen: 1,
       onlyExp: true,
     }
@@ -49,8 +49,6 @@ export default class App extends React.Component<Props, State>{
     this.changeMaxPathLen = this.changeMaxPathLen.bind(this)
     this.hoverViralProtein = this.hoverViralProtein.bind(this)
     this.unhoverViralProtein = this.unhoverViralProtein.bind(this)
-
-    
     
   }
 
@@ -70,17 +68,25 @@ export default class App extends React.Component<Props, State>{
   }
 
   toggleDrugFlag() {
-    let { drugFlag } = this.state
+    let { drugMode } = this.state
+    if (drugMode==='heat'){
+      drugMode ='pcp'
+    } else {
+      drugMode='heat'
+    }
     this.setState({
-      drugFlag: !drugFlag
+      drugMode
     })
   }
 
   toggleModelFlag() {
-    let { modelFlag } = this.state
-    this.setState({
-      modelFlag: !modelFlag
-    })
+    let { modelMode } = this.state
+    if (modelMode=='layered'){
+      modelMode='bar'
+    }else{
+      modelMode="layered"
+    }
+    this.setState({ modelMode })
   }
 
   changeNet(netName: string) {
@@ -142,19 +148,7 @@ export default class App extends React.Component<Props, State>{
       virusWidth = 0.1 * mainViewWidth, modelWidth = 0.6 * mainViewWidth, drugWidth = mainViewWidth - virusWidth - modelWidth
       let legendW = 100
 
-    let { selectedDrugID, drugFlag, modelFlag, netName, maxPathLen, onlyExp } = this.state
-
-    let modelComponent = modelFlag ?
-      <ModelNodeForce height={PPIHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth} netName={netName} maxPathLen={maxPathLen} onlyExp={onlyExp}/>
-      :
-      <ModelBar height={PPIHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth} />
-
-
-    let drugComponent = drugFlag ?
-      <DrugHeat height={mainHeight} width={drugWidth} offsetX={virusWidth + modelWidth} selectedDrugID={selectedDrugID} selectDrug={this.selectDrug} />
-      :
-      <DrugPCP height={mainHeight} width={drugWidth} offsetX={virusWidth + modelWidth} selectedDrugID={selectedDrugID} selectDrug={this.selectDrug} />
-
+    let { selectedDrugID, drugMode, modelMode, maxPathLen, onlyExp } = this.state   
     let diseaseComponet = <Diseases width={modelWidth} height={diseasesHeight} offsetX={virusWidth} offsetY={PPIHeight}/>
 
 
@@ -213,8 +207,9 @@ export default class App extends React.Component<Props, State>{
           <Content className="main" style={{ height: mainHeight }}>
             <svg className="main">
               <Viral height={PPIHeight} width={virusWidth} viralProtein={this.state.viralProtein} />
-              {modelComponent}
-              {drugComponent}
+              <Model modelMode={modelMode} height={PPIHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth} maxPathLen={maxPathLen} onlyExp={onlyExp}/>
+              <Drug drugMode={drugMode} height={mainHeight} width={drugWidth} offsetX={virusWidth + modelWidth} selectedDrugID={selectedDrugID} selectDrug={this.selectDrug} />
+      
               {diseaseComponet}
               <g className="legend" transform={`translate(${virusWidth/2-legendW/2}, ${mainHeight - legendW})`}>
                 <foreignObject width={legendW} height={legendW} >
