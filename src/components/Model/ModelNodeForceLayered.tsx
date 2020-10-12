@@ -313,9 +313,10 @@ export default class ModelNodeForce extends React.Component<Props, State>{
     }
 
     componentDidUpdate(prevProps: Props) {
-        let { selectedDrugID: prevSelectedDrugID, maxPathLen: prevMaxPathLen } = prevProps, { selectedDrugID } = this.props
+        let { selectedDrugID: prevSelectedDrugID, maxPathLen: prevMaxPathLen, onlyExp:prevOnlyExp } = prevProps, { selectedDrugID, maxPathLen, onlyExp } = this.props
         if (
-            prevSelectedDrugID !== selectedDrugID || prevMaxPathLen !== this.props.maxPathLen
+            prevSelectedDrugID !== selectedDrugID || prevMaxPathLen !== maxPathLen
+            || prevOnlyExp !== onlyExp
             // && nextProps.onlyExp === this.props.onlyExp
         ) {
 

@@ -3,7 +3,7 @@ import Drug from 'components/Drug/'
 import Viral from 'components/Viral'
 import Model from 'components/Model/'
 import Diseases from 'components/Diseases'
-import { Layout, Switch, Select, InputNumber } from 'antd'
+import { Layout, Switch, Select, InputNumber, Slider } from 'antd'
 import './App.css';
 import {virus_target as virus2target} from 'data/virus.json'
 
@@ -21,7 +21,9 @@ interface State {
   netName: string,
   viralProtein:string,
   maxPathLen: number,
-  onlyExp:boolean
+  onlyExp:boolean,
+  // transform of the graph 
+  scale: number
 }
 
 type TDrugMode = 'heat'|'pcp'
@@ -41,6 +43,7 @@ export default class App extends React.Component<Props, State>{
       modelMode: 'layered',
       maxPathLen: 1,
       onlyExp: true,
+      scale:1,
     }
     this.selectDrug = this.selectDrug.bind(this)
     this.toggleDrugFlag = this.toggleDrugFlag.bind(this)
@@ -49,6 +52,8 @@ export default class App extends React.Component<Props, State>{
     this.changeMaxPathLen = this.changeMaxPathLen.bind(this)
     this.hoverViralProtein = this.hoverViralProtein.bind(this)
     this.unhoverViralProtein = this.unhoverViralProtein.bind(this)
+
+    this.changeScale = this.changeScale.bind(this)
     
   }
 
@@ -141,6 +146,11 @@ export default class App extends React.Component<Props, State>{
     this.setState({viralProtein:''})
   }
 
+  changeScale(scale:number){
+    this.setState({scale})
+  }
+
+
   render() {
     let siderWidth = 200, mainViewWidth = window.innerWidth - 200, mainViewHeight = window.innerHeight,
       headerHeight = 64, footHeight = 40, mainHeight = mainViewHeight - headerHeight - footHeight,
@@ -148,7 +158,7 @@ export default class App extends React.Component<Props, State>{
       virusWidth = 0.1 * mainViewWidth, modelWidth = 0.6 * mainViewWidth, drugWidth = mainViewWidth - virusWidth - modelWidth
       let legendW = 100
 
-    let { selectedDrugID, drugMode, modelMode, maxPathLen, onlyExp } = this.state   
+    let { selectedDrugID, drugMode, modelMode, maxPathLen, onlyExp, scale } = this.state   
     let diseaseComponet = <Diseases width={modelWidth} height={diseasesHeight} offsetX={virusWidth} offsetY={PPIHeight}/>
 
 
@@ -191,6 +201,8 @@ export default class App extends React.Component<Props, State>{
       </div>
     </div>
       <h4>longest path included</h4> <InputNumber min={1} max={4} defaultValue={maxPathLen} onChange={this.changeMaxPathLen} size="small"/>
+      <br/> Scale
+      <Slider value={scale} min={0} max={1} step={0.1} tooltipVisible onChange={this.changeScale}/>
       <br/>
       only pathes contains explanation nodes <Switch checkedChildren="yes" unCheckedChildren="no" defaultChecked onChange={()=>{
         let {onlyExp} = this.state
@@ -206,9 +218,12 @@ export default class App extends React.Component<Props, State>{
           {sider}
           <Content className="main" style={{ height: mainHeight }}>
             <svg className="main">
+              <g className='wholeGraph' transform={`scale(${scale}) `}  >
               <Viral height={PPIHeight} width={virusWidth} viralProtein={this.state.viralProtein} />
               <Model modelMode={modelMode} height={PPIHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth} maxPathLen={maxPathLen} onlyExp={onlyExp}/>
+              </g>
               <Drug drugMode={drugMode} height={mainHeight} width={drugWidth} offsetX={virusWidth + modelWidth} selectedDrugID={selectedDrugID} selectDrug={this.selectDrug} />
+              
       
               {diseaseComponet}
               <g className="legend" transform={`translate(${virusWidth/2-legendW/2}, ${mainHeight - legendW})`}>
