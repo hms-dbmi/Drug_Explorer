@@ -1,6 +1,7 @@
 import * as React from "react"
 import * as d3 from "d3"
 import axios from "axios"
+import {cropText} from 'helpers'
 
 interface Props {
     height: number,
@@ -84,12 +85,12 @@ export default class DrugHeat extends React.Component<Props, State>{
                     // x={this.labelWidth / 2} 
                     y={this.fontSize}
                     // style={{fontSize:this.fontSize+'px'}}
-                    // fontSize={this.fontSize+'px'} 
+                    fontSize={this.fontSize+'px'} 
                     // textAnchor="middle"
                     x="2"
                     fill={isSelected?'white':'black'}
                 >
-                    {name}
+                    {cropText( name, this.fontSize, this.labelWidth)}
                 </text>
             </g>
         })

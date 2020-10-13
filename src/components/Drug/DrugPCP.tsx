@@ -1,6 +1,7 @@
 import * as React from "react"
 import * as d3 from "d3"
 import axios from "axios"
+import { cropText } from "helpers";
 
 interface Props {
     height: number,
@@ -73,7 +74,7 @@ export default class DrugPCP extends React.Component<Props, State>{
 
 
         let labels = drugNames.map((name, i) => {
-            let isSelected = (this.props.selectedDrugID==drugIDs[i])
+            let isSelected = (this.props.selectedDrugID===drugIDs[i])
             return <g key={name} transform={`translate(0, ${yScale(i + 1)})`} cursor="pointer" onClick={()=>this.props.selectDrug(drugIDs[i])}>
                 <rect width={this.labelWidth} height={this.labelHeight} fill={isSelected?'#1890ff':"transparent"} stroke={isSelected?'none':'gray'} />
                 <text
@@ -84,7 +85,7 @@ export default class DrugPCP extends React.Component<Props, State>{
                     // textAnchor="middle"
                     fill={isSelected?'white':'black'}
                 >
-                    {name}
+                    {cropText( name, this.fontSize, this.labelWidth)}
                 </text>
             </g>
         })

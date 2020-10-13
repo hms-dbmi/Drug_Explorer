@@ -6,6 +6,7 @@ import { all_targets as viralTargets } from 'data/virus.json'
 import { INode, ILink } from 'types'
 
 import Worker from 'workers'
+import { Tooltip } from "antd"
 const instance = new Worker();
 
 interface Props {
@@ -30,6 +31,7 @@ interface State {
     nodes: INode[],
     links: ILink[],
     isCalculating: boolean,
+    focusedNodeID: string,
 }
 
 interface IExpNodes {
@@ -39,12 +41,14 @@ interface IExpNodes {
 export default class ModelNodeForce extends React.Component<Props, State>{
     public padding = 10; RADIUS = 8; drugPaths: IDrugPath = {}; expNodes: IExpNodes = {}
     drugTargetLinkWidth = 70; // width to draw links between drug target proteins
+    focusPathIdx:number[] = []
     constructor(props: Props) {
         super(props)
         this.state = {
             nodes: [],
             links: [],
-            isCalculating: true
+            isCalculating: true,
+            focusedNodeID: '',
         }
 
         // const graphWorker = new Worker("../workers/graphWorker.ts");
@@ -86,20 +90,22 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         let { targets: drugTargets, paths } = drugPaths[selectedDrugID]
 
 
-        paths = paths.filter(path => path.length <= maxPathLen + 1)
+        let pathWithIdx = paths
+            .map((d, i) => { return { nodes: d, idx: i } })
+            .filter(path => path.nodes.length <= maxPathLen + 1)
 
         if (onlyExp) {
-            paths = paths.filter(path => {
+            pathWithIdx = pathWithIdx.filter(path => {
                 let flag = false
-                if (path.length === 2) {
-                    flag = this.isExp(path[0]) || this.isExp(path[1])
+                if (path.nodes.length === 2) {
+                    flag = this.isExp(path.nodes[0]) || this.isExp(path.nodes[1])
                 } else {
                     // if path.length>2, the path needs to include an explanation node apart from the source & target node
-                    for (let i = 1; i < path.length - 1; i++) {
-                        let node = path[i]
+                    for (let i = 1; i < path.nodes.length - 1; i++) {
+                        let node = path.nodes[i]
                         if (this.isExp(node)) {
                             flag = true
-                            i = path.length
+                            i = path.nodes.length
                         }
                     }
                 }
@@ -108,7 +114,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
             })
         }
 
-        paths.sort((a, b) => a.length - b.length)
+        pathWithIdx.sort((a, b) => a.nodes.length - b.nodes.length)
 
         let yViralTargetScake = d3.scalePoint()
             .domain(viralTargets)
@@ -139,27 +145,31 @@ export default class ModelNodeForce extends React.Component<Props, State>{
             )
 
 
-        paths.forEach(path => {
-            for (let i = 0; i < path.length; i++) {
-                let node = path[i].toString()
-                if (!nodeIDs.includes(node)) {
+        pathWithIdx.forEach(path => {
+
+            for (let i = 0; i < path.nodes.length; i++) {
+                let node = path.nodes[i], nodeIdx = nodeIDs.indexOf(node)
+                if (nodeIdx === -1) {
                     nodeIDs.push(node)
                     nodes.push({
                         id: node,
-                        fx: offsetX + (width - this.drugTargetLinkWidth) / (maxPathLen) * i
+                        fx: offsetX + (width - this.drugTargetLinkWidth) / (maxPathLen) * i,
+                        pathIdx: path.idx
                     })
+                } else {
+                    nodes[nodeIdx]['pathIdx'] = path.idx
                 }
             }
         })
 
         let links: ILink[] = []
-        paths.forEach(path => {
-            for (let i = 0; i < path.length - 1; i++) {
-                let source = path[i].toString(), target = path[i + 1].toString()
+        pathWithIdx.forEach(path => {
+            for (let i = 0; i < path.nodes.length - 1; i++) {
+                let source = path.nodes[i].toString(), target = path.nodes[i + 1].toString()
                 if (drugTargets.includes(source) && drugTargets.includes(target)) {
                     continue
                 }
-                links.push({ source, target })
+                links.push({ source, target, pathIdx: path.idx })
             }
         })
 
@@ -175,8 +185,33 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         })
     }
 
+    focusNode(id: string) {
+        let { focusedNodeID } = this.state
+        let {selectedDrugID} = this.props
+        let {drugPaths} = this
+        let {paths} = drugPaths[selectedDrugID]
+        this.focusPathIdx = []
+        
+
+        if (id === focusedNodeID) {
+            this.setState({
+                focusedNodeID: ''
+            })
+        } else {
+            paths.forEach((path, idx)=>{
+                if (path.includes(id)){
+                    this.focusPathIdx.push(idx)
+                }
+            })
+
+            this.setState({
+                focusedNodeID: id
+            })
+        }
+    }
+
     drawNodes() {
-        let { nodes } = this.state
+        let { nodes, focusedNodeID } = this.state
 
         let { selectedDrugID } = this.props
         let { drugPaths } = this
@@ -187,31 +222,43 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         let svgNodes = nodes
             // .filter(d => (!viralTargets.includes(d.id)) || (viralTargets.includes(d.id) && drugTargets.includes(d.id)))
             .map((node, i) => {
+                let isFocused = this.focusPathIdx.includes(node.pathIdx!)
                 let r = (viralTargets.includes(node.id) && !drugTargets.includes(node.id)) ? '0' : this.RADIUS
                 let fill = drugTargets.includes(node.id) ? '#1890ff' : (viralTargets.includes(node.id) ? 'gray' : 'white')
+                let opacity = focusedNodeID === '' ? 1 : isFocused ? 1 : 0.5
+                let stroke = node.id === focusedNodeID ? 'black' : 'lightgray'
                 let arcs = this.getExpNetIdx(node.id).map(d => {
-                    return <path key={`arc_${d}`} d={this.pieGenerator(d)!} fill="red" stroke="lightgray"/>
+                    return <path key={`arc_${d}`} d={this.pieGenerator(d)!} fill="red" stroke={stroke} />
                 })
-                return <g key={`node_${node.id}`} transform={`translate(${node.x}, ${node.y})`} cursor="pointer">
-                    <circle r={r} fill={fill} stroke="lightgray"/>
-                    {arcs}
-                </g>
+                return <Tooltip title={`entrez_id:${node.id}`}>
+                    <g key={`node_${node.id}`}
+                        transform={`translate(${node.x}, ${node.y})`}
+                        cursor="pointer" xlinkTitle={`entrez_id:${node.id}`}
+                        opacity={opacity}
+                        onClick={() => { this.focusNode(node.id) }}
+                    >
+                        <circle r={r} fill={fill} stroke={stroke} />
+                        {arcs}
+                    </g>
+                </Tooltip>
             })
         return <g className="nodes" >{svgNodes}</g>
     }
 
     drawLinks() {
-        let { links } = this.state
+        let { links, focusedNodeID } = this.state
 
         let svgLinks: JSX.Element[] = links.map((link) => {
-            let { source, target }: any = link
-            return <path key={`${source.id!}->${target.id}`}
+            let { source, target }:any = link
+            let isFocused = this.focusPathIdx.includes(link.pathIdx!)
+            let opacity = focusedNodeID === '' ? 0.4 : isFocused ? 1 : 0.1
+            return <path key={`${source.id!}->${target.id}_pathidx${link.pathIdx}`}
                 className={`${source.id!}->${target.id}`}
                 d={this.linkGene(link)}
                 fill="none"
                 stroke="black"
                 strokeWidth="1"
-                opacity="0.4"
+                opacity={opacity}
             />
         })
 
@@ -313,7 +360,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
     }
 
     componentDidUpdate(prevProps: Props) {
-        let { selectedDrugID: prevSelectedDrugID, maxPathLen: prevMaxPathLen, onlyExp:prevOnlyExp } = prevProps, { selectedDrugID, maxPathLen, onlyExp } = this.props
+        let { selectedDrugID: prevSelectedDrugID, maxPathLen: prevMaxPathLen, onlyExp: prevOnlyExp } = prevProps, { selectedDrugID, maxPathLen, onlyExp } = this.props
         if (
             prevSelectedDrugID !== selectedDrugID || prevMaxPathLen !== maxPathLen
             || prevOnlyExp !== onlyExp

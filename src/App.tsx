@@ -5,7 +5,7 @@ import Model from 'components/Model/'
 import Diseases from 'components/Diseases'
 import { Layout, Switch, Select, InputNumber, Slider } from 'antd'
 import './App.css';
-import {virus_target as virus2target} from 'data/virus.json'
+import { virus_target as virus2target } from 'data/virus.json'
 
 
 
@@ -17,16 +17,16 @@ interface State {
   selectedDrugID: string,
   // selectedDrugIDs: string[],
   drugMode: TDrugMode,
-  modelMode: 'layered'|'bar'|string,
+  modelMode: 'layered' | 'bar' | string,
   netName: string,
-  viralProtein:string,
+  viralProtein: string,
   maxPathLen: number,
-  onlyExp:boolean,
+  onlyExp: boolean,
   // transform of the graph 
   scale: number
 }
 
-type TDrugMode = 'heat'|'pcp'
+type TDrugMode = 'heat' | 'pcp'
 interface Props {
 
 }
@@ -43,7 +43,7 @@ export default class App extends React.Component<Props, State>{
       modelMode: 'layered',
       maxPathLen: 1,
       onlyExp: true,
-      scale:1,
+      scale: 1,
     }
     this.selectDrug = this.selectDrug.bind(this)
     this.toggleDrugFlag = this.toggleDrugFlag.bind(this)
@@ -54,7 +54,7 @@ export default class App extends React.Component<Props, State>{
     this.unhoverViralProtein = this.unhoverViralProtein.bind(this)
 
     this.changeScale = this.changeScale.bind(this)
-    
+
   }
 
   selectDrug(drugID: string) {
@@ -74,10 +74,10 @@ export default class App extends React.Component<Props, State>{
 
   toggleDrugFlag() {
     let { drugMode } = this.state
-    if (drugMode==='heat'){
-      drugMode ='pcp'
+    if (drugMode === 'heat') {
+      drugMode = 'pcp'
     } else {
-      drugMode='heat'
+      drugMode = 'heat'
     }
     this.setState({
       drugMode
@@ -86,10 +86,10 @@ export default class App extends React.Component<Props, State>{
 
   toggleModelFlag() {
     let { modelMode } = this.state
-    if (modelMode=='layered'){
-      modelMode='bar'
-    }else{
-      modelMode="layered"
+    if (modelMode == 'layered') {
+      modelMode = 'bar'
+    } else {
+      modelMode = "layered"
     }
     this.setState({ modelMode })
   }
@@ -100,15 +100,15 @@ export default class App extends React.Component<Props, State>{
     }
   }
 
-  changeMaxPathLen(len:number|undefined|string){
+  changeMaxPathLen(len: number | undefined | string) {
     // console.info('change max path len', len)
-    if (typeof(len) ==='undefined') return
-    else{
+    if (typeof (len) === 'undefined') return
+    else {
       this.setState({
-        maxPathLen:len as number
+        maxPathLen: len as number
       })
     }
-    
+
   }
 
   // hoverViralProtein(e:any){
@@ -122,13 +122,13 @@ export default class App extends React.Component<Props, State>{
 
   //   // d3.selectAll('.virus_host')
   //   //   .style('opacity', 0.2)
-    
+
   // }
 
-  hoverViralProtein(viralProtein:string){
-    
-    if (viralProtein!==undefined){
-      this.setState({viralProtein})
+  hoverViralProtein(viralProtein: string) {
+
+    if (viralProtein !== undefined) {
+      this.setState({ viralProtein })
     }
     // let hosts = (virus2target as VT)[viralProtein]
 
@@ -136,18 +136,18 @@ export default class App extends React.Component<Props, State>{
 
     // d3.selectAll('.virus_host')
     //   .style('opacity', 0.2)
-    
+
   }
 
 
-  unhoverViralProtein(){
+  unhoverViralProtein() {
     // d3.selectAll('.virus_host')
     //   .style('opacity', 1)
-    this.setState({viralProtein:''})
+    this.setState({ viralProtein: '' })
   }
 
-  changeScale(scale:number){
-    this.setState({scale})
+  changeScale(scale: number) {
+    this.setState({ scale })
   }
 
 
@@ -156,10 +156,9 @@ export default class App extends React.Component<Props, State>{
       headerHeight = 64, footHeight = 40, mainHeight = mainViewHeight - headerHeight - footHeight,
       PPIHeight = mainHeight * 0.785, diseasesHeight = mainHeight - PPIHeight,
       virusWidth = 0.1 * mainViewWidth, modelWidth = 0.6 * mainViewWidth, drugWidth = mainViewWidth - virusWidth - modelWidth
-      let legendW = 100
+    let legendW = 100
 
-    let { selectedDrugID, drugMode, modelMode, maxPathLen, onlyExp, scale } = this.state   
-    let diseaseComponet = <Diseases width={modelWidth} height={diseasesHeight} offsetX={virusWidth} offsetY={PPIHeight}/>
+    let { selectedDrugID, drugMode, modelMode, maxPathLen, onlyExp, scale } = this.state
 
 
     let header = <Header className='header' style={{ height: headerHeight }}>
@@ -178,36 +177,37 @@ export default class App extends React.Component<Props, State>{
     </Header>
 
 
-    let sider = <Sider width={siderWidth} theme="light" style={{padding: "5px"}}>
-         <Select defaultValue="SARS-COV2" style={{ width: siderWidth -10}} onChange={this.changeNet}>
+    let sider = <Sider width={siderWidth} theme="light" style={{ padding: "5px" }}>
+      <Select defaultValue="SARS-COV2" style={{ width: siderWidth - 10 }} onChange={this.changeNet}>
         <Option value="SARS-COVID2">SARS-COV2</Option>
-      </Select> 
-    <br/>
-    <div style={{marginBottom: "5px", borderBottom: "lightgray solid 1px", paddingBottom: "5px"}}>
-      <h4>viral proteins</h4> 
-      <div >{Object.keys(virus2target).map(viralProtein=>{
-        let name = viralProtein.replace('sars-cov2','')
-        let isHovered = (viralProtein===this.state.viralProtein)
-        return <span 
-          style={{
-            margin: " 2px 4px", padding:"2px 4px", border:`solid ${isHovered?'2px black':'1px lightgray'}`, cursor:"pointer", display:"inline-block",
-            color: `${isHovered?'black':'gray'}`
-          }} 
-          onMouseEnter={()=>this.hoverViralProtein(viralProtein)}  
-          onMouseLeave={this.unhoverViralProtein}>
-          {name}
-        </span>
-      })}
+      </Select>
+      <br />
+      <div style={{ marginBottom: "5px", borderBottom: "lightgray solid 1px", paddingBottom: "5px" }}>
+        <h4>viral proteins</h4>
+        <div >{Object.keys(virus2target).map(viralProtein => {
+          let name = viralProtein.replace('sars-cov2', '')
+          let isHovered = (viralProtein === this.state.viralProtein)
+          return <span
+            style={{
+              margin: " 2px 4px", padding: "2px 4px", border: `solid ${isHovered ? '2px black' : '1px lightgray'}`, cursor: "pointer", display: "inline-block",
+              color: `${isHovered ? 'black' : 'gray'}`
+            }}
+            onMouseEnter={() => this.hoverViralProtein(viralProtein)}
+            onMouseLeave={this.unhoverViralProtein}>
+            {name}
+          </span>
+        })}
+        </div>
       </div>
-    </div>
-      <h4>longest path included</h4> <InputNumber min={1} max={4} defaultValue={maxPathLen} onChange={this.changeMaxPathLen} size="small"/>
-      <br/> Scale
-      <Slider value={scale} min={0} max={1} step={0.1} tooltipVisible onChange={this.changeScale}/>
-      <br/>
-      only pathes contains explanation nodes <Switch checkedChildren="yes" unCheckedChildren="no" defaultChecked onChange={()=>{
-        let {onlyExp} = this.state
-        this.setState({onlyExp: !onlyExp})
-      }}/>
+      <h4>longest path included</h4> <InputNumber min={1} max={4} defaultValue={maxPathLen} onChange={this.changeMaxPathLen} size="small" />
+      <br />
+      <br /> <b>Scale</b>
+      <Slider value={scale} min={0} max={2} step={0.1} tooltipVisible onChange={this.changeScale} />
+      <br />
+      only pathes contains explanation nodes <Switch checkedChildren="yes" unCheckedChildren="no" defaultChecked onChange={() => {
+        let { onlyExp } = this.state
+        this.setState({ onlyExp: !onlyExp })
+      }} />
     </Sider>
 
     return (
@@ -218,19 +218,21 @@ export default class App extends React.Component<Props, State>{
           {sider}
           <Content className="main" style={{ height: mainHeight }}>
             <svg className="main">
+
               <g className='wholeGraph' transform={`scale(${scale}) `}  >
-              <Viral height={PPIHeight} width={virusWidth} viralProtein={this.state.viralProtein} />
-              <Model modelMode={modelMode} height={PPIHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth} maxPathLen={maxPathLen} onlyExp={onlyExp}/>
+                <Viral height={PPIHeight} width={virusWidth} viralProtein={this.state.viralProtein} />
+                <Model modelMode={modelMode} height={PPIHeight} width={modelWidth} selectedDrugID={selectedDrugID} offsetX={virusWidth} maxPathLen={maxPathLen} onlyExp={onlyExp} />
               </g>
+
               <Drug drugMode={drugMode} height={mainHeight} width={drugWidth} offsetX={virusWidth + modelWidth} selectedDrugID={selectedDrugID} selectDrug={this.selectDrug} />
-              
-      
-              {diseaseComponet}
-              <g className="legend" transform={`translate(${virusWidth/2-legendW/2}, ${mainHeight - legendW})`}>
+              <Diseases width={modelWidth} height={diseasesHeight} offsetX={virusWidth} offsetY={PPIHeight} selectedDrugID={selectedDrugID} />
+
+              <g className="legend" transform={`translate(${virusWidth / 2 - legendW / 2}, ${mainHeight - legendW})`}>
                 <foreignObject width={legendW} height={legendW} >
-                    <img src='./assets/node_legend.png' width={legendW} />
+                  <img src='./assets/node_legend.png' width={legendW} />
                 </foreignObject>
-            </g>
+              </g>
+
             </svg>
 
           </Content>
