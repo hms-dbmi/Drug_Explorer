@@ -153,7 +153,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
                     nodeIDs.push(node)
                     nodes.push({
                         id: node,
-                        fx: offsetX + (width - this.drugTargetLinkWidth) / (maxPathLen) * i,
+                        fx: offsetX + (width - this.drugTargetLinkWidth) / (maxPathLen) * (maxPathLen - i),
                         pathIdx: path.idx
                     })
                 } else {
@@ -225,7 +225,7 @@ export default class ModelNodeForce extends React.Component<Props, State>{
                 let isFocused = this.focusPathIdx.includes(node.pathIdx!)
                 let r = (viralTargets.includes(node.id) && !drugTargets.includes(node.id)) ? '0' : this.RADIUS
                 let fill = drugTargets.includes(node.id) ? '#1890ff' : (viralTargets.includes(node.id) ? 'gray' : 'white')
-                let opacity = focusedNodeID === '' ? 1 : isFocused ? 1 : 0.5
+                let opacity = focusedNodeID === '' ? 1 : isFocused ? 1 : 0.2
                 let stroke = node.id === focusedNodeID ? 'black' : 'lightgray'
                 let arcs = this.getExpNetIdx(node.id).map(d => {
                     return <path key={`arc_${d}`} d={this.pieGenerator(d)!} fill="red" stroke={stroke} />
@@ -251,12 +251,13 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         let svgLinks: JSX.Element[] = links.map((link) => {
             let { source, target }:any = link
             let isFocused = this.focusPathIdx.includes(link.pathIdx!)
-            let opacity = focusedNodeID === '' ? 0.4 : isFocused ? 1 : 0.1
+            let opacity = focusedNodeID === '' ? 0.6 : isFocused ? 1 : 0.02
+            let color = focusedNodeID === '' ? 'gray' : isFocused ? 'black' : '#aaa'
             return <path key={`${source.id!}->${target.id}_pathidx${link.pathIdx}`}
                 className={`${source.id!}->${target.id}`}
                 d={this.linkGene(link)}
                 fill="none"
-                stroke="black"
+                stroke={color}
                 strokeWidth="1"
                 opacity={opacity}
             />
