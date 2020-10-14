@@ -254,7 +254,9 @@ export default class ModelNodeForce extends React.Component<Props, State>{
                     return <path key={`arc_${d}`} d={this.pieGenerator(d)!} fill="red" stroke={stroke} />
                 })
                 return <Tooltip title={`entrez_id:${node.id}`}>
-                    <g key={`node_${node.id}`}
+                    <g key={`protein_${node.id}`}
+                        id={`protein_${node.id}`}
+                        className="protein"
                         transform={`translate(${node.x}, ${node.y})`}
                         cursor="pointer" xlinkTitle={`entrez_id:${node.id}`}
                         opacity={opacity}
