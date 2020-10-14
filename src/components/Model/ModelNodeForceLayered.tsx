@@ -124,21 +124,39 @@ export default class ModelNodeForce extends React.Component<Props, State>{
             .domain(drugTargets)
             .range([this.padding + 0.1 * height, 0.9 * height - 2 * this.padding])
 
-        let nodeIDs: string[] = viralTargets.concat(
-            drugTargets.filter(d => !viralTargets.includes(d))
-        )
+        // let nodeIDs: string[] = viralTargets.concat(
+        //     drugTargets.filter(d => !viralTargets.includes(d))
+        // )
+
+        // let nodes: INode[] = nodeIDs
+        //     .map((d, i) => {
+        //         let fx: number = 0, fy: number = 0;
+        //         if (i < viralTargets.length) {
+        //             fx = offsetX
+        //             fy = yViralTargetScake(d) || 0
+
+        //         } else {
+
+        //             fx = offsetX + width - this.drugTargetLinkWidth
+        //             fy = yDrugTargetScale(d) || 0
+        //         }
+        //         return { id: d, fx, fy }
+        //     }
+        //     )
+
+        let nodeIDs: string[] = [...drugTargets]
 
         let nodes: INode[] = nodeIDs
             .map((d, i) => {
                 let fx: number = 0, fy: number = 0;
-                if (i < viralTargets.length) {
+                if (viralTargets.includes(d)) {
                     fx = offsetX
-                    fy = yViralTargetScake(d) || 0
+                    fy = yViralTargetScake(d)!
 
                 } else {
 
                     fx = offsetX + width - this.drugTargetLinkWidth
-                    fy = yDrugTargetScale(d) || 0
+                    fy = yDrugTargetScale(d)!
                 }
                 return { id: d, fx, fy }
             }
@@ -151,11 +169,16 @@ export default class ModelNodeForce extends React.Component<Props, State>{
                 let node = path.nodes[i], nodeIdx = nodeIDs.indexOf(node)
                 if (nodeIdx === -1) {
                     nodeIDs.push(node)
-                    nodes.push({
+                    let newNode:INode = {
                         id: node,
                         fx: offsetX + (width - this.drugTargetLinkWidth) / (maxPathLen) * (maxPathLen - i),
                         pathIdx: path.idx
-                    })
+                    }
+                    if (viralTargets.includes(node)){
+                        newNode.fy = yViralTargetScake(node)
+                        newNode.fx = offsetX
+                    }
+                    nodes.push(newNode)
                 } else {
                     nodes[nodeIdx]['pathIdx'] = path.idx
                 }
@@ -249,10 +272,12 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         let { links, focusedNodeID } = this.state
 
         let svgLinks: JSX.Element[] = links.map((link) => {
+
             let { source, target }:any = link
             let isFocused = this.focusPathIdx.includes(link.pathIdx!)
             let opacity = focusedNodeID === '' ? 0.6 : isFocused ? 1 : 0.02
             let color = focusedNodeID === '' ? 'gray' : isFocused ? 'black' : '#aaa'
+           
             return <path key={`${source.id!}->${target.id}_pathidx${link.pathIdx}`}
                 className={`${source.id!}->${target.id}`}
                 d={this.linkGene(link)}
@@ -344,18 +369,14 @@ export default class ModelNodeForce extends React.Component<Props, State>{
         return <g key="drugTargetLinks" className="drugTargetLinks">{links}</g>
     }
 
-    // shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-    //     let { selectedDrugID: nextSelectedDrugID } = nextProps, { selectedDrugID } = this.props, { drugPaths } = this.state
-    //     if (
-    //         nextSelectedDrugID === selectedDrugID &&
-    //         Object.keys(drugPaths).length === Object.keys(nextState.drugPaths).length
-    //         && nextProps.maxPathLen === this.props.maxPathLen
-    //         // && nextProps.onlyExp === this.props.onlyExp
-    //     ) {
-    //         return false
-    //     }
-    //     return true
-    // }
+    shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+        let { selectedDrugID: nextSelectedDrugID } = nextProps
+        if (
+            nextSelectedDrugID === '') {
+            return false
+        }
+        return true
+    }
     componentDidMount() {
         this.calculateLayout()
     }
