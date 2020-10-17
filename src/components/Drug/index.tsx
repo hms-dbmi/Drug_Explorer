@@ -8,9 +8,11 @@ interface Props{
     width: number,
     offsetX: number,
     selectedDrugID: string,
-    selectDrug: (id:string)=>void
+    selectDrug: (id:string)=>void,
+
 }
-const Drug : FC<Props>= ({drugMode, height, width, offsetX, selectedDrugID, selectDrug})=>{
+const Drug : FC<Props>= (props: Props)=>{
+    let {drugMode, height, width, offsetX, selectedDrugID, selectDrug} = props
     return drugMode==='heat'?
     <DrugHeat height={height} width={width} offsetX={offsetX} selectedDrugID={selectedDrugID} selectDrug={selectDrug} />
     :

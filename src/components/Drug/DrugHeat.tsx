@@ -1,25 +1,21 @@
 import * as React from "react"
 import * as d3 from "d3"
-import axios from "axios"
 import {cropText} from 'helpers'
+import { IState, StateConsumer } from "stores"
+
 
 interface Props {
     height: number,
     width: number,
     offsetX: number,
     selectedDrugID: string,
-    selectDrug: (id:string)=>void
+    selectDrug: (id:string)=>void,
+    globalState: IState,
 }
 
-interface State {
-    drugNames: string[],
-    drugIDs: string[],
-    rankList: {
-        [listname: string]: number[]
-    }
-}
+interface State {}
 
-export default class DrugHeat extends React.Component<Props, State>{
+class DrugHeat extends React.Component<Props, State>{
     public maxRank = 50; padding = 20; labelWidth = 140; labelHeight = 14; fontSize = 10; dotR = 8
     constructor(props: Props) {
         super(props)
@@ -29,39 +25,12 @@ export default class DrugHeat extends React.Component<Props, State>{
             rankList: {}
         }
     }
-    componentDidMount() {
-        const drugCSV = './data/predictions/drug-rankings.tsv'
-        axios.get(drugCSV)
-            .then(res => {
-                let response = res.data
-                let lines = response.split('\n')
-
-                let rankNames: string[] = lines[0].split('\t').slice(2),
-                    drugNames: State['drugNames'] = [],
-                    drugIDs: State['drugIDs'] = [],
-                    rankList: State['rankList'] = {}
-
-                rankNames.forEach(name => {
-                    rankList[name] = []
-                })
-
-                for (let i = 1; i < this.maxRank; i++) {
-                    let cells = lines[i].split('\t')
-                    drugIDs.push(cells[0])
-                    drugNames.push(cells[1])
-                    cells.slice(2).forEach(
-                        (rank: number, i: number) => rankList[rankNames[i]].push(rank)
-                    )
-                }
-
-                this.setState({ drugIDs, drugNames, rankList })
-            })
-    }
+   
     drawRanking() {
         
         let { height, width } = this.props
-        let { drugNames, drugIDs, rankList } = this.state
-        if (drugNames.length==0) return
+        let { drugNames, drugIDs, rankList } = this.props.globalState.predictions
+        if (drugNames.length===0) return
 
         let rankMethods = Object.keys(rankList).slice(1)
         let yScale = d3.scaleLinear()
@@ -138,14 +107,11 @@ export default class DrugHeat extends React.Component<Props, State>{
 
     
     render() {
-
         return <g className='drug' transform={`translate(${this.props.offsetX + this.padding}, ${this.padding})`}>
-            <defs>
-                <marker id="dot" viewBox={`0 0 ${this.dotR*2} ${this.dotR*2}`} refX={this.dotR} refY={this.dotR} markerWidth={this.dotR+4} markerHeight={this.dotR+4} >
-                    <circle cx={this.dotR}  cy={this.dotR}  r={this.dotR}  fill="white" stroke="gray" />
-                </marker>
-            </defs>
+            
             {this.drawRanking()}
         </g>
     }
 }
+
+export default StateConsumer(DrugHeat)

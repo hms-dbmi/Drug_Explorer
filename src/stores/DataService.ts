@@ -1,65 +1,44 @@
-import React, {useState} from "react"
+
 import axios from "axios"
 
 type TDrugNames = string[]
 type TDrugIDs = string[]
-type TRankList = {[listName:string]:number[]}
+type TRankList = { [listName: string]: number[] }
 
-interface IState {
+export interface IDrugPredictions {
     drugNames: string[],
     drugIDs: string[],
     rankList: {
         [listname: string]: number[]
     },
-    isLoading: boolean,
+    isPredictionLoaded: boolean,
 }
 
-const initialPredictionState = {
-    drugNames: [],
-    drugIDs: [],
-    rankList: {},
-    isLoading: false
-}
 
-const PredictionLoader= (()=>{
-    const [state,setState] = useState(initialPredictionState as IState)
-    
-    const loadPredictions = ((url:string, maxRank:number=50)=>{
-        setState({...state, isLoading: true})
-        return axios.get(url)
-            .then(res => {
-                let response = res.data
-                let lines = response.split('\n')
+const requestPredictions = (async (url: string='./data/predictions/drug-rankings.tsv', maxRank: number = 50): Promise<IDrugPredictions> => {
+    let res = await axios.get(url)
+    let response = res.data
+    let lines = response.split('\n')
 
-                let rankNames: string[] = lines[0].split('\t').slice(2),
-                    drugNames: TDrugNames = [],
-                    drugIDs: TDrugIDs = [],
-                    rankList: TRankList = {}
+    let rankNames: string[] = lines[0].split('\t').slice(2),
+        drugNames: TDrugNames = [],
+        drugIDs: TDrugIDs = [],
+        rankList: TRankList = {}
 
-                rankNames.forEach(name => {
-                    rankList[name] = []
-                })
-
-                for (let i = 1; i < maxRank; i++) {
-                    let cells = lines[i].split('\t')
-                    drugIDs.push(cells[0])
-                    drugNames.push(cells[1])
-                    cells.slice(2).forEach(
-                        (rank: number, i: number) => rankList[rankNames[i]].push(rank)
-                    )
-                }
-
-                setState({
-                    drugIDs,
-                    drugNames, 
-                    rankList,
-                    isLoading: false
-                })
-
-               
-            })
+    rankNames.forEach(name => {
+        rankList[name] = []
     })
-    return {state, loadPredictions}
+
+    for (let i = 1; i < maxRank; i++) {
+        let cells = lines[i].split('\t')
+        drugIDs.push(cells[0])
+        drugNames.push(cells[1])
+        cells.slice(2).forEach(
+            (rank: number, i: number) => rankList[rankNames[i]].push(rank)
+        )
+    }
+    return {rankList, drugIDs, drugNames, isPredictionLoaded: true}
+
 })
 
-export {PredictionLoader} 
+export { requestPredictions } 

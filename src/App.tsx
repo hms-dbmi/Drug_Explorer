@@ -6,6 +6,10 @@ import Diseases from 'components/Diseases'
 import { Layout, Switch, Select, InputNumber, Slider } from 'antd'
 import './App.css';
 import { virus_target as virus2target } from 'data/virus.json'
+import { IState, StateConsumer } from 'stores';
+import {ACTION_TYPES} from 'stores/'
+
+import {requestPredictions} from 'stores/DataService'
 
 
 
@@ -27,11 +31,13 @@ interface State {
 }
 
 type TDrugMode = 'heat' | 'pcp'
-interface Props {
 
+interface Props {
+  globalState: IState,
+  dispatch: ({ type }: { type: string; payload?: Partial<IState>; }) => void,
 }
 
-export default class App extends React.Component<Props, State>{
+class App extends React.Component<Props, State>{
   constructor(props: Props) {
     super(props)
     this.state = {
@@ -150,6 +156,16 @@ export default class App extends React.Component<Props, State>{
     this.setState({ scale })
   }
 
+  componentDidMount() {
+    if (this.props.globalState.predictions.isPredictionLoaded) return     
+
+    requestPredictions()
+    .then((predictions)=>{
+        this.props.dispatch({type: ACTION_TYPES.Load_Drug_Prediction, payload: {predictions} })
+    })
+    
+}
+
 
   render() {
     let siderWidth = 200, mainViewWidth = window.innerWidth - 200, mainViewHeight = window.innerHeight,
@@ -245,3 +261,4 @@ export default class App extends React.Component<Props, State>{
 }
 
 
+export default StateConsumer(App)
