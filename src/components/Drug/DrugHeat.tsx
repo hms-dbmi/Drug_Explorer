@@ -32,7 +32,7 @@ class DrugHeat extends React.Component<Props, State>{
         let { drugNames, drugIDs, rankList } = this.props.globalState.predictions
         if (drugNames.length===0) return
 
-        let rankMethods = Object.keys(rankList).slice(1)
+        let rankMethods = [...Object.keys(rankList)]
         let yScale = d3.scaleLinear()
             .domain([1, this.maxRank])
             .range([this.fontSize, height - 2 * this.padding]),
@@ -84,7 +84,7 @@ class DrugHeat extends React.Component<Props, State>{
             {rankNames}
         </g>
 
-        let rankCells = rankList[rankMethods[0]].map((_, idx)=>{
+        let rankCells = rankList[rankMethods[0]].slice(0, this.maxRank).map((_, idx)=>{
             let y = yScale(idx+1) 
             let row = rankMethods.map(rankMethod=>{
                 let x=xScale(rankMethod)||0, rank = rankList[rankMethod][idx], width = xScale.step()*.9, 

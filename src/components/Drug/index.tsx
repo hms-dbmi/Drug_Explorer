@@ -1,6 +1,7 @@
 import React, {FC} from "react"
 import DrugHeat from './DrugHeat'
 import DrugPCP from './DrugPCP'
+import DrugDR from './DrugDR'
 
 interface Props{
     drugMode:string,
@@ -17,6 +18,7 @@ const Drug : FC<Props>= (props: Props)=>{
     <DrugHeat height={height} width={width} offsetX={offsetX} selectedDrugID={selectedDrugID} selectDrug={selectDrug} />
     :
     <DrugPCP height={height} width={width} offsetX={offsetX} selectedDrugID={selectedDrugID} selectDrug={selectDrug} />
+    // return <DrugDR height={height} width={width} offsetX={offsetX} selectedDrugID={selectedDrugID} selectDrug={selectDrug} />
 
 }
 

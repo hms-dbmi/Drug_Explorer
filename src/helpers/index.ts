@@ -18,4 +18,11 @@ const cropText = (text:string, fontSize:number,  maxWidth:number, fontWeight:num
     return returnText;
 }
 
-export {cropText}
+const getTextWidth = (text:string, fontSize:number):number=>{
+    const context = document.createElement('canvas').getContext('2d') as CanvasRenderingContext2D;
+    context.font = `${fontSize}px Arial`;
+    const width = context.measureText(text).width;
+    return width
+}
+
+export {cropText, getTextWidth}

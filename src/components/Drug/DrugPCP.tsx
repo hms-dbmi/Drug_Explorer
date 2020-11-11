@@ -17,14 +17,6 @@ interface State {
 
 class DrugPCP extends React.Component<Props, State>{
     public maxRank = 50; padding = 20; labelWidth = 140; labelHeight = 18; fontSize = 12; dotR = 8
-    constructor(props: Props) {
-        super(props)
-        this.state = {
-            drugNames: [],
-            drugIDs: [],
-            rankList: {}
-        }
-    }
     
     drawRanking() {
         

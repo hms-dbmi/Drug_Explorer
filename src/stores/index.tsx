@@ -5,7 +5,8 @@ import {IDrugPredictions} from './DataService'
 
 
 export interface IState {
-    predictions: IDrugPredictions 
+    predictions: IDrugPredictions,
+    maxRank: number 
 }
 
 
@@ -18,8 +19,11 @@ const initialState: IState = {
     drugIDs: [],
     drugNames: [],
     rankList: {},
-    isPredictionLoaded: false
+    embeddings: [],
+    embeddingRef: {},
+    isPredictionLoaded: false,
   },
+  maxRank:50
   
 }
 
