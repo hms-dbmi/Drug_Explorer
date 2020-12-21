@@ -1,12 +1,15 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext } from 'react';
 import rootReducer from './reducer'
-import {IDrugPredictions} from './DataService'
+import {IMetaPath} from 'types'
 
 
 
 export interface IState {
-    predictions: IDrugPredictions,
-    maxRank: number 
+    edgeThreshold: number
+    nodeTypes: string[],
+    metaPahts: {
+      [key:string]: IMetaPath
+    }
 }
 
 
@@ -15,16 +18,9 @@ export interface IState {
 export type IAction = any 
 
 const initialState: IState = {
-  predictions: {
-    drugIDs: [],
-    drugNames: [],
-    rankList: {},
-    embeddings: [],
-    embeddingRef: {},
-    isPredictionLoaded: false,
-  },
-  maxRank:50
-  
+  nodeTypes:[],
+  metaPahts:{},
+  edgeThreshold: 0.4
 }
 
 interface IStateContext {
@@ -62,5 +58,5 @@ export function StateConsumer(Component: any) {
 }
 
 
-export {ACTION_TYPES} from './reducer'
+export {ACTION_TYPES} from 'stores/actions'
 

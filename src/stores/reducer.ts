@@ -1,13 +1,14 @@
 import {IState, IAction} from './'
-export const ACTION_TYPES = {
-    Load_Drug_Prediction: 'Load_Drug_Prediction', 
-}
+import {ACTION_TYPES} from 'stores/actions'
 
 
 const rootReducer = (state:IState, action: IAction): IState=> {
 
     switch(action.type){
       case ACTION_TYPES.Load_Drug_Prediction: {
+        return {...state, ...action.payload}
+      }
+      case ACTION_TYPES.Load_Node_Types: {
         return {...state, ...action.payload}
       }
       default:

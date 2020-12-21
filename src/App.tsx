@@ -5,22 +5,28 @@ import DrugSider from 'components/Sider'
 
 import { Layout} from 'antd'
 import './App.css';
-import { StateConsumer } from 'stores';
+import { IState, StateConsumer } from 'stores';
+import {ACTION_TYPES} from 'stores/actions'
+import { requestNodeTypes } from 'stores/DataService';
 
 
 
 
 const { Header, Footer, Content } = Layout;
 
+interface Props {
+  globalState: IState,
+  dispatch: ({ type }: { type: string; payload?: Partial<IState>; }) => void,
+}
 interface State {
   width: number
-  height:number
+  height:number,
 }
 
 
-class App extends React.Component<{}, State>{
-  constructor(){
-    super({})
+class App extends React.Component<Props, State>{
+  constructor(props: Props){
+    super(props)
     this.state={
       width: window.innerWidth,
       height: window.innerHeight
@@ -38,6 +44,12 @@ class App extends React.Component<{}, State>{
 
   componentDidMount(){
     window.addEventListener('resize', this.updateSize)
+
+    requestNodeTypes()
+    .then((nodeTypes)=>{
+        this.props.dispatch({type: ACTION_TYPES.Load_Node_Types, payload: {nodeTypes} })
+    })
+    
   }
 
   render() {

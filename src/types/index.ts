@@ -12,3 +12,14 @@ export interface ILink {
     isFocused?: boolean,
     pathIdx?:number,
 }
+
+export interface IMetaPath {
+ [key:string]:any
+}
+
+export interface IEdgeType {
+    [edge:string]:{
+        nodes: [string, string],
+        edgeInfo: string
+    }
+}

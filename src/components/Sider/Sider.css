@@ -1,0 +1,16 @@
+input[type=checkbox]:after {
+    content: " ";
+    background: white;
+    display: inline-block;
+    visibility: visible;
+  }
+
+input[type=checkbox]:checked:after {
+    content: "\2714";
+    height: 12px;
+    width: 13px;
+    display: block;
+    text-align: center;
+    font-size: 9px;
+    border: gray 1px;
+}
