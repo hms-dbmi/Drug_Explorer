@@ -7,7 +7,7 @@ import { Layout} from 'antd'
 import './App.css';
 import { IState, StateConsumer } from 'stores';
 import {ACTION_TYPES} from 'stores/actions'
-import { requestNodeTypes } from 'stores/DataService';
+import { requestNodeTypes, requestEdgeTypes, requestMetaPaths } from 'stores/DataService';
 
 
 
@@ -48,6 +48,16 @@ class App extends React.Component<Props, State>{
     requestNodeTypes()
     .then((nodeTypes)=>{
         this.props.dispatch({type: ACTION_TYPES.Load_Node_Types, payload: {nodeTypes} })
+    })
+
+    requestEdgeTypes()
+    .then((edgeTypes)=>{
+        this.props.dispatch({type: ACTION_TYPES.Load_Node_Types, payload: {edgeTypes} })
+    })
+
+    requestMetaPaths()
+    .then((metaPahts)=>{
+        this.props.dispatch({type: ACTION_TYPES.Load_Node_Types, payload: {metaPahts} })
     })
     
   }
