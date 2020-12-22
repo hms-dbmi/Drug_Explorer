@@ -1,27 +1,12 @@
 import React, { createContext } from 'react';
 import rootReducer from './reducer'
-import {IMetaPath, IEdgeType} from 'types'
+import {IState} from 'types'
 
-
-
-export interface IState {
-    edgeThreshold: number
-    nodeTypes: string[],
-    edgeTypes: IEdgeType,
-    metaPahts: {
-      [key:string]: IMetaPath
-    }
-}
-
-
-
-
-export type IAction = any 
 
 const initialState: IState = {
   nodeTypes:[],
   edgeTypes: {},
-  metaPahts:{},
+  metaPaths:[],
   edgeThreshold: 0.4
 }
 

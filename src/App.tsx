@@ -5,7 +5,8 @@ import DrugSider from 'components/Sider'
 
 import { Layout} from 'antd'
 import './App.css';
-import { IState, StateConsumer } from 'stores';
+import {  StateConsumer } from 'stores';
+import {IState} from 'types'
 import {ACTION_TYPES} from 'stores/actions'
 import { requestNodeTypes, requestEdgeTypes, requestMetaPaths } from 'stores/DataService';
 
@@ -52,12 +53,12 @@ class App extends React.Component<Props, State>{
 
     requestEdgeTypes()
     .then((edgeTypes)=>{
-        this.props.dispatch({type: ACTION_TYPES.Load_Node_Types, payload: {edgeTypes} })
+        this.props.dispatch({type: ACTION_TYPES.Load_Edge_Types, payload: {edgeTypes} })
     })
 
     requestMetaPaths()
-    .then((metaPahts)=>{
-        this.props.dispatch({type: ACTION_TYPES.Load_Node_Types, payload: {metaPahts} })
+    .then((metaPaths)=>{
+        this.props.dispatch({type: ACTION_TYPES.Load_Meta_Paths, payload: {metaPaths} })
     })
     
   }

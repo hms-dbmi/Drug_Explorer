@@ -1,22 +1,32 @@
 
 import axios from "axios"
-import {IEdgeType} from 'types'
+import {IEdgeTypes, IMetaPath} from 'types'
+import {URL} from 'Const'
+
+const axiosInstance = axios.create({
+    baseURL: `${URL}/`,
+    // timeout: 1000,
+    headers: {
+        'Access-Control-Allow-Origin': '*'
+    }
+});
 
 const requestNodeTypes = (async():Promise<string[]> => {
     const url = './data/node_types.json'
-    let response = await axios.get(url)
+    let response = await axiosInstance.get(url)
     return response.data
 })
 
-const requestEdgeTypes = (async():Promise<IEdgeType> => {
+const requestEdgeTypes = (async():Promise<IEdgeTypes> => {
     const url = './data/edge_types.json'
-    let response = await axios.get(url)
+    let response = await axiosInstance.get(url)
     return response.data
 })
 
-const requestMetaPaths = (async():Promise<IEdgeType> => {
-    const url = './data/edge_types.json'
-    let response = await axios.get(url)
+const requestMetaPaths = (async() => {
+    const url = './data/meta_path_json.json'
+    let response = await axiosInstance.get(url)
+
     return response.data
 })
 

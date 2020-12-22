@@ -14,12 +14,28 @@ export interface ILink {
 }
 
 export interface IMetaPath {
- [key:string]:any
+    edges: {
+        edgeInfo:string,
+        score:number
+    }[],
+    nodes: string[]
 }
 
-export interface IEdgeType {
-    [edge:string]:{
+export interface IEdgeTypes {
+    [edgeKey:string]:{
         nodes: [string, string],
         edgeInfo: string
     }
+}
+
+export type IAction = {
+    type: string,
+    payload: any
+  } 
+
+  export interface IState {
+    edgeThreshold: number
+    nodeTypes: string[],
+    edgeTypes: IEdgeTypes,
+    metaPaths: IMetaPath[]
 }

@@ -1,5 +1,6 @@
 import React from "react"
-import { IState, StateConsumer } from "stores"
+import { StateConsumer } from "stores"
+import {IState} from 'types'
 
 import './Sider.css'
 
