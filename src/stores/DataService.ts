@@ -1,6 +1,6 @@
 
 import axios from "axios"
-import {IEdgeTypes } from 'types'
+import {IEdgeTypes, IAttentionTree } from 'types'
 import {URL} from 'Const'
 
 const axiosInstance = axios.create({
@@ -29,11 +29,17 @@ const requestMetaPaths = (async() => {
     return response.data
 })
 
-const requestAttention = (async() => {
-    const url = './data/test_attention.json'
-    let response = await axiosInstance.get(url)
+const requestAttention = (async(nodeID: string|undefined) => {
 
-    return response.data
+    if (nodeID){
+        const url = './data/test_attention.json'
+        let response = await axiosInstance.get(url)
+
+        return response.data[nodeID]
+    }
+    return {}
+    
 })
+
 
 export {requestNodeTypes, requestEdgeTypes, requestMetaPaths, requestAttention}

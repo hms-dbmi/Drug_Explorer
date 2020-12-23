@@ -5,5 +5,7 @@ export const ACTION_TYPES = {
     Load_Meta_Paths: 'Load_Meta_Paths',
     Load_Attention: 'Load_Attention',
 
-    Change_Edge_THR: 'Change_Edge_THR'
+    Change_Edge_THR: 'Change_Edge_THR',
+    Change_Drug: 'Change_Drug',
+    Change_Disease: 'Change_Disease'
 }

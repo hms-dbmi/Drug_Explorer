@@ -21,6 +21,13 @@ export interface IMetaPath {
     nodes: string[]
 }
 
+export interface IAttentionTree {
+    node: string,
+    score: number,
+    edgeInfo: string,
+    children: IAttentionTree[]
+}
+
 export interface IEdgeTypes {
     [edgeKey:string]:{
         nodes: [string, string],
@@ -33,10 +40,14 @@ export type IAction = {
     payload: any
   } 
 
+export type IDispatch = ({ type }: { type: string; payload?: Partial<IState>; }) => void
+
   export interface IState {
     edgeThreshold: number
     nodeTypes: string[],
     edgeTypes: IEdgeTypes,
     metaPaths: IMetaPath[],
+    selectedDrug: string|undefined,
+    selectedDisease: string|undefined,
     attention: any
 }

@@ -6,9 +6,9 @@ import DrugSider from 'components/Sider'
 import { Layout} from 'antd'
 import './App.css';
 import {  StateConsumer } from 'stores';
-import {IState} from 'types'
+import {IState, IDispatch} from 'types'
 import {ACTION_TYPES} from 'stores/actions'
-import { requestNodeTypes, requestEdgeTypes, requestMetaPaths, requestAttention } from 'stores/DataService';
+import { requestNodeTypes, requestEdgeTypes} from 'stores/DataService';
 
 
 
@@ -17,7 +17,7 @@ const { Header, Footer, Content } = Layout;
 
 interface Props {
   globalState: IState,
-  dispatch: ({ type }: { type: string; payload?: Partial<IState>; }) => void,
+  dispatch: IDispatch
 }
 interface State {
   width: number
@@ -54,16 +54,6 @@ class App extends React.Component<Props, State>{
     requestEdgeTypes()
     .then((edgeTypes)=>{
         this.props.dispatch({type: ACTION_TYPES.Load_Edge_Types, payload: {edgeTypes} })
-    })
-
-    requestMetaPaths()
-    .then((metaPaths)=>{
-        this.props.dispatch({type: ACTION_TYPES.Load_Meta_Paths, payload: {metaPaths} })
-    })
-
-    requestAttention()
-    .then((attention)=>{
-        this.props.dispatch({type: ACTION_TYPES.Load_Attention, payload: {attention} })
     })
     
   }

@@ -1,4 +1,4 @@
-import {IState, IAction, IMetaPath, IEdgeTypes} from 'types'
+import {IState, IAction, IMetaPath, IEdgeTypes, IAttentionTree} from 'types'
 import {ACTION_TYPES} from 'stores/actions'
 
 
@@ -9,6 +9,8 @@ const rootReducer = (state:IState, action: IAction): IState=> {
       case ACTION_TYPES.Load_Node_Types: 
       case ACTION_TYPES.Load_Edge_Types: 
       case ACTION_TYPES.Load_Attention:
+      case ACTION_TYPES.Change_Disease:
+      case ACTION_TYPES.Change_Drug:
       case ACTION_TYPES.Change_Edge_THR: {
         return {...state, ...action.payload}
       }
@@ -60,5 +62,35 @@ const rootReducer = (state:IState, action: IAction): IState=> {
     })
     return paths
 }
+
+const attentionRow2Tree = (edgeTypes: IEdgeTypes, row:{node_type:string, node_id: number, layer1: any[], layer0: any})=>{
+  let tree: IAttentionTree = {
+      node: `${row.node_type}_${row.node_id}`,
+      score:1,
+      edgeInfo: '',
+      children: []
+  }
+
+  row.layer1.forEach((item1, idx1:number)=>{
+      let [childNode1, score1, edgeKey1] = item1
+      tree.children.push({
+          node: childNode1,
+          score: score1,
+          edgeInfo: edgeTypes[edgeKey1].edgeInfo,
+          children: []
+      })
+      row.layer0[childNode1].forEach((item0:any, idx0:number)=>{
+          let [childNode0, score0, edgeKey0] = item0
+          tree.children[idx1].children.push({
+              node: childNode0,
+              score: score0,
+              edgeInfo: edgeTypes[edgeKey0].edgeInfo,
+              children: []
+          })
+      })
+  })
+  return tree
+}
+
 
 export default rootReducer

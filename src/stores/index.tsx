@@ -8,6 +8,8 @@ const initialState: IState = {
   edgeTypes: {},
   metaPaths:[],
   attention: {},
+  selectedDisease: undefined,
+  selectedDrug: undefined,
   edgeThreshold: 0.4
 }
 
@@ -44,7 +46,3 @@ export function StateConsumer(Component: any) {
       );
   }
 }
-
-
-export {ACTION_TYPES} from 'stores/actions'
-

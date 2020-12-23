@@ -1,6 +1,8 @@
 import React from "react"
 import { StateConsumer } from "stores"
-import {IState} from 'types'
+import {IDispatch, IState} from 'types'
+import {ACTION_TYPES} from 'stores/actions'
+import {requestMetaPaths, requestAttention } from 'stores/DataService';
 
 import './Sider.css'
 
@@ -12,19 +14,76 @@ const { Option } = Select
 
 interface Props {
     siderWidth: number,
-    globalState:IState
+    globalState:IState,
+    dispatch: IDispatch
 }
 
 class DrugSider extends React.Component<Props>{
     padding = 10;
-    listHeight = 100
+    listHeight = 150 // height of the open drug list
+    constructor(props:Props){
+        super(props)
+        this.changeEdgeTHR = this.changeEdgeTHR.bind(this)
+        this.changeDisease = this.changeDisease.bind(this)
+        this.changeDrug = this.changeDrug.bind(this)
+    }
+    startAnalysis(){
+        requestMetaPaths()
+        .then((metaPaths)=>{
+            this.props.dispatch({type: ACTION_TYPES.Load_Meta_Paths, payload: {metaPaths} })
+        })
+
+        let {selectedDisease, selectedDrug} = this.props.globalState
+    
+        requestAttention(selectedDisease)
+        .then((attention)=>{
+            this.props.dispatch({type: ACTION_TYPES.Load_Attention, payload: {attention} })
+        })
+    }
+    changeEdgeTHR(value:number|undefined|string){
+        if (typeof(value)=='number'){
+            this.props.dispatch({
+                type: ACTION_TYPES.Change_Edge_THR, 
+                payload: {edgeThreshold: value}
+            })
+        }
+    }
+    changeDrug(selectedDrug: string){
+        this.props.dispatch({
+            type:ACTION_TYPES.Change_Drug, 
+            payload: {selectedDrug}
+        })
+    }
+    changeDisease(selectedDisease: string){
+        this.props.dispatch({
+            type: ACTION_TYPES.Change_Disease,
+            payload: {selectedDisease}
+        })
+    }
     render() {
         let { siderWidth } = this.props
         let {edgeThreshold, nodeTypes} = this.props.globalState
+
+        let diseaseOptions = [...Array(2)].map((_,idx)=>{
+            return <Option value={`disease_${idx}`} key={`disease_${idx}`}>
+                disease_{idx}
+        </Option>
+        })
+
+        let drugOptions = [...Array(10)].map((_,idx)=>{
+            return <Option value={`drug_${idx}`} key={`drug_${idx}`}>
+                <div>
+                        <span>drug_{idx}</span>
+                        <span style={{ float: "right" }}>score:0.xx</span>
+                    </div>
+            </Option>
+        })
+
+        
         let sider = <Sider width={siderWidth} theme="light" style={{ padding: `${this.padding}px` }}>
             Disease:
-            <Select defaultValue="select a disease" style={{ width: siderWidth - 2 * this.padding }} >
-                <Option value="SARS-COVID2">SARS-COV2</Option>
+            <Select defaultValue="select a disease" style={{ width: siderWidth - 2 * this.padding }} onChange={this.changeDisease}>
+                {diseaseOptions}
             </Select>
             <br />
 
@@ -38,32 +97,22 @@ class DrugSider extends React.Component<Props>{
                     option!.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
                 }
                 listHeight={this.listHeight}
+                onChange={this.changeDrug}
             >
-                <Option value="drug1">
-                    <div>
-                        <span>drug1</span>
-                        <span style={{ float: "right" }}>score:0.9</span>
-                    </div>
-                </Option>
-                <Option value="drug2">
-                    <div>
-                        <span>drug2</span>
-                        <span style={{ float: "right" }}>score:0.8</span>
-                    </div>
-                </Option>
+                {drugOptions}
             </Select>
 
-            <div className='dummy' style={{height: this.listHeight}}/>
+            <div className='dummy' style={{height: this.listHeight + 20}}/>
 
             
 
             Edge Threshold:
             <Row>
                 <Col span={16}>
-                    <Slider step={0.1} value={edgeThreshold} min={0} max={1} />
+                    <Slider step={0.1} value={edgeThreshold} min={0} max={1} onChange={this.changeEdgeTHR} />
                 </Col>
                 <Col span={4}>
-                    <InputNumber value={edgeThreshold}/>
+                    <InputNumber value={edgeThreshold} onChange={this.changeEdgeTHR} step={0.1}/>
                 </Col>
             </Row>
 
@@ -80,7 +129,7 @@ class DrugSider extends React.Component<Props>{
             </div>
 
             <br/>
-            <Button icon={<SearchOutlined />} type='primary' shape='round'>
+            <Button icon={<SearchOutlined />} type='primary' shape='round' onClick={()=>this.startAnalysis()}>
                 Start Analysis
             </Button>
             <br/>
