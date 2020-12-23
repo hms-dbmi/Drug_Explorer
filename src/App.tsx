@@ -63,7 +63,7 @@ class App extends React.Component<Props, State>{
 
     requestAttention()
     .then((attention)=>{
-        this.props.dispatch({type: ACTION_TYPES.Load_Meta_Paths, payload: {attention} })
+        this.props.dispatch({type: ACTION_TYPES.Load_Attention, payload: {attention} })
     })
     
   }

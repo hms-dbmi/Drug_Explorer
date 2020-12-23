@@ -4,7 +4,8 @@ import {IState} from 'types'
 
 import './Sider.css'
 
-import { Col, InputNumber, Layout, Row, Select, Slider } from 'antd'
+import { Button, Col, InputNumber, Layout, Row, Select, Slider } from 'antd'
+import { SearchOutlined } from '@ant-design/icons';
 import { getNodeColor } from "helpers/color";
 const { Sider } = Layout;
 const { Option } = Select
@@ -22,14 +23,14 @@ class DrugSider extends React.Component<Props>{
         let {edgeThreshold, nodeTypes} = this.props.globalState
         let sider = <Sider width={siderWidth} theme="light" style={{ padding: `${this.padding}px` }}>
             Disease:
-            <Select defaultValue="SARS-COV2" style={{ width: siderWidth - 2 * this.padding }} >
+            <Select defaultValue="select a disease" style={{ width: siderWidth - 2 * this.padding }} >
                 <Option value="SARS-COVID2">SARS-COV2</Option>
             </Select>
             <br />
 
             Drug:
             <Select
-                defaultValue="drug1"
+                defaultValue="select a drug from the predictions"
                 style={{ width: siderWidth - 2 * this.padding }}
                 open
                 showSearch
@@ -54,6 +55,8 @@ class DrugSider extends React.Component<Props>{
 
             <div className='dummy' style={{height: this.listHeight}}/>
 
+            
+
             Edge Threshold:
             <Row>
                 <Col span={16}>
@@ -75,6 +78,12 @@ class DrugSider extends React.Component<Props>{
                 </div>
             })}
             </div>
+
+            <br/>
+            <Button icon={<SearchOutlined />} type='primary' shape='round'>
+                Start Analysis
+            </Button>
+            <br/>
             
 
         </Sider>

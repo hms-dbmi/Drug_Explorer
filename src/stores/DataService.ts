@@ -26,7 +26,6 @@ const requestEdgeTypes = (async():Promise<IEdgeTypes> => {
 const requestMetaPaths = (async() => {
     const url = './data/meta_path_json.json'
     let response = await axiosInstance.get(url)
-
     return response.data
 })
 
