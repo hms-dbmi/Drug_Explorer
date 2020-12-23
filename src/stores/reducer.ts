@@ -5,21 +5,19 @@ import {ACTION_TYPES} from 'stores/actions'
 const rootReducer = (state:IState, action: IAction): IState=> {
 
     switch(action.type){
-      case ACTION_TYPES.Load_Drug_Prediction: {
-        return {...state, ...action.payload}
-      }
-      case ACTION_TYPES.Load_Node_Types: {
-        return {...state, ...action.payload}
-      }
-      case ACTION_TYPES.Load_Edge_Types: {
-        return {...state, ...action.payload}
-      }
-      case ACTION_TYPES.Load_Meta_Paths: {
-        return {...state, metaPaths: parseMetaPaths(action.payload.metaPaths, state.edgeTypes, state.edgeThreshold)}
-      }
+      case ACTION_TYPES.Load_Drug_Prediction: 
+      case ACTION_TYPES.Load_Node_Types: 
+      case ACTION_TYPES.Load_Edge_Types: 
+      case ACTION_TYPES.Load_Attention:
       case ACTION_TYPES.Change_Edge_THR: {
         return {...state, ...action.payload}
       }
+
+
+      case ACTION_TYPES.Load_Meta_Paths: {
+        return {...state, metaPaths: parseMetaPaths(action.payload.metaPaths, state.edgeTypes, state.edgeThreshold)}
+      }
+     
       default:
         return state
     }

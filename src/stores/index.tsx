@@ -7,6 +7,7 @@ const initialState: IState = {
   nodeTypes:[],
   edgeTypes: {},
   metaPaths:[],
+  attention: {},
   edgeThreshold: 0.4
 }
 

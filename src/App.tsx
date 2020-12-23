@@ -8,7 +8,7 @@ import './App.css';
 import {  StateConsumer } from 'stores';
 import {IState} from 'types'
 import {ACTION_TYPES} from 'stores/actions'
-import { requestNodeTypes, requestEdgeTypes, requestMetaPaths } from 'stores/DataService';
+import { requestNodeTypes, requestEdgeTypes, requestMetaPaths, requestAttention } from 'stores/DataService';
 
 
 
@@ -60,7 +60,16 @@ class App extends React.Component<Props, State>{
     .then((metaPaths)=>{
         this.props.dispatch({type: ACTION_TYPES.Load_Meta_Paths, payload: {metaPaths} })
     })
+
+    requestAttention()
+    .then((attention)=>{
+        this.props.dispatch({type: ACTION_TYPES.Load_Meta_Paths, payload: {attention} })
+    })
     
+  }
+
+  componentWillUnmount(){
+    window.removeEventListener('resize', this.updateSize)
   }
 
   render() {

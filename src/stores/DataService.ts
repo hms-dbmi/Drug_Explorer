@@ -1,6 +1,6 @@
 
 import axios from "axios"
-import {IEdgeTypes, IMetaPath} from 'types'
+import {IEdgeTypes } from 'types'
 import {URL} from 'Const'
 
 const axiosInstance = axios.create({
@@ -30,4 +30,11 @@ const requestMetaPaths = (async() => {
     return response.data
 })
 
-export {requestNodeTypes, requestEdgeTypes, requestMetaPaths}
+const requestAttention = (async() => {
+    const url = './data/test_attention.json'
+    let response = await axiosInstance.get(url)
+
+    return response.data
+})
+
+export {requestNodeTypes, requestEdgeTypes, requestMetaPaths, requestAttention}

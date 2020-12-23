@@ -37,5 +37,6 @@ export type IAction = {
     edgeThreshold: number
     nodeTypes: string[],
     edgeTypes: IEdgeTypes,
-    metaPaths: IMetaPath[]
+    metaPaths: IMetaPath[],
+    attention: any
 }

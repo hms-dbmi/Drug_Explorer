@@ -16,7 +16,7 @@ interface Props {
     margin = 10;
     padding = 10;
     drawSummary(){
-        const EDGE_LENGTH = 50, NODE_WIDTH = 100, NODE_HEIGHT = 25, VERTICAL_GAP = 5
+        const EDGE_LENGTH = 100, NODE_WIDTH = 130, NODE_HEIGHT = 25, VERTICAL_GAP = 5
         let {metaPaths} = this.props.globalState
         let summarys = metaPaths.map((metaPath, pathIdx)=>{
 
@@ -24,17 +24,21 @@ interface Props {
             let svgNodes = nodes.map((node, nodeIdx)=>{
                 let translate = `translate(${(EDGE_LENGTH+NODE_WIDTH)*nodeIdx}, ${pathIdx*(NODE_HEIGHT+VERTICAL_GAP)})`
                 return (<g key={`node_${nodeIdx}`} transform={translate}>
-                    <rect width={NODE_WIDTH} height={NODE_HEIGHT} fill={getNodeColor(node)}/>
+                    <rect width={NODE_WIDTH} height={NODE_HEIGHT} fill={getNodeColor(node)} rx={10}/>
                     <text textAnchor="middle" y={NODE_HEIGHT/2+6} x={NODE_WIDTH/2} fill='white'>{node}</text>
                 </g>)
             })
 
-            let svgEdges = edges.map( (edgeInfo, edgeIdx)=>{
+            let svgEdges = edges.map( (edge, edgeIdx)=>{
                 let translate = `translate(${NODE_WIDTH+(EDGE_LENGTH+NODE_WIDTH)*edgeIdx}, ${pathIdx*(NODE_HEIGHT+VERTICAL_GAP) + NODE_HEIGHT/2})`
-                return <line transform={translate} key={`edge_${edgeIdx}`} 
+                return <g key={`edge_${edgeIdx}`} transform={translate}  >
+                    <line 
                     stroke="gray"
+                    strokeWidth={edge.score * 10}
                     x1={0} y1={0} x2={EDGE_LENGTH} y2={0}
                     />
+                    <text textAnchor="middle" x={EDGE_LENGTH/2} y={-5}>{edge.edgeInfo}</text>
+                </g>
             })
             return [svgEdges, svgNodes]
         })
