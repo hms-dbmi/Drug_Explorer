@@ -35,7 +35,7 @@ class DrugSider extends React.Component<Props>{
 
         let {selectedDisease, selectedDrug} = this.props.globalState
     
-        requestAttention(selectedDisease)
+        requestAttention([selectedDisease, selectedDrug])
         .then((attention)=>{
             this.props.dispatch({type: ACTION_TYPES.Load_Attention, payload: {attention} })
         })

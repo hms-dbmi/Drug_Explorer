@@ -1,5 +1,6 @@
 import {IState, IAction, IMetaPath, IEdgeTypes, IAttentionTree} from 'types'
 import {ACTION_TYPES} from 'stores/actions'
+import { stat } from 'fs'
 
 
 const rootReducer = (state:IState, action: IAction): IState=> {
@@ -8,7 +9,6 @@ const rootReducer = (state:IState, action: IAction): IState=> {
       case ACTION_TYPES.Load_Drug_Prediction: 
       case ACTION_TYPES.Load_Node_Types: 
       case ACTION_TYPES.Load_Edge_Types: 
-      case ACTION_TYPES.Load_Attention:
       case ACTION_TYPES.Change_Disease:
       case ACTION_TYPES.Change_Drug:
       case ACTION_TYPES.Change_Edge_THR: {
@@ -18,6 +18,16 @@ const rootReducer = (state:IState, action: IAction): IState=> {
 
       case ACTION_TYPES.Load_Meta_Paths: {
         return {...state, metaPaths: parseMetaPaths(action.payload.metaPaths, state.edgeTypes, state.edgeThreshold)}
+      }
+
+
+      case ACTION_TYPES.Load_Attention:{
+        let attention = action.payload.attention
+        Object.keys(attention).forEach((key)=>{
+          attention[key] = attentionRow2Tree(state.edgeTypes, attention[key])
+        })
+
+        return {...state, attention}
       }
      
       default:

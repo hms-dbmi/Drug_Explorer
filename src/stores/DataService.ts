@@ -29,15 +29,19 @@ const requestMetaPaths = (async() => {
     return response.data
 })
 
-const requestAttention = (async(nodeID: string|undefined) => {
+const requestAttention = (async(nodeIDs: (string|undefined)[]) => {
 
-    if (nodeID){
-        const url = './data/test_attention.json'
-        let response = await axiosInstance.get(url)
-
-        return response.data[nodeID]
-    }
-    return {}
+    let results:any = {}
+    const url = './data/test_attention.json'
+    let response = await axiosInstance.get(url)
+    
+    nodeIDs.forEach( (nodeID)=>{
+        if (nodeID){
+            results[nodeID] = response.data[nodeID]
+        }
+    })
+    
+    return results
     
 })
 
