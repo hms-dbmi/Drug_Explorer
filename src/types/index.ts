@@ -49,5 +49,5 @@ export type IDispatch = ({ type }: { type: string; payload?: Partial<IState>; })
     metaPaths: IMetaPath[],
     selectedDrug: string|undefined,
     selectedDisease: string|undefined,
-    attention: any
+    attention: {[nodeKey:string]:IAttentionTree}
 }

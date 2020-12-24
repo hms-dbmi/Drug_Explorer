@@ -1,6 +1,6 @@
 
 import axios from "axios"
-import {IEdgeTypes, IAttentionTree } from 'types'
+import {IEdgeTypes} from 'types'
 import {URL} from 'Const'
 
 const axiosInstance = axios.create({

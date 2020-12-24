@@ -1,6 +1,5 @@
 import {IState, IAction, IMetaPath, IEdgeTypes, IAttentionTree} from 'types'
 import {ACTION_TYPES} from 'stores/actions'
-import { stat } from 'fs'
 
 
 const rootReducer = (state:IState, action: IAction): IState=> {
