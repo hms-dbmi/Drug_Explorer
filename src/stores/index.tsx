@@ -10,6 +10,7 @@ const initialState: IState = {
   attention: {},
   selectedDisease: undefined,
   selectedDrug: undefined,
+  nodeNameDict: {},
   edgeThreshold: 0.4
 }
 

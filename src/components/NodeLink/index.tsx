@@ -1,5 +1,5 @@
 import React from 'react'
-import {Card} from 'antd'
+import {Card, Tooltip} from 'antd'
 import {StateConsumer} from 'stores'
 import { IState, IAttentionTree } from 'types';
 import * as d3 from 'd3'
@@ -19,6 +19,7 @@ interface Props {
     nodeWidth = 20
     fontSize = 14;
     drawNodeAttention(nodeAttention: IAttentionTree, stepHeight:number){
+        let {nodeNameDict} = this.props.globalState
         
        
         const rootNode = d3.hierarchy(nodeAttention);
@@ -44,16 +45,24 @@ interface Props {
         .map(node=>{
             let nodeName = node.data.node 
             let [nodeType, nodeTypeID] = nodeName.split('_')
+            
+
+            let nodeFullName = nodeNameDict[nodeType][nodeTypeID] 
             let labelLength = getTextWidth(nodeTypeID, this.fontSize)
-            return <g key={nodeName}
-                className={nodeName}
-                transform={`translate(${node.x}, ${node.y})`}
-            >
+
+            return <Tooltip title={`${nodeType}: ${nodeFullName||"undefined"}`} key={`${node.depth}_${nodeName}`}>
+                <g className={nodeName}
+                    transform={`translate(${node.x}, ${node.y})`}
+                    cursor="pointer"
+                >
                 <rect height={labelLength+ 2*this.padding} width={this.nodeWidth} fill={getNodeColor(nodeType)} x={-1*this.nodeWidth/2} y={-1*labelLength/2 - this.padding}/>
-                <text fill="white" fontSize={this.fontSize} transform={`rotate(90) translate(${-1*labelLength/2}, ${2})`}>
+                
+                <text fill="white" fontSize={this.fontSize} transform={`rotate(90) translate(${-1*labelLength/2}, ${(this.nodeWidth-this.fontSize)/2})`}>
                     {nodeTypeID} 
                 </text>
+                
             </g>
+            </Tooltip>
         })
         
         return [

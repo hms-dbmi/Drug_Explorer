@@ -8,7 +8,7 @@ import './App.css';
 import {  StateConsumer } from 'stores';
 import {IState, IDispatch} from 'types'
 import {ACTION_TYPES} from 'stores/actions'
-import { requestNodeTypes, requestEdgeTypes} from 'stores/DataService';
+import { requestNodeTypes, requestEdgeTypes, requestNodeNameDict} from 'stores/DataService';
 
 
 
@@ -54,6 +54,11 @@ class App extends React.Component<Props, State>{
     requestEdgeTypes()
     .then((edgeTypes)=>{
         this.props.dispatch({type: ACTION_TYPES.Load_Edge_Types, payload: {edgeTypes} })
+    })
+
+    requestNodeNameDict()
+    .then((nodeNameDict)=>{
+      this.props.dispatch({type: ACTION_TYPES.Load_Node_Name_Dict, payload: {nodeNameDict} })
     })
     
   }

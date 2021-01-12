@@ -29,6 +29,12 @@ const requestMetaPaths = (async() => {
     return response.data
 })
 
+const requestNodeNameDict = (async() => {
+    const url = './data/node_name_dict.json'
+    let response = await axiosInstance.get(url)
+    return response.data
+})
+
 const requestAttention = (async(nodeIDs: (string|undefined)[]) => {
 
     let results:any = {}
@@ -46,4 +52,4 @@ const requestAttention = (async(nodeIDs: (string|undefined)[]) => {
 })
 
 
-export {requestNodeTypes, requestEdgeTypes, requestMetaPaths, requestAttention}
+export {requestNodeTypes, requestEdgeTypes, requestMetaPaths, requestAttention, requestNodeNameDict}

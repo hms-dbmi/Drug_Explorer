@@ -10,6 +10,7 @@ const rootReducer = (state:IState, action: IAction): IState=> {
       case ACTION_TYPES.Load_Edge_Types: 
       case ACTION_TYPES.Change_Disease:
       case ACTION_TYPES.Change_Drug:
+      case ACTION_TYPES.Load_Node_Name_Dict:
       case ACTION_TYPES.Change_Edge_THR: {
         return {...state, ...action.payload}
       }
@@ -73,8 +74,9 @@ const rootReducer = (state:IState, action: IAction): IState=> {
 }
 
 const attentionRow2Tree = (edgeTypes: IEdgeTypes, row:{node_type:string, node_id: number, layer1: any[], layer0: any})=>{
+    let rootNode = `${row.node_type}_${row.node_id}` 
   let tree: IAttentionTree = {
-      node: `${row.node_type}_${row.node_id}`,
+      node: rootNode,
       score:1,
       edgeInfo: '',
       children: []
@@ -90,6 +92,7 @@ const attentionRow2Tree = (edgeTypes: IEdgeTypes, row:{node_type:string, node_id
       })
       row.layer0[childNode1].forEach((item0:any, idx0:number)=>{
           let [childNode0, score0, edgeKey0] = item0
+          if (childNode0!==rootNode)
           tree.children[idx1].children.push({
               node: childNode0,
               score: score0,
