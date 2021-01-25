@@ -6,6 +6,7 @@ import * as d3 from 'd3'
 import { getNodeColor } from 'helpers/color';
 import { getTextWidth } from 'helpers';
 
+import './index.css'
 interface Props {
     width:number,
     height:number,
@@ -18,23 +19,38 @@ interface Props {
     padding = 10;
     nodeWidth = 20
     fontSize = 14;
-    drawNodeAttention(nodeAttention: IAttentionTree, stepHeight:number){
+    drawNodeAttention(nodeAttention: IAttentionTree, stepHeight:number, edgeThreshold:number){
         let {nodeNameDict} = this.props.globalState
+
+        let pruneEdge = (node:IAttentionTree, threshold:number):IAttentionTree=>{
+            if (node.children.length>0){
+                node = {
+                    ...node,
+                    children: node.children
+                        .filter(d=>d.score >= threshold)
+                        .map(node=>pruneEdge(node, threshold))
+                }
+
+            }
+            return node
+        }
+
+        let nodeAttentionFiltered = pruneEdge(nodeAttention, edgeThreshold)
         
        
-        const rootNode = d3.hierarchy(nodeAttention);
+        const rootNode = d3.hierarchy(nodeAttentionFiltered);
         let root = d3.tree<IAttentionTree>().nodeSize([this.nodeWidth+this.padding, stepHeight])(rootNode)
 
         let linkGene = d3.linkVertical<any, d3.HierarchyPointLink<IAttentionTree>, any>()
             .x(d => d.x)
             .y(d => d.y)
 
-        const links = root.links().map(link=>{
-
+        const links = root.links()
+        .map((link, i)=>{
             return <path 
                 d={linkGene(link)!} 
-                className ={`${link.source.data.node}=>${link.target.data.node}`}
-                key={`${link.source.data.node}=>${link.target.data.node}`}
+                className ={`link ${link.source.data.node}=>${link.target.data.node}`}
+                key={`${link.source.data.node}=>${link.target.data.node}_link${i}`}
                 fill="none"
                 stroke="gray"
                 strokeWidth={1+5*link.target.data.score}
@@ -42,7 +58,7 @@ interface Props {
         })
 
         const nodes = root.descendants()
-        .map(node=>{
+        .map((node,i)=>{
             let nodeName = node.data.node 
             let [nodeType, nodeTypeID] = nodeName.split('_')
             
@@ -50,8 +66,8 @@ interface Props {
             let nodeFullName = nodeNameDict[nodeType][nodeTypeID] 
             let labelLength = getTextWidth(nodeTypeID, this.fontSize)
 
-            return <Tooltip title={`${nodeType}: ${nodeFullName||"undefined"}`} key={`${node.depth}_${nodeName}`}>
-                <g className={nodeName}
+            return <Tooltip title={`${nodeType}: ${nodeFullName||"undefined"}`} key={`node${i}_${nodeName}`}>
+                <g className={`${nodeName} node`}
                     transform={`translate(${node.x}, ${node.y})`}
                     cursor="pointer"
                 >
@@ -72,13 +88,13 @@ interface Props {
 
     }
     drawAttentions (){
-        let {attention}=this.props.globalState
+        let {attention, edgeThreshold}=this.props.globalState
         let {width, height} = this.props
 
         let stepHeight = height/4
         return Object.keys(attention).map((nodeKey:string, idx)=>{
             return <g className={nodeKey} key={nodeKey} transform={`translate(${width/2*idx + 1*width/5}, ${stepHeight/2})`}>
-                {this.drawNodeAttention(attention[nodeKey], stepHeight)}
+                {this.drawNodeAttention(attention[nodeKey], stepHeight, edgeThreshold)}
             </g>
         })
     }

@@ -17,7 +17,7 @@ const rootReducer = (state:IState, action: IAction): IState=> {
 
 
       case ACTION_TYPES.Load_Meta_Paths: {
-        return {...state, metaPaths: parseMetaPaths(action.payload.metaPaths, state.edgeTypes, state.edgeThreshold)}
+        return {...state, metaPaths: parseMetaPaths(action.payload.metaPaths, state.edgeTypes)}
       }
 
 
@@ -37,7 +37,7 @@ const rootReducer = (state:IState, action: IAction): IState=> {
 
 
 
-  const parseMetaPaths = (res:any, edgeTypes: IEdgeTypes, edgeTHR: number): IMetaPath[]=>{
+  const parseMetaPaths = (res:any, edgeTypes: IEdgeTypes): IMetaPath[]=>{
     let paths:IMetaPath[] = []
     Object.values(res).forEach((d:any)=>{
         let {node_type:startNode, layer1_score, layer0_score} = d
@@ -61,9 +61,10 @@ const rootReducer = (state:IState, action: IAction): IState=> {
                     ],
                     nodes: [startNode, node1, node0]
                 }
-                if (score1>edgeTHR && score0 > edgeTHR){
-                    paths.push(metaPath)
-                }
+                // if (score1>edgeTHR && score0 > edgeTHR){
+                //     paths.push(metaPath)
+                // }
+                paths.push(metaPath)
                 
             })
         })
