@@ -11,7 +11,7 @@ const initialState: IState = {
   selectedDisease: undefined,
   selectedDrug: undefined,
   nodeNameDict: {},
-  edgeThreshold: 0.4
+  edgeThreshold: 0.1
 }
 
 interface IStateContext {

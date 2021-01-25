@@ -1,0 +1,3 @@
+.nodeLink path, g.node{
+    transition: all 0.8s ease;
+}
