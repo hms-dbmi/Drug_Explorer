@@ -1,8 +1,7 @@
 import { Card, Tooltip } from 'antd'
 import { path } from 'd3';
-import { cropText } from 'helpers';
+import { cropText, YES_ICON, NO_ICON, SETTING_ICON } from 'helpers';
 import { getNodeColor } from 'helpers/color';
-import { off } from 'process';
 import React from 'react'
 
 import {StateConsumer} from 'stores'
@@ -74,14 +73,11 @@ interface State {
         }
     }
     getIconGroup(){
-        const YES = "M 22.319 4.431 L 8.5 18.249 a 1 1 0 0 1 -1.417 0 L 1.739 12.9 a 1 1 0 0 0 -1.417 0 a 1 1 0 0 0 0 1.417 l 5.346 5.345 a 3.008 3.008 0 0 0 4.25 0 L 23.736 5.847 a 1 1 0 0 0 0 -1.416 a 1 1 0 0 0 -1.417 0 Z",
-        NO = "M 23.707 0.293 a 1 1 0 0 0 -1.414 0 L 12 10.586 L 1.707 0.293 a 1 1 0 0 0 -1.414 0 a 1 1 0 0 0 0 1.414 L 10.586 12 L 0.293 22.293 a 1 1 0 0 0 0 1.414 a 1 1 0 0 0 1.414 0 L 12 13.414 l 10.293 10.293 a 1 1 0 0 0 1.414 0 a 1 1 0 0 0 0 -1.414 L 13.414 12 L 23.707 1.707 a 1 1 0 0 0 0 -1.414 Z",
-        SETTING = 'M 21.294 13.9 l -0.444 -0.256 a 9.1 9.1 0 0 0 0 -3.29 l 0.444 -0.256 a 3 3 0 1 0 -3 -5.2 l -0.445 0.257 A 8.977 8.977 0 0 0 15 3.513 V 3 a 3 3 0 0 0 -6 0 v 0.513 a 8.977 8.977 0 0 0 -2.848 1.646 L 5.705 4.9 a 3 3 0 0 0 -3 5.2 l 0.444 0.256 a 9.1 9.1 0 0 0 0 3.29 l -0.444 0.256 a 3 3 0 1 0 3 5.2 l 0.445 -0.257 A 8.977 8.977 0 0 0 9 20.487 V 21 a 3 3 0 0 0 6 0 v -0.513 a 8.977 8.977 0 0 0 2.848 -1.646 l 0.447 0.258 a 3 3 0 0 0 3 -5.2 Z m -2.548 -3.776 a 7.048 7.048 0 0 1 0 3.75 a 1 1 0 0 0 0.464 1.133 l 1.084 0.626 a 1 1 0 0 1 -1 1.733 l -1.086 -0.628 a 1 1 0 0 0 -1.215 0.165 a 6.984 6.984 0 0 1 -3.243 1.875 a 1 1 0 0 0 -0.751 0.969 V 21 a 1 1 0 0 1 -2 0 v -1.252 a 1 1 0 0 0 -0.751 -0.969 A 6.984 6.984 0 0 1 7.006 16.9 a 1 1 0 0 0 -1.215 -0.165 l -1.084 0.627 a 1 1 0 1 1 -1 -1.732 l 1.084 -0.626 a 1 1 0 0 0 0.464 -1.133 a 7.048 7.048 0 0 1 0 -3.75 a 1 1 0 0 0 -0.465 -1.129 l -1.084 -0.626 a 1 1 0 0 1 1 -1.733 l 1.086 0.628 A 1 1 0 0 0 7.006 7.1 a 6.984 6.984 0 0 1 3.243 -1.875 A 1 1 0 0 0 11 4.252 V 3 a 1 1 0 0 1 2 0 v 1.252 a 1 1 0 0 0 0.751 0.969 A 6.984 6.984 0 0 1 16.994 7.1 a 1 1 0 0 0 1.215 0.165 l 1.084 -0.627 a 1 1 0 1 1 1 1.732 l -1.084 0.626 a 1 1 0 0 0 -0.463 1.129 Z'
-
+        
         return <g className='feedback' transform={`scale(0.5)`}>
-            <path className="yes" d={YES} />
-            <path className="no" d={NO} transform={`translate(${30}, 0)`}/>
-            <path className="seting" d={SETTING} transform={`translate(${60}, 0)`}/>
+            <path className="yes" d={YES_ICON} />
+            <path className="no" d={NO_ICON} transform={`translate(${30}, 0)`}/>
+            <path className="seting" d={SETTING_ICON} transform={`translate(${60}, 0)`}/>
         </g>
     }
     drawDummy(){
@@ -142,7 +138,7 @@ interface State {
                         nodeName = possibleNames[Math.floor(Math.random()*possibleNames.length)]
                     }
 
-                    let shortNodeName = cropText(nodeName, 12, NODE_WIDTH-10)
+                    let shortNodeName = cropText(nodeName, 14, NODE_WIDTH-10)
 
                     let translate = `translate(${(EDGE_LENGTH+NODE_WIDTH)*nodeIdx}, ${0})`
                     return (<Tooltip key={`node_${nodeIdx}`} title={shortNodeName.includes('.')?nodeName:''}>
