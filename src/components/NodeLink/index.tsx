@@ -4,7 +4,7 @@ import {StateConsumer} from 'stores'
 import { IState, IAttentionTree } from 'types';
 import * as d3 from 'd3'
 import { getNodeColor } from 'helpers/color';
-import { getTextWidth } from 'helpers';
+import { cropText, getTextWidth } from 'helpers';
 
 import './index.css'
 interface Props {
@@ -66,9 +66,13 @@ interface Props {
             
 
             let nodeFullName = nodeNameDict[nodeType][nodeTypeID] 
-            let labelLength = getTextWidth(nodeTypeID, this.fontSize)
+            // let labelLength = getTextWidth(nodeTypeID, this.fontSize)
+            let labelLength = 100
+            let nodeShortName = cropText(nodeFullName, 12, labelLength)
 
-            return <Tooltip title={`${nodeType}: ${nodeFullName||"undefined"}`} key={`node${i}_${nodeName}`}>
+            let tooltipTitle = nodeShortName.includes('..')?nodeFullName: ''
+
+            return <Tooltip title={ tooltipTitle} key={`node${i}_${nodeName}`}>
                 <g className={`${nodeName} node`}
                     transform={`translate(${node.x}, ${node.y})`}
                     cursor="pointer"
@@ -76,7 +80,7 @@ interface Props {
                 <rect height={labelLength+ 2*this.padding} width={this.nodeWidth} fill={getNodeColor(nodeType)} x={-1*this.nodeWidth/2} y={-1*labelLength/2 - this.padding}/>
                 
                 <text fill="white" fontSize={this.fontSize} transform={`rotate(90) translate(${-1*labelLength/2}, ${(this.nodeWidth-this.fontSize)/2})`}>
-                    {nodeTypeID} 
+                    {nodeShortName} 
                 </text>
                 
             </g>

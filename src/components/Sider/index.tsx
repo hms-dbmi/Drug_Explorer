@@ -69,14 +69,15 @@ class DrugSider extends React.Component<Props>{
     }
     render() {
         let { siderWidth } = this.props
-        let { edgeThreshold, nodeTypes, diseaseOptions, drugOptions } = this.props.globalState
+        let { edgeThreshold, nodeTypes, diseaseOptions, drugOptions, nodeNameDict } = this.props.globalState
 
         let sider = <Sider width={siderWidth} theme="light" style={{ padding: `${this.padding}px` }}>
             Disease:
             <Select defaultValue="select a disease" style={{ width: siderWidth - 2 * this.padding }} onChange={this.changeDisease}>
                 {diseaseOptions.map((d, idx) => {
+                    let name = nodeNameDict['disease'][d.split('_')[1]]
                     return <Option value={d} key={`disease_${idx}`}>
-                        {d}
+                        {name}
                     </Option>
                 })}
             </Select>
@@ -95,10 +96,11 @@ class DrugSider extends React.Component<Props>{
                 onChange={this.changeDrug}
             >
                 {drugOptions.map((d, idx) => {
+                    let name = nodeNameDict['drug'][d.split('_')[1]]
                     return <Option value={d} key={`disease_${idx}`}>
                         
                         <div>
-                        <span>{d}</span>
+                        <span>{name}</span>
                         <span style={{ float: "right" }}>score:0.xx</span>
                     </div>
                     </Option>

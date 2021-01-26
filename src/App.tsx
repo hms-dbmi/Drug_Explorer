@@ -52,21 +52,36 @@ class App extends React.Component<Props, State>{
         setNodeColor(nodeTypes)
         this.props.dispatch({type: ACTION_TYPES.Load_Node_Types, payload: {nodeTypes} })
     })
-
-    requestEdgeTypes()
-    .then((edgeTypes)=>{
-        this.props.dispatch({type: ACTION_TYPES.Load_Edge_Types, payload: {edgeTypes} })
+    .then(()=>requestEdgeTypes())
+    .then(
+      (edgeTypes)=>{
+      this.props.dispatch({type: ACTION_TYPES.Load_Edge_Types, payload: {edgeTypes} })
     })
-
-    requestNodeNameDict()
-    .then((nodeNameDict)=>{
+    .then(()=>requestNodeNameDict())
+    .then(
+      (nodeNameDict)=>{
       this.props.dispatch({type: ACTION_TYPES.Load_Node_Name_Dict, payload: {nodeNameDict} })
     })
-    
-    requestDiseaseOptions()
-    .then((diseaseOptions)=>{
+    .then(()=>requestDiseaseOptions())
+    .then(
+      (diseaseOptions)=>{
       this.props.dispatch({type: ACTION_TYPES.Load_Node_Name_Dict, payload: {diseaseOptions} })
     })
+
+    // requestEdgeTypes()
+    // .then((edgeTypes)=>{
+    //     this.props.dispatch({type: ACTION_TYPES.Load_Edge_Types, payload: {edgeTypes} })
+    // })
+
+    // requestNodeNameDict()
+    // .then((nodeNameDict)=>{
+    //   this.props.dispatch({type: ACTION_TYPES.Load_Node_Name_Dict, payload: {nodeNameDict} })
+    // })
+    
+    // requestDiseaseOptions()
+    // .then((diseaseOptions)=>{
+    //   this.props.dispatch({type: ACTION_TYPES.Load_Node_Name_Dict, payload: {diseaseOptions} })
+    // })
 
   }
 

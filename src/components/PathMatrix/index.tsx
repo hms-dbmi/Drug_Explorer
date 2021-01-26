@@ -1,5 +1,6 @@
-import { Card } from 'antd'
+import { Card, Tooltip } from 'antd'
 import { path } from 'd3';
+import { cropText } from 'helpers';
 import { getNodeColor } from 'helpers/color';
 import { off } from 'process';
 import React from 'react'
@@ -127,11 +128,15 @@ interface State {
                         nodeName = possibleNames[Math.floor(Math.random()*possibleNames.length)]
                     }
 
+                    let shortNodeName = cropText(nodeName, 12, NODE_WIDTH-10)
+
                     let translate = `translate(${(EDGE_LENGTH+NODE_WIDTH)*nodeIdx}, ${0})`
-                    return (<g key={`node_${nodeIdx}`} transform={translate}>
+                    return (<Tooltip key={`node_${nodeIdx}`} title={shortNodeName.includes('.')?nodeName:''}>
+                    <g  transform={translate}>
                         <rect width={NODE_WIDTH} height={NODE_HEIGHT} fill={getNodeColor(node)} />
-                        <text textAnchor="middle" y={NODE_HEIGHT/2+6} x={NODE_WIDTH/2} fill='white'>{nodeName}</text>
-                    </g>)
+                        <text textAnchor="middle" y={NODE_HEIGHT/2+6} x={NODE_WIDTH/2} fill='white'>{shortNodeName}</text>
+                    </g>
+                    </Tooltip>)
                 })
                 let edges = [...Array(type.length-1)].map((_, edgeIdx)=>{
                     let translate = `translate(${NODE_WIDTH+(EDGE_LENGTH+NODE_WIDTH)*edgeIdx}, ${+ NODE_HEIGHT/2})`
@@ -143,7 +148,7 @@ interface State {
                         />
                     </g>
                 })
-                return <g key={childIdx} transform={`translate(${30 + ICON_WIDTH}, ${(NODE_HEIGHT+VERTICAL_GAP) * (1+childIdx)})`}>
+                return <g key={childIdx} transform={`translate(${30 + ICON_WIDTH}, ${(NODE_HEIGHT+VERTICAL_GAP) * (1+childIdx)})`} opacity={0.7}>
                     {nodes}
                     {edges}
                 </g>
