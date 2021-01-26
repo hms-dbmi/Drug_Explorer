@@ -45,7 +45,7 @@ interface State {
             let svgNodes = nodes.map((node, nodeIdx)=>{
                 let translate = `translate(${(EDGE_LENGTH+NODE_WIDTH)*nodeIdx}, ${pathIdx*(NODE_HEIGHT+VERTICAL_GAP)})`
                 return (<g key={`node_${nodeIdx}`} transform={translate}>
-                    <rect width={NODE_WIDTH} height={NODE_HEIGHT} fill={getNodeColor(node)} rx={10}/>
+                    <rect width={NODE_WIDTH} height={NODE_HEIGHT} fill={getNodeColor(node)} rx={this.NODE_HEIGHT/2}/>
                     <text textAnchor="middle" y={NODE_HEIGHT/2+6} x={NODE_WIDTH/2} fill='white'>{node}</text>
                 </g>)
             })
@@ -95,7 +95,7 @@ interface State {
             let nodes = type.map((node, nodeIdx)=>{
                 let translate = `translate(${(EDGE_LENGTH+NODE_WIDTH)*nodeIdx}, ${0})`
                 return (<g key={`node_${nodeIdx}`} transform={translate}>
-                    <rect width={NODE_WIDTH} height={NODE_HEIGHT} fill={getNodeColor(node)} rx={10}/>
+                    <rect width={NODE_WIDTH} height={NODE_HEIGHT} fill={getNodeColor(node)} rx={this.NODE_HEIGHT/2}/>
                     <text textAnchor="middle" y={NODE_HEIGHT/2+6} x={NODE_WIDTH/2} fill='white'>{node}</text>
                 </g>)
             })
@@ -129,7 +129,7 @@ interface State {
 
                     let translate = `translate(${(EDGE_LENGTH+NODE_WIDTH)*nodeIdx}, ${0})`
                     return (<g key={`node_${nodeIdx}`} transform={translate}>
-                        <rect width={NODE_WIDTH} height={NODE_HEIGHT} fill={getNodeColor(node)} rx={10}/>
+                        <rect width={NODE_WIDTH} height={NODE_HEIGHT} fill={getNodeColor(node)} />
                         <text textAnchor="middle" y={NODE_HEIGHT/2+6} x={NODE_WIDTH/2} fill='white'>{nodeName}</text>
                     </g>)
                 })
@@ -164,6 +164,7 @@ interface State {
                             :`M25 0 L25 ${NODE_HEIGHT} L${NODE_HEIGHT+25} ${NODE_HEIGHT/2} Z`} 
                         fill="gray"
                         onClick={()=>this.expandType(pathIdx)}
+                        cursor="pointer"
                     />
                     {showChildren?children: <g/>}
                     

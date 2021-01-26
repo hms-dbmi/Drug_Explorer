@@ -60,7 +60,9 @@ interface Props {
         const nodes = root.descendants()
         .map((node,i)=>{
             let nodeName = node.data.node 
-            let [nodeType, nodeTypeID] = nodeName.split('_')
+            let chunks = nodeName.split('_')
+            let nodeTypeID = chunks[chunks.length-1]
+            let nodeType = chunks.slice(0, chunks.length-1).join('_') 
             
 
             let nodeFullName = nodeNameDict[nodeType][nodeTypeID] 

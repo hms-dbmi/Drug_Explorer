@@ -57,5 +57,18 @@ const requestAttention = (async(nodeIDs: (string|undefined)[]) => {
     
 })
 
+const requestDiseaseOptions = (async()=>{
+    const url = './data/test_attention.json'
+    let response = await axiosInstance.get(url)
+    return Object.keys(response.data).filter(d=>d.includes('disease'))
+})
 
-export {requestNodeTypes, requestEdgeTypes, requestMetaPaths, requestAttention, requestNodeNameDict}
+
+const requestDrugOptions = (async()=>{
+    const url = './data/test_attention.json'
+    let response = await axiosInstance.get(url)
+    return Object.keys(response.data).filter(d=>d.includes('drug'))
+})
+
+
+export {requestNodeTypes, requestEdgeTypes, requestMetaPaths, requestAttention, requestNodeNameDict, requestDrugOptions, requestDiseaseOptions}

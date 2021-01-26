@@ -4,6 +4,8 @@ import {IState} from 'types'
 
 
 const initialState: IState = {
+  diseaseOptions: [],
+  drugOptions: [],
   nodeTypes:[],
   edgeTypes: {},
   metaPaths:[],
@@ -11,7 +13,7 @@ const initialState: IState = {
   selectedDisease: undefined,
   selectedDrug: undefined,
   nodeNameDict: {},
-  edgeThreshold: 0.1
+  edgeThreshold: 0
 }
 
 interface IStateContext {

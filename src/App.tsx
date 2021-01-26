@@ -8,7 +8,7 @@ import './App.css';
 import {  StateConsumer } from 'stores';
 import {IState, IDispatch} from 'types'
 import {ACTION_TYPES} from 'stores/actions'
-import { requestNodeTypes, requestEdgeTypes, requestNodeNameDict} from 'stores/DataService';
+import { requestNodeTypes, requestEdgeTypes, requestNodeNameDict, requestDiseaseOptions} from 'stores/DataService';
 import { setNodeColor } from 'helpers/color';
 
 
@@ -63,7 +63,11 @@ class App extends React.Component<Props, State>{
       this.props.dispatch({type: ACTION_TYPES.Load_Node_Name_Dict, payload: {nodeNameDict} })
     })
     
-    
+    requestDiseaseOptions()
+    .then((diseaseOptions)=>{
+      this.props.dispatch({type: ACTION_TYPES.Load_Node_Name_Dict, payload: {diseaseOptions} })
+    })
+
   }
 
   componentWillUnmount(){

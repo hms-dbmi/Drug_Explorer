@@ -46,6 +46,8 @@ export type IDispatch = ({ type }: { type: string; payload?: Partial<IState>; })
     edgeThreshold: number
     nodeTypes: string[],
     edgeTypes: IEdgeTypes,
+    diseaseOptions: string[],
+    drugOptions:string[],
     metaPaths: IMetaPath[],
     selectedDrug: string|undefined,
     selectedDisease: string|undefined,
