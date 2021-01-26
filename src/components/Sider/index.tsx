@@ -9,6 +9,7 @@ import './Sider.css'
 import { Button, Col, InputNumber, Layout, Row, Select, Slider } from 'antd'
 import { SearchOutlined } from '@ant-design/icons';
 import { getNodeColor } from "helpers/color";
+import { reverse } from "dns";
 const { Sider } = Layout;
 const { Option } = Select
 
@@ -71,6 +72,8 @@ class DrugSider extends React.Component<Props>{
         let { siderWidth } = this.props
         let { edgeThreshold, nodeTypes, diseaseOptions, drugOptions, nodeNameDict } = this.props.globalState
 
+        let randomScores = drugOptions.map((_)=>Math.random().toFixed(3)).sort().reverse()
+
         let sider = <Sider width={siderWidth} theme="light" style={{ padding: `${this.padding}px` }}>
             Disease:
             <Select defaultValue="select a disease" style={{ width: siderWidth - 2 * this.padding }} onChange={this.changeDisease}>
@@ -101,7 +104,7 @@ class DrugSider extends React.Component<Props>{
                         
                         <div>
                         <span>{name}</span>
-                        <span style={{ float: "right" }}>score:0.xx</span>
+                        <span style={{ float: "right" }}>score: {randomScores[idx]}</span>
                     </div>
                     </Option>
                 })}
