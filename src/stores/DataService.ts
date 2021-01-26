@@ -40,12 +40,18 @@ const requestAttention = (async(nodeIDs: (string|undefined)[]) => {
     let results:any = {}
     const url = './data/test_attention.json'
     let response = await axiosInstance.get(url)
+
+    if (nodeIDs.length > 0){
+        nodeIDs.forEach( (nodeID)=>{
+            if (nodeID){
+                results[nodeID] = response.data[nodeID]
+            }
+        })
+    }else{
+        results = response.data
+    }
     
-    nodeIDs.forEach( (nodeID)=>{
-        if (nodeID){
-            results[nodeID] = response.data[nodeID]
-        }
-    })
+    
     
     return results
     

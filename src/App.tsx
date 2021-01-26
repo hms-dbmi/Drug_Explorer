@@ -9,6 +9,7 @@ import {  StateConsumer } from 'stores';
 import {IState, IDispatch} from 'types'
 import {ACTION_TYPES} from 'stores/actions'
 import { requestNodeTypes, requestEdgeTypes, requestNodeNameDict} from 'stores/DataService';
+import { setNodeColor } from 'helpers/color';
 
 
 
@@ -48,6 +49,7 @@ class App extends React.Component<Props, State>{
 
     requestNodeTypes()
     .then((nodeTypes)=>{
+        setNodeColor(nodeTypes)
         this.props.dispatch({type: ACTION_TYPES.Load_Node_Types, payload: {nodeTypes} })
     })
 
@@ -60,6 +62,7 @@ class App extends React.Component<Props, State>{
     .then((nodeNameDict)=>{
       this.props.dispatch({type: ACTION_TYPES.Load_Node_Name_Dict, payload: {nodeNameDict} })
     })
+    
     
   }
 

@@ -62,21 +62,25 @@ class DrugSider extends React.Component<Props>{
     }
     render() {
         let { siderWidth } = this.props
-        let {edgeThreshold, nodeTypes} = this.props.globalState
+        let {edgeThreshold, nodeTypes, attention} = this.props.globalState
 
-        let diseaseOptions = [...Array(2)].map((_,idx)=>{
-            return <Option value={`disease_${idx}`} key={`disease_${idx}`}>
-                disease_{idx}
-        </Option>
+        let diseaseOptions = Object.keys(attention)
+            .filter(d=>d.includes('disease'))
+            .map((_,idx)=>{
+                return <Option value={`disease_${idx}`} key={`disease_${idx}`}>
+                    disease_{idx}
+                </Option>
         })
 
-        let drugOptions = [...Array(10)].map((_,idx)=>{
-            return <Option value={`drug_${idx}`} key={`drug_${idx}`}>
-                <div>
+        let drugOptions = Object.keys(attention)
+            .filter(d=>d.includes('drug'))
+            .map((_,idx)=>{
+                return <Option value={`drug_${idx}`} key={`drug_${idx}`}>
+                    <div>
                         <span>drug_{idx}</span>
                         <span style={{ float: "right" }}>score:0.xx</span>
                     </div>
-            </Option>
+                </Option>
         })
 
         
