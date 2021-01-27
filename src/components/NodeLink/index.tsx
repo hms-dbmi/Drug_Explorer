@@ -4,7 +4,7 @@ import {StateConsumer} from 'stores'
 import { IState, IAttentionTree } from 'types';
 import * as d3 from 'd3'
 import { getNodeColor } from 'helpers/color';
-import { cropText, VIRUS_ICON, DRUG_ICON } from 'helpers';
+import { cropText, VIRUS_ICON, DRUG_ICON, getTextWidth } from 'helpers';
 
 import './index.css'
 interface Props {
@@ -19,7 +19,7 @@ interface Props {
     padding = 10;
     nodeWidth = 20
     fontSize = 14;
-    labelLength = 120;
+    labelLength = 150;
 
     drawNodeAttentionVertical(nodeAttention: IAttentionTree, stepHeight:number, edgeThreshold:number){
         let {nodeNameDict} = this.props.globalState
@@ -82,7 +82,7 @@ interface Props {
                 >
                 <rect height={labelLength+ 2*this.padding} width={this.nodeWidth} fill={getNodeColor(nodeType)} x={-1*this.nodeWidth/2} y={-1*labelLength/2 - this.padding}/>
                 <text fill="white" fontSize={this.fontSize} transform={`rotate(90) translate(${-1*labelLength/2 }, ${(this.nodeWidth-this.fontSize)/2})`}>
-                    {nodeShortName} 
+                    {`${nodeShortName}(${node.data.score})` } 
                 </text>
                 
             </g>
@@ -123,7 +123,6 @@ interface Props {
             .x(d => root.data.node.includes("drug")? width/2-d.y-3*this.labelLength: d.y)
             .y(d => d.x)
 
-            console.info(root)
         const links = root.links()
         .map((link, i)=>{
             return <path 
@@ -146,7 +145,7 @@ interface Props {
 
             let nodeFullName = nodeNameDict[nodeType][nodeTypeID] 
             // let labelLength = getTextWidth(nodeTypeID, this.fontSize)
-            let nodeShortName = cropText(nodeFullName, 12, this.labelLength-30)
+            let nodeShortName = cropText(nodeFullName, 12, this.labelLength- 20 - getTextWidth('..(0.00)', 14))
             let tooltipTitle = nodeShortName.includes('..')?nodeFullName: ''
             let icon_path = ''
             if (nodeType==='disease') icon_path = VIRUS_ICON
@@ -158,9 +157,9 @@ interface Props {
                     cursor="pointer"
                 >
                 <rect width={this.labelLength+ 2*this.padding} height={this.nodeWidth} fill={getNodeColor(nodeType)} x={-1*this.labelLength/2 - this.padding} y={-this.nodeWidth/2}/>
-                <path className="virus_icon" d={icon_path} transform={`translate(${-1*this.labelLength/2 + 2}, ${-this.nodeWidth/2}) scale(0.04)`} fill="white"/>
-                <text fill="white" fontSize={this.fontSize} transform={`translate(${-1*this.labelLength/2 + 30}, ${(this.nodeWidth-this.fontSize)/2})`}>
-                    {nodeShortName} 
+                <path className="virus_icon" d={icon_path} transform={`translate(${-1*this.labelLength/2 -5 }, ${-this.nodeWidth/2}) scale(0.04)`} fill="white"/>
+                <text fill="white" fontSize={this.fontSize} transform={`translate(${-1*this.labelLength/2 + 20}, ${(this.nodeWidth-this.fontSize)/2})`}>
+                    {`${nodeShortName}(${node.data.score.toFixed(2)})` } 
                 </text>
                 
             </g>
