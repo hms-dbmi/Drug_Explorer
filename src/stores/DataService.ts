@@ -67,7 +67,12 @@ const requestDiseaseOptions = (async()=>{
 const requestDrugOptions = (async()=>{
     const url = './data/test_attention.json'
     let response = await axiosInstance.get(url)
-    return Object.keys(response.data).filter(d=>d.includes('drug'))
+    let drugOptions:{[drug:string]:number} = {}
+    Object.keys(response.data).filter(d=>d.includes('drug'))
+    .forEach(drug=>{
+        drugOptions[drug] = Math.random()
+    })
+    return drugOptions
 })
 
 

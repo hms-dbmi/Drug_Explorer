@@ -5,7 +5,7 @@ import {IState} from 'types'
 
 const initialState: IState = {
   diseaseOptions: [],
-  drugOptions: [],
+  drugOptions: {},
   nodeTypes:[],
   edgeTypes: {},
   metaPaths:[],

@@ -1,6 +1,6 @@
 import { Card, Tooltip } from 'antd'
 import { path } from 'd3';
-import { cropText, YES_ICON, NO_ICON, SETTING_ICON } from 'helpers';
+import { cropText, YES_ICON, NO_ICON, EDIT_ICON } from 'helpers';
 import { getNodeColor } from 'helpers/color';
 import React from 'react'
 
@@ -74,10 +74,10 @@ interface State {
     }
     getIconGroup(){
         
-        return <g className='feedback' transform={`scale(0.5)`}>
-            <path className="yes" d={YES_ICON} />
-            <path className="no" d={NO_ICON} transform={`translate(${30}, 0)`}/>
-            <path className="seting" d={SETTING_ICON} transform={`translate(${60}, 0)`}/>
+        return <g className='feedback' >
+            <path className="yes" d={YES_ICON} transform={`scale(0.04)`} />
+            <path className="no" d={NO_ICON} transform={`translate(${30}, 0) scale(0.04)`}/>
+            <path className="seting" d={EDIT_ICON} transform={`translate(${60}, 0) scale(0.04)`}/>
         </g>
     }
     drawDummy(){

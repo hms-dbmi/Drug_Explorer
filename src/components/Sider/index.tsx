@@ -72,7 +72,6 @@ class DrugSider extends React.Component<Props>{
         let { siderWidth } = this.props
         let { edgeThreshold, nodeTypes, diseaseOptions, drugOptions, nodeNameDict } = this.props.globalState
 
-        let randomScores = drugOptions.map((_)=>Math.random().toFixed(3)).sort().reverse()
 
         let sider = <Sider width={siderWidth} theme="light" style={{ padding: `${this.padding}px` }}>
             Disease:
@@ -98,13 +97,15 @@ class DrugSider extends React.Component<Props>{
                 listHeight={this.listHeight}
                 onChange={this.changeDrug}
             >
-                {drugOptions.map((d, idx) => {
+                {Object.keys(drugOptions)
+                .sort((a,b)=>-drugOptions[a]+drugOptions[b])
+                .map((d, idx) => {
                     let name = nodeNameDict['drug'][d.split('_')[1]]
                     return <Option value={d} key={`disease_${idx}`}>
                         
                         <div>
                         <span>{name}</span>
-                        <span style={{ float: "right" }}>score: {randomScores[idx]}</span>
+                        <span style={{ float: "right" }}>score: {drugOptions[d].toFixed(2)}</span>
                     </div>
                     </Option>
                 })}

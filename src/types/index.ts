@@ -47,7 +47,7 @@ export type IDispatch = ({ type }: { type: string; payload?: Partial<IState>; })
     nodeTypes: string[],
     edgeTypes: IEdgeTypes,
     diseaseOptions: string[],
-    drugOptions:string[],
+    drugOptions:{[drug:string]: number},
     metaPaths: IMetaPath[],
     selectedDrug: string|undefined,
     selectedDisease: string|undefined,
