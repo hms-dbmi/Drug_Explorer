@@ -131,7 +131,7 @@ class DrugSider extends React.Component<Props>{
             <br />
                 {nodeTypes.map(nodeType => {
                     return <div key={nodeType} style={{ marginLeft: "5px" }}>
-                        <input type="checkbox" style={{ margin: "2px" }} />
+                        {/* <input type="checkbox" style={{ margin: "2px" }} /> */}
                         <span style={{ background: getNodeColor(nodeType), color: "white", padding: "2px" }}>{nodeType}</span>
                     </div>
                 })}

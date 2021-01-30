@@ -1,5 +1,4 @@
-import { Card, Tooltip } from 'antd'
-import { path } from 'd3';
+import { Card, Tooltip, Modal } from 'antd'
 import { cropText, YES_ICON, NO_ICON, EDIT_ICON } from 'helpers';
 import { getNodeColor } from 'helpers/color';
 import React from 'react'
@@ -14,7 +13,8 @@ interface Props {
 }
 
 interface State {
-    expand: boolean[]
+    expand: boolean[],
+    isModalVisible: boolean
 }
 
  class PathMatrix extends React.Component<Props, State>{
@@ -29,8 +29,12 @@ interface State {
     constructor(prop:Props){
         super(prop)
         this.state={
-            expand: [false, true, true, false]
+            expand: [false, true, true, false],
+            isModalVisible: false
         }
+
+        this.showModal = this.showModal.bind(this)
+        this.hideModal = this.hideModal.bind(this)
     }
     drawSummary(){
         let {EDGE_LENGTH, NODE_WIDTH, NODE_HEIGHT, VERTICAL_GAP} = this
@@ -74,10 +78,19 @@ interface State {
     }
     getIconGroup(){
         
-        return <g className='feedback' >
-            <path className="yes" d={YES_ICON} transform={`scale(0.04)`} />
-            <path className="no" d={NO_ICON} transform={`translate(${30}, 0) scale(0.04)`}/>
-            <path className="seting" d={EDIT_ICON} transform={`translate(${60}, 0) scale(0.04)`}/>
+        return <g className='feedback' cursor="pointer">
+            <g className="yes">
+                <rect width={30} height={30} fill="white"/>
+                <path d={YES_ICON} transform={`scale(0.04)`} />
+            </g>
+            <g className="no" transform={`translate(${30}, 0)`}>
+                <rect width={30} height={30} fill="white"/>
+                <path d={NO_ICON} transform={`scale(0.04)`}/>
+            </g>
+            <g className="edit" transform={`translate(${60}, 0)`} onClick={this.showModal}>
+                <rect width={30} height={30} fill="white"/>
+                <path d={EDIT_ICON} transform={`scale(0.04)`}/>
+            </g>
         </g>
     }
     drawDummy(){
@@ -210,12 +223,19 @@ interface State {
         })
         return summary
     }
+    showModal(){
+        this.setState({isModalVisible: true})
+    }
+    hideModal(){
+        this.setState({isModalVisible: false})
+    }
     render(){
-        let {width, height} = this.props
+        let {width, height} = this.props, {isModalVisible} = this.state
         let svgWidth = width-2*this.PADDING-2*this.MARGIN, 
             svgOuterHeight = height - 2*this.PADDING-this.TITLE_HEIGHT,
             svgHeight = this.props.globalState.metaPaths.length * (this.NODE_HEIGHT+ this.VERTICAL_GAP)
-        return <Card size='small' title='Path Matrix' 
+        return <>
+        <Card size='small' title='Path Matrix' 
             style={{width: width-2*this.MARGIN, height: height, margin: `0px ${this.MARGIN}px`}}
             bodyStyle={{padding:this.PADDING, height: svgOuterHeight, overflowY: "auto"}}
             headStyle={{height: this.TITLE_HEIGHT}}
@@ -224,6 +244,12 @@ interface State {
             {this.drawDummy()}
         </svg>
         </Card>
+        <Modal title="Edit Explanation" visible={isModalVisible} onOk={this.hideModal} onCancel={this.hideModal} okText="Confirm" width={width} zIndex={1999}>
+            <svg width={width}>
+
+            </svg>
+        </Modal>
+        </>
     }
 }
 
