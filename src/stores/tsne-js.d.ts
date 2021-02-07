@@ -1,1 +1,1 @@
-declare module "tsne-js";
+declare module 'tsne-js';

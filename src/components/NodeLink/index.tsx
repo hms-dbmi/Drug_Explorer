@@ -123,7 +123,7 @@ class NodeLink extends React.Component<Props> {
     stepHeight: number,
     edgeThreshold: number
   ) {
-    let { width, height } = this.props;
+    let { width } = this.props;
     let { nodeNameDict } = this.props.globalState;
 
     let pruneEdge = (

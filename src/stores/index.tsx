@@ -1,51 +1,56 @@
 import React, { createContext } from 'react';
-import rootReducer from './reducer'
-import {IState} from 'types'
-
+import rootReducer from './reducer';
+import { IState } from 'types';
 
 const initialState: IState = {
   diseaseOptions: [],
   drugOptions: {},
-  nodeTypes:[],
+  nodeTypes: [],
   edgeTypes: {},
-  metaPaths:[],
+  metaPaths: [],
   attention: {},
   selectedDisease: undefined,
   selectedDrug: undefined,
   nodeNameDict: {},
-  edgeThreshold: 0
-}
+  edgeThreshold: 0,
+};
 
 interface IStateContext {
   state: IState;
-  dispatch: ({type}:{type:string}) => void;
+  dispatch: ({ type }: { type: string }) => void;
 }
 
 const GlobalStore = createContext({} as IStateContext);
 
 // An wrapping function to handle thunks (dispatched actions which are wrapped in a function, needed for async callbacks)
 const asyncer = (dispatch: any, state: IState) => (action: any) =>
-    typeof(action) === 'function' ? action(dispatch, state) : dispatch(action);
-
- 
+  typeof action === 'function' ? action(dispatch, state) : dispatch(action);
 
 // The StateProvider component to provide the global state to all child components
 export function StateProvider(props: any) {
   const [state, dispatchBase] = React.useReducer(rootReducer, initialState);
 
-  const dispatch = React.useCallback(asyncer(dispatchBase, state), [])
+  const dispatch = React.useCallback(asyncer(dispatchBase, state), []);
 
-  return <GlobalStore.Provider value={{ state, dispatch }}>
-          { props.children }
-      </GlobalStore.Provider>
+  return (
+    <GlobalStore.Provider value={{ state, dispatch }}>
+      {props.children}
+    </GlobalStore.Provider>
+  );
 }
-  
+
 export function StateConsumer(Component: any) {
   return function WrapperComponent(props: any) {
-      return (
-          <GlobalStore.Consumer>
-              {context => <Component {...props} globalState={context.state} dispatch={context.dispatch} />}
-          </GlobalStore.Consumer>
-      );
-  }
+    return (
+      <GlobalStore.Consumer>
+        {(context) => (
+          <Component
+            {...props}
+            globalState={context.state}
+            dispatch={context.dispatch}
+          />
+        )}
+      </GlobalStore.Consumer>
+    );
+  };
 }

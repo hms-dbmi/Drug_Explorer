@@ -13,7 +13,6 @@ import './Sider.css';
 import { Button, Col, InputNumber, Layout, Row, Select, Slider } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { getNodeColor } from 'helpers/color';
-import { reverse } from 'dns';
 const { Sider } = Layout;
 const { Option } = Select;
 
