@@ -1,5 +1,6 @@
-const URL = process.env.NODE_ENV === 'development'
+const URL =
+  process.env.NODE_ENV === 'development'
     ? `http://localhost:${process.env.REACT_APP_PORT}`
-    : process.env.REACT_APP_PUBLIC_URL
+    : process.env.REACT_APP_PUBLIC_URL;
 
-export {URL}
+export { URL };
