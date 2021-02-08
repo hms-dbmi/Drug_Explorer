@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { IEdgeTypes } from 'types';
-import { URL } from 'Const';
+import { STATIC_URL } from 'Const';
 
 const axiosInstance = axios.create({
-  baseURL: `${URL}/`,
+  baseURL: `${STATIC_URL}/`,
   // timeout: 1000,
   headers: {
     'Access-Control-Allow-Origin': '*',
