@@ -60,14 +60,9 @@ const requestDiseaseOptions = async () => {
 };
 
 const requestDrugOptions = async (diseaseID: string) => {
-  const url = './data/test_attention.json';
+  const url = `./api/drug_predictions?disease_id=${diseaseID}`;
   let response = await axiosInstance.get(url);
-  let drugOptions: { [drug: string]: number } = {};
-  Object.keys(response.data)
-    .filter((d) => d.includes('drug'))
-    .forEach((drug) => {
-      drugOptions[drug] = Math.random();
-    });
+  let drugOptions = response.data;
   return drugOptions;
 };
 

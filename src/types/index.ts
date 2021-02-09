@@ -47,12 +47,17 @@ export type IDispatch = ({
   payload?: Partial<IState>;
 }) => void;
 
+export type DrugOption = {
+  score: number;
+  drug_id: string;
+};
+
 export interface IState {
   edgeThreshold: number;
   nodeTypes: string[];
   edgeTypes: IEdgeTypes;
   diseaseOptions: string[];
-  drugOptions: { [drug: string]: number };
+  drugOptions: DrugOption[];
   metaPaths: IMetaPath[];
   selectedDrug: string | undefined;
   selectedDisease: string | undefined;

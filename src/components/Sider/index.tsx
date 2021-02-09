@@ -98,11 +98,12 @@ class DrugSider extends React.Component<Props> {
           style={{ width: siderWidth - 2 * this.padding }}
           onChange={this.changeDisease}
           showSearch
+          optionFilterProp="label"
         >
           {diseaseOptions.map((d) => {
-            let name = nodeNameDict['disease'][d];
+            const name = nodeNameDict['disease'][d];
             return (
-              <Option value={d} key={`diseaseID_${d}`}>
+              <Option value={d} label={name} key={`diseaseID_${d}`}>
                 {name}
               </Option>
             );
@@ -121,21 +122,18 @@ class DrugSider extends React.Component<Props> {
           listHeight={this.listHeight}
           onChange={this.changeDrug}
         >
-          {Object.keys(drugOptions)
-            .sort((a, b) => -drugOptions[a] + drugOptions[b])
-            .map((d, idx) => {
-              let name = nodeNameDict['drug'][d.split('_')[1]];
-              return (
-                <Option value={d} key={`disease_${idx}`}>
-                  <div>
-                    <span>{name}</span>
-                    <span style={{ float: 'right' }}>
-                      score: {drugOptions[d].toFixed(2)}
-                    </span>
-                  </div>
-                </Option>
-              );
-            })}
+          {drugOptions.map((d, idx) => {
+            const { drug_id, score } = d;
+            let name = nodeNameDict['drug'][drug_id];
+            return (
+              <Option value={drug_id} key={`disease_${idx}`}>
+                <div>
+                  <span>{name}</span>
+                  <span style={{ float: 'right' }}>score: {score}</span>
+                </div>
+              </Option>
+            );
+          })}
         </Select>
         <div className="dummy" style={{ height: this.listHeight + 20 }} />
         Edge Threshold:

@@ -179,12 +179,12 @@ class ModelLoader():
 
         if drug_id is None:
             drugs = preds_all['rev_{}'.format(rel)][disease_id]
-            return [{"score": x[1], "drug_id": x[0], "disease_id": disease_id} for x in sorted(
+            return [{"score": x[1], "drug_id": x[0]} for x in sorted(
                 enumerate(drugs), key=lambda x: x[1], reverse=True
             )[:top_n]]
         if disease_id is None:
             diseases = preds_all[rel][drug_id]
-            return [{"score": x[1], "disease_id": x[0], "drug_id": drug_id} for x in sorted(
+            return [{"score": x[1], "disease_id": x[0]} for x in sorted(
                 enumerate(diseases), key=lambda x: x[1], reverse=True
             )[:top_n]]
 
