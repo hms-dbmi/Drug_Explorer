@@ -37,6 +37,7 @@ class ModelLoader():
             raise IOError('data path {} does not exist'.format(self.data_path))
 
         self.df_train = None
+        self.predictions = None
 
     def load_data(self):
         '''
@@ -157,6 +158,23 @@ class ModelLoader():
         _, pred_score_rel, _, pred_score = model(g.to(device), g_eval)
         return pred_score_rel
 
+    def load_predictions(self):
+        '''
+        load stored prediction results
+        '''
+        data_path = self.data_path
+        with open(os.path.join(data_path, 'results_all_data_giant.pkl'), 'rb') as f:
+            results_all = pickle.load(f)
+        self.predictions = results_all['preds_all']
+
+    def get_diseases(self):
+        '''
+        :return: string[]
+        '''
+        if not self.predictions:
+            self.load_predictions()
+        return [key for key in self.predictions["rev_indication"]]
+
     def get_drug_disease_prediction(self, disease_id=None, drug_id=None, rel="indication", top_n=10):
         '''
         :param rel: (string), relationship, either "contraindication", "indication", or "off-label"
@@ -165,10 +183,9 @@ class ModelLoader():
         :param top_n: number of predictions returned
         :return: array of {score:number, drug_id: string, disease_id: string}, sorted by score, length = top_n if not drug_id else 1
         '''
-        data_path = self.data_path
-        with open(os.path.join(data_path, 'results_all_data_giant.pkl'), 'rb') as f:
-            results_all = pickle.load(f)
-        preds_all = results_all['preds_all']
+        if not self.predictions:
+            self.load_predictions()
+        preds_all = self.predictions
 
         if disease_id is None and drug_id is None:
             raise ValueError('Expected either drug_id or disease_id args')
@@ -179,6 +196,7 @@ class ModelLoader():
 
         if drug_id is None:
             drugs = preds_all['rev_{}'.format(rel)][disease_id]
+
             return [{"score": x[1], "drug_id": x[0]} for x in sorted(
                 enumerate(drugs), key=lambda x: x[1], reverse=True
             )[:top_n]]

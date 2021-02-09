@@ -19,6 +19,15 @@ def test():
     return 'api test'
 
 
+@api.route('/diseases', methods=['GET'])
+def get_diseases():
+    '''
+    :return: diseaseID[]
+    '''
+    model_loader = g.model_loader
+    return jsonify(model_loader.get_diseases())
+
+
 @api.route('/drug_predictions', methods=['GET'])
 def get_drug_predictions():
     '''

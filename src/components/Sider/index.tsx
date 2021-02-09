@@ -124,9 +124,9 @@ class DrugSider extends React.Component<Props> {
         >
           {drugOptions.map((d, idx) => {
             const { drug_id, score } = d;
-            let name = nodeNameDict['drug'][drug_id];
+            const name = nodeNameDict['drug'][drug_id];
             return (
-              <Option value={drug_id} key={`disease_${idx}`}>
+              <Option value={drug_id} key={`disease_${idx}`} label={name}>
                 <div>
                   <span>{name}</span>
                   <span style={{ float: 'right' }}>score: {score}</span>

@@ -53,10 +53,9 @@ const requestAttention = async (nodeIDs: (string | undefined)[]) => {
 };
 
 const requestDiseaseOptions = async () => {
-  const url = './data/node_name_dict.json';
+  const url = './api/diseases';
   let response = await axiosInstance.get(url);
-  let diseases = Object.keys(response.data['disease']);
-  return diseases;
+  return response.data;
 };
 
 const requestDrugOptions = async (diseaseID: string) => {

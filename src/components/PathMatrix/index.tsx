@@ -202,8 +202,7 @@ class PathMatrix extends React.Component<Props, State> {
         let nodes = type.map((node, nodeIdx) => {
           let nodeName: string;
           if (nodeIdx === 0) {
-            nodeName =
-              nodeNameDict['disease'][selectedDisease!.replace('disease_', '')];
+            nodeName = nodeNameDict['disease'][selectedDisease!];
             // }else if (nodeIdx===numChildren-1) {
             //     nodeName = nodeNameDict['drug'][selectedDrug!.replace('drug_','')]
           } else {
