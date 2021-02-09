@@ -1,5 +1,5 @@
 # %%
-from model import *
+from .model import *
 import json
 import matplotlib.pyplot as plt
 from argparse import ArgumentParser
@@ -200,24 +200,5 @@ if __name__ == "__main__":
     model_loader.load_model()
     model_loader.get_prediction_from_df(model_loader.df_test)
     model_loader.get_drug_disease_prediction(disease_id=17494)
-
-# %%
-
-
-model_loader = ModelLoader(data_path='./collab_delivery/')
-
-model_loader.load_model()
-print(
-    model_loader
-    .get_prediction_from_df(model_loader.df_test)
-)
-print(
-    model_loader
-    .get_drug_disease_prediction(disease_id=17494)
-)
-
-print(
-    model_loader
-    .get_drug_disease_prediction(drug_id=1159, rel='contraindication')
-)
-# %%
+    model_loader.get_drug_disease_prediction(
+        drug_id=1159, rel='contraindication')

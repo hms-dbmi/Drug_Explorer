@@ -33,3 +33,11 @@ def send_index(model):
         return send_from_directory(current_app.config['FRONT_ROOT'], 'index.html')
     if model == 'manifest.json':
         return send_from_directory(current_app.config['FRONT_ROOT'], 'manifest.json')
+
+
+@vis.route('/data/<path:path>')
+def send_data(path):
+    '''
+    requested data fileds will be downloaded in the local web browser.
+    '''
+    return send_from_directory(safe_join(current_app.config['FRONT_ROOT'], 'data'), path)

@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { IEdgeTypes } from 'types';
-import { STATIC_URL } from 'Const';
+import { SERVER_URL } from 'Const';
 
 const axiosInstance = axios.create({
-  baseURL: `${STATIC_URL}/`,
+  baseURL: `${SERVER_URL}/`,
   // timeout: 1000,
   headers: {
     'Access-Control-Allow-Origin': '*',
@@ -53,12 +53,13 @@ const requestAttention = async (nodeIDs: (string | undefined)[]) => {
 };
 
 const requestDiseaseOptions = async () => {
-  const url = './data/test_attention.json';
+  const url = './data/node_name_dict.json';
   let response = await axiosInstance.get(url);
-  return Object.keys(response.data).filter((d) => d.includes('disease'));
+  let diseases = Object.keys(response.data['disease']);
+  return diseases;
 };
 
-const requestDrugOptions = async () => {
+const requestDrugOptions = async (diseaseID: string) => {
   const url = './data/test_attention.json';
   let response = await axiosInstance.get(url);
   let drugOptions: { [drug: string]: number } = {};

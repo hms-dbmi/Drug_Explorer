@@ -63,12 +63,13 @@ class DrugSider extends React.Component<Props> {
     });
   }
   changeDisease(selectedDisease: string) {
+    console.info(selectedDisease);
     this.props.dispatch({
       type: ACTION_TYPES.Change_Disease,
       payload: { selectedDisease },
     });
 
-    requestDrugOptions().then((drugOptions) => {
+    requestDrugOptions(selectedDisease).then((drugOptions) => {
       this.props.dispatch({
         type: ACTION_TYPES.Load_Edge_Types,
         payload: { drugOptions },
@@ -96,11 +97,12 @@ class DrugSider extends React.Component<Props> {
           defaultValue="select a disease"
           style={{ width: siderWidth - 2 * this.padding }}
           onChange={this.changeDisease}
+          showSearch
         >
-          {diseaseOptions.map((d, idx) => {
-            let name = nodeNameDict['disease'][d.split('_')[1]];
+          {diseaseOptions.map((d) => {
+            let name = nodeNameDict['disease'][d];
             return (
-              <Option value={d} key={`disease_${idx}`}>
+              <Option value={d} key={`diseaseID_${d}`}>
                 {name}
               </Option>
             );
