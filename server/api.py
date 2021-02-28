@@ -28,6 +28,24 @@ def get_diseases():
     return jsonify(model_loader.get_diseases())
 
 
+@api.route('/attention', methods=['GET'])
+def get_attention():
+    '''
+    :return: diseaseID[]
+    E.g.: [base_url]/api/attention?disease=0&drug=0
+    '''
+    disease_id = request.args.get('disease', None, type=int)
+    drug_id = request.args.get('drug', None, type=int)
+    model_loader = g.model_loader
+    attention = {}
+    attention['disease_{}'.format(disease_id)] = model_loader.get_node_attention(
+        'disease', disease_id)[0]
+    attention['drug_{}'.format(drug_id)] = model_loader.get_node_attention(
+        'drug', drug_id)[0]
+
+    return jsonify(attention)
+
+
 @api.route('/drug_predictions', methods=['GET'])
 def get_drug_predictions():
     '''

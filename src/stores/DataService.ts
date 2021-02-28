@@ -34,22 +34,10 @@ const requestNodeNameDict = async () => {
   return response.data;
 };
 
-const requestAttention = async (nodeIDs: (string | undefined)[]) => {
-  let results: any = {};
-  const url = './data/test_attention.json';
+const requestAttention = async (diseaseID: string, drugID: string) => {
+  const url = `./api/attention?disease=${diseaseID}&drug=${drugID}`;
   let response = await axiosInstance.get(url);
-
-  if (nodeIDs.length > 0) {
-    nodeIDs.forEach((nodeID) => {
-      if (nodeID) {
-        results[nodeID] = response.data[nodeID];
-      }
-    });
-  } else {
-    results = response.data;
-  }
-
-  return results;
+  return response.data;
 };
 
 const requestDiseaseOptions = async () => {

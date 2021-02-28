@@ -83,19 +83,21 @@ const attentionRow2Tree = (
 
   row.layer1.forEach((item1, idx1: number) => {
     let [childNode1, score1, edgeKey1] = item1;
+    edgeKey1.replace('rev_', '');
     tree.children.push({
       node: childNode1,
       score: score1,
-      edgeInfo: edgeTypes[edgeKey1].edgeInfo,
+      edgeInfo: edgeTypes[edgeKey1]?.edgeInfo,
       children: [],
     });
     row.layer0[childNode1].forEach((item0: any, idx0: number) => {
       let [childNode0, score0, edgeKey0] = item0;
+      edgeKey0.replace('rev_', '');
       if (childNode0 !== rootNode)
         tree.children[idx1].children.push({
           node: childNode0,
           score: score0,
-          edgeInfo: edgeTypes[edgeKey0].edgeInfo,
+          edgeInfo: edgeTypes[edgeKey0]?.edgeInfo,
           children: [],
         });
     });

@@ -41,12 +41,15 @@ class DrugSider extends React.Component<Props> {
 
     let { selectedDisease, selectedDrug } = this.props.globalState;
 
-    requestAttention([selectedDisease, selectedDrug]).then((attention) => {
-      this.props.dispatch({
-        type: ACTION_TYPES.Load_Attention,
-        payload: { attention },
+    if (selectedDrug !== undefined && selectedDisease !== undefined) {
+      requestAttention(selectedDisease, selectedDrug).then((attention) => {
+        console.info(attention);
+        this.props.dispatch({
+          type: ACTION_TYPES.Load_Attention,
+          payload: { attention },
+        });
       });
-    });
+    }
   }
   changeEdgeTHR(value: number | undefined | string) {
     if (typeof value == 'number') {
@@ -63,7 +66,6 @@ class DrugSider extends React.Component<Props> {
     });
   }
   changeDisease(selectedDisease: string) {
-    console.info(selectedDisease);
     this.props.dispatch({
       type: ACTION_TYPES.Change_Disease,
       payload: { selectedDisease },

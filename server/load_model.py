@@ -1,5 +1,5 @@
 # %%
-from .model import *
+from server.model import *
 import json
 import matplotlib.pyplot as plt
 from argparse import ArgumentParser
@@ -38,6 +38,7 @@ class ModelLoader():
 
         self.df_train = None
         self.predictions = None
+        self.attr_tree = None
 
     def load_data(self):
         '''
@@ -209,6 +210,20 @@ class ModelLoader():
         else:
             score = preds_all[rel][drug_id][disease_id]
             return [{"score": score, "drug_id": drug_id, "disease_id": disease_id}]
+
+    def get_node_attention(self, node_type, node_idx):
+        if self.attr_tree is None:
+            attention_path = os.path.join(self.data_path, 'att_tree.pkl')
+            attr_tree = pd.read_pickle(attention_path)
+            attr_tree = attr_tree.drop(columns=['edge_list'])[
+                attr_tree['node_type'].isin(["drug", "disease"])]
+            self.attr_tree = attr_tree
+        else:
+            attr_tree = self.attr_tree
+
+        row = attr_tree[(attr_tree['node_id'] == node_idx) &
+                        (attr_tree['node_type'] == node_type)]
+        return json.loads(row.to_json(orient="records"))
 
 
 # %%
