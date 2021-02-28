@@ -43,7 +43,6 @@ class DrugSider extends React.Component<Props> {
 
     if (selectedDrug !== undefined && selectedDisease !== undefined) {
       requestAttention(selectedDisease, selectedDrug).then((attention) => {
-        console.info(attention);
         this.props.dispatch({
           type: ACTION_TYPES.Load_Attention,
           payload: { attention },
@@ -86,6 +85,7 @@ class DrugSider extends React.Component<Props> {
       diseaseOptions,
       drugOptions,
       nodeNameDict,
+      selectedDisease,
     } = this.props.globalState;
 
     let sider = (
@@ -102,14 +102,20 @@ class DrugSider extends React.Component<Props> {
           showSearch
           optionFilterProp="label"
         >
-          {diseaseOptions.map((d) => {
-            const name = nodeNameDict['disease'][d];
-            return (
-              <Option value={d} label={name} key={`diseaseID_${d}`}>
-                {name}
-              </Option>
-            );
-          })}
+          {diseaseOptions.length > 0 ? (
+            diseaseOptions.map((d) => {
+              const name = nodeNameDict['disease'][d];
+              return (
+                <Option value={d} label={name} key={`diseaseID_${d}`}>
+                  {name}
+                </Option>
+              );
+            })
+          ) : (
+            <Option value="loading" label="loading" key="loading">
+              data is loading..
+            </Option>
+          )}
         </Select>
         <br />
         Drug:
@@ -124,18 +130,30 @@ class DrugSider extends React.Component<Props> {
           listHeight={this.listHeight}
           onChange={this.changeDrug}
         >
-          {drugOptions.map((d, idx) => {
-            const { drug_id, score } = d;
-            const name = nodeNameDict['drug'][drug_id];
-            return (
-              <Option value={drug_id} key={`disease_${idx}`} label={name}>
-                <div>
-                  <span>{name}</span>
-                  <span style={{ float: 'right' }}>score: {score}</span>
-                </div>
+          {selectedDisease !== undefined ? (
+            drugOptions.length > 0 ? (
+              drugOptions.map((d, idx) => {
+                const { drug_id, score } = d;
+                const name = nodeNameDict['drug'][drug_id];
+                return (
+                  <Option value={drug_id} key={`disease_${idx}`} label={name}>
+                    <div>
+                      <span>{name}</span>
+                      <span style={{ float: 'right' }}>score: {score}</span>
+                    </div>
+                  </Option>
+                );
+              })
+            ) : (
+              <Option value="loading" label="loading" key="loading">
+                data is loading..
               </Option>
-            );
-          })}
+            )
+          ) : (
+            <Option value="noDisease" label="noDisease" key="noDisease">
+              please select a disease first
+            </Option>
+          )}
         </Select>
         <div className="dummy" style={{ height: this.listHeight + 20 }} />
         Edge Threshold:
