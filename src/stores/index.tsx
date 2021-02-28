@@ -12,6 +12,7 @@ const initialState: IState = {
   selectedDisease: undefined,
   selectedDrug: undefined,
   nodeNameDict: {},
+  isAttentionLoading: false,
   edgeThreshold: 0,
 };
 

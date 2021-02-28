@@ -7,6 +7,8 @@ export const ACTION_TYPES = {
   Load_Drug_Options: 'Load_Drug_Options',
   Load_Disease_Options: 'Load_Disease_Options',
 
+  Set_Attention_Loading_Status: 'Set_Attention_Loading_Status',
+
   Change_Edge_THR: 'Change_Edge_THR',
   Change_Drug: 'Change_Drug',
   Change_Disease: 'Change_Disease',

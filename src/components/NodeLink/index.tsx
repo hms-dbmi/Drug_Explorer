@@ -4,7 +4,13 @@ import { StateConsumer } from 'stores';
 import { IState, IAttentionTree } from 'types';
 import * as d3 from 'd3';
 import { getNodeColor } from 'helpers/color';
-import { cropText, VIRUS_ICON, DRUG_ICON, getTextWidth } from 'helpers';
+import {
+  cropText,
+  VIRUS_ICON,
+  DRUG_ICON,
+  getTextWidth,
+  LOADING_ICON,
+} from 'helpers';
 
 import './index.css';
 interface Props {
@@ -268,7 +274,8 @@ class NodeLink extends React.Component<Props> {
     });
   }
   render() {
-    let { width, height } = this.props;
+    const { width, height, globalState } = this.props;
+    const { isAttentionLoading } = globalState;
     let svgWidth = width - 2 * this.padding - 2 * this.margin,
       svgHeight =
         height - 2 * this.padding - this.titleHeight - 2 * this.margin;
@@ -285,7 +292,13 @@ class NodeLink extends React.Component<Props> {
         headStyle={{ height: this.titleHeight }}
       >
         <svg width={svgWidth} height={svgHeight} className="nodeLink">
-          {this.drawAttentions()}
+          {isAttentionLoading ? (
+            <g transform={`translate(${width / 2}, ${height / 2})`}>
+              {LOADING_ICON}
+            </g>
+          ) : (
+            this.drawAttentions()
+          )}
         </svg>
       </Card>
     );

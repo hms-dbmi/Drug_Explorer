@@ -1,3 +1,5 @@
+import React from 'react';
+
 const VIRUS_ICON =
   'M 483.55 227.55 H 462 c -50.68 0 -76.07 -61.27 -40.23 -97.11 L 437 115.19 A 28.44 28.44 0 0 0 396.8 75 L 381.56 90.22 c -35.84 35.83 -97.11 10.45 -97.11 -40.23 V 28.44 a 28.45 28.45 0 0 0 -56.9 0 V 50 c 0 50.68 -61.27 76.06 -97.11 40.23 L 115.2 75 A 28.44 28.44 0 0 0 75 115.19 l 15.25 15.25 c 35.84 35.84 10.45 97.11 -40.23 97.11 H 28.45 a 28.45 28.45 0 1 0 0 56.89 H 50 c 50.68 0 76.07 61.28 40.23 97.12 L 75 396.8 A 28.45 28.45 0 0 0 115.2 437 l 15.24 -15.25 c 35.84 -35.84 97.11 -10.45 97.11 40.23 v 21.54 a 28.45 28.45 0 0 0 56.9 0 V 462 c 0 -50.68 61.27 -76.07 97.11 -40.23 L 396.8 437 A 28.45 28.45 0 0 0 437 396.8 l -15.25 -15.24 c -35.84 -35.84 -10.45 -97.12 40.23 -97.12 h 21.54 a 28.45 28.45 0 1 0 0 -56.89 Z M 224 272 a 48 48 0 1 1 48 -48 A 48 48 0 0 1 224 272 Z m 80 56 a 24 24 0 1 1 24 -24 A 24 24 0 0 1 304 328 Z';
 
@@ -11,4 +13,46 @@ const DRUG_ICON =
 
 const EDIT_ICON =
   'M402.3 344.9l32-32c5-5 13.7-1.5 13.7 5.7V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V112c0-26.5 21.5-48 48-48h273.5c7.1 0 10.7 8.6 5.7 13.7l-32 32c-1.5 1.5-3.5 2.3-5.7 2.3H48v352h352V350.5c0-2.1.8-4.1 2.3-5.6zm156.6-201.8L296.3 405.7l-90.4 10c-26.2 2.9-48.5-19.2-45.6-45.6l10-90.4L432.9 17.1c22.9-22.9 59.9-22.9 82.7 0l43.2 43.2c22.9 22.9 22.9 60 .1 82.8zM460.1 174L402 115.9 216.2 301.8l-7.3 65.3 65.3-7.3L460.1 174zm64.8-79.7l-43.2-43.2c-4.1-4.1-10.8-4.1-14.8 0L436 82l58.1 58.1 30.9-30.9c4-4.2 4-10.8-.1-14.9z';
-export { VIRUS_ICON, YES_ICON, NO_ICON, DRUG_ICON, EDIT_ICON };
+
+const LOADING_ICON = (
+  <g>
+    <text textAnchor="middle" x="24">
+      LOADING...
+    </text>
+    <rect x="0" y="50" width="14" height="30" fill="#1890ff">
+      <animateTransform
+        attributeType="xml"
+        attributeName="transform"
+        type="translate"
+        values="0 0; 0 20; 0 0"
+        begin="0"
+        dur="0.6s"
+        repeatCount="indefinite"
+      />
+    </rect>
+    <rect x="20" y="50" width="14" height="30" fill="#1890ff">
+      <animateTransform
+        attributeType="xml"
+        attributeName="transform"
+        type="translate"
+        values="0 0; 0 20; 0 0"
+        begin="0.2s"
+        dur="0.6s"
+        repeatCount="indefinite"
+      />
+    </rect>
+    <rect x="40" y="50" width="14" height="30" fill="#1890ff">
+      <animateTransform
+        attributeType="xml"
+        attributeName="transform"
+        type="translate"
+        values="0 0; 0 20; 0 0"
+        begin="0.4s"
+        dur="0.6s"
+        repeatCount="indefinite"
+      />
+    </rect>
+  </g>
+);
+
+export { VIRUS_ICON, YES_ICON, NO_ICON, DRUG_ICON, EDIT_ICON, LOADING_ICON };

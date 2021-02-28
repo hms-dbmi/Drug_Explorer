@@ -62,5 +62,6 @@ export interface IState {
   selectedDrug: string | undefined;
   selectedDisease: string | undefined;
   nodeNameDict: { [type: string]: { [id: string]: string } };
+  isAttentionLoading: boolean;
   attention: { [nodeKey: string]: IAttentionTree };
 }

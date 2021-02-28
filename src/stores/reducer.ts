@@ -10,6 +10,7 @@ const rootReducer = (state: IState, action: IAction): IState => {
     case ACTION_TYPES.Change_Disease:
     case ACTION_TYPES.Change_Drug:
     case ACTION_TYPES.Load_Node_Name_Dict:
+    case ACTION_TYPES.Set_Attention_Loading_Status:
     case ACTION_TYPES.Change_Edge_THR: {
       return { ...state, ...action.payload };
     }

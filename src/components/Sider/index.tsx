@@ -42,12 +42,24 @@ class DrugSider extends React.Component<Props> {
     let { selectedDisease, selectedDrug } = this.props.globalState;
 
     if (selectedDrug !== undefined && selectedDisease !== undefined) {
-      requestAttention(selectedDisease, selectedDrug).then((attention) => {
-        this.props.dispatch({
-          type: ACTION_TYPES.Load_Attention,
-          payload: { attention },
-        });
+      this.props.dispatch({
+        type: ACTION_TYPES.Set_Attention_Loading_Status,
+        payload: { isAttentionLoading: true },
       });
+
+      requestAttention(selectedDisease, selectedDrug)
+        .then((attention) => {
+          this.props.dispatch({
+            type: ACTION_TYPES.Load_Attention,
+            payload: { attention },
+          });
+        })
+        .then(() => {
+          this.props.dispatch({
+            type: ACTION_TYPES.Set_Attention_Loading_Status,
+            payload: { isAttentionLoading: false },
+          });
+        });
     }
   }
   changeEdgeTHR(value: number | undefined | string) {
