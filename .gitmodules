@@ -1,0 +1,3 @@
+[submodule "drug_server"]
+	path = drug_server
+	url = https://github.com/wangqianwen0418/drug_server.git
