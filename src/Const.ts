@@ -4,6 +4,6 @@ const STATIC_URL =
     : './';
 
 const SERVER_URL =
-  process.env.NODE_ENV === 'development' ? `http://localhost:7777` : './';
+  process.env.NODE_ENV === 'development' ? `http://localhost:8000` : './';
 
 export { STATIC_URL, SERVER_URL };
