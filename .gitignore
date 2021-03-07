@@ -13,7 +13,8 @@ public/data/*
 /coverage
 
 # production
-/build
+build
+data
 
 # misc
 .DS_Store
