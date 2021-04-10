@@ -5,8 +5,10 @@ import { SERVER_URL } from 'Const';
 const axiosInstance = axios.create({
   baseURL: `${SERVER_URL}/`,
   // timeout: 1000,
+  withCredentials: false,
   headers: {
     'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
   },
 });
 
