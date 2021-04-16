@@ -136,9 +136,7 @@ class DrugSider extends React.Component<Props> {
           style={{ width: siderWidth - 2 * this.padding }}
           open
           showSearch
-          filterOption={(input, option) =>
-            option!.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }
+          optionFilterProp="label"
           listHeight={this.listHeight}
           onChange={this.changeDrug}
         >
