@@ -27,103 +27,6 @@ class NodeLink extends React.Component<Props> {
   fontSize = 14;
   labelLength = 150;
 
-  drawNodeAttentionVertical(
-    nodeAttention: IAttentionTree,
-    stepHeight: number,
-    edgeThreshold: number
-  ) {
-    let { nodeNameDict } = this.props.globalState;
-
-    let pruneEdge = (
-      node: IAttentionTree,
-      threshold: number
-    ): IAttentionTree => {
-      if (node.children.length > 0) {
-        node = {
-          ...node,
-          children: node.children
-            .filter((d) => d.score >= threshold)
-            .map((node) => pruneEdge(node, threshold)),
-        };
-      }
-      return node;
-    };
-
-    let nodeAttentionFiltered = pruneEdge(nodeAttention, edgeThreshold);
-
-    const rootNode = d3.hierarchy(nodeAttentionFiltered);
-    let root = d3
-      .tree<IAttentionTree>()
-      .nodeSize([this.nodeWidth + this.padding, stepHeight])(rootNode);
-
-    let linkGene = d3
-      .linkVertical<any, d3.HierarchyPointLink<IAttentionTree>, any>()
-      .x((d) => d.x)
-      .y((d) => d.y);
-
-    const links = root.links().map((link, i) => {
-      return (
-        <path
-          d={linkGene(link)!}
-          className={`link ${link.source.data.node}=>${link.target.data.node}`}
-          key={`${link.source.data.node}=>${link.target.data.node}_link${i}`}
-          fill="none"
-          stroke="gray"
-          strokeWidth={1 + 5 * link.target.data.score}
-        />
-      );
-    });
-
-    const nodes = root.descendants().map((node, i) => {
-      let nodeName = node.data.node;
-      let chunks = nodeName.split('_');
-      let nodeTypeID = chunks[chunks.length - 1];
-      let nodeType = chunks.slice(0, chunks.length - 1).join('_');
-
-      let nodeFullName = nodeNameDict[nodeType][nodeTypeID];
-      // let labelLength = getTextWidth(nodeTypeID, this.fontSize)
-      let labelLength = 100;
-      let nodeShortName = cropText(nodeFullName, 12, labelLength);
-
-      let tooltipTitle = nodeShortName.includes('..') ? nodeFullName : '';
-
-      return (
-        <Tooltip title={tooltipTitle} key={`node${i}_${nodeName}`}>
-          <g
-            className={`${nodeName} node`}
-            transform={`translate(${node.x}, ${node.y})`}
-            cursor="pointer"
-          >
-            <rect
-              height={labelLength + 2 * this.padding}
-              width={this.nodeWidth}
-              fill={getNodeColor(nodeType)}
-              x={(-1 * this.nodeWidth) / 2}
-              y={(-1 * labelLength) / 2 - this.padding}
-            />
-            <text
-              fill="white"
-              fontSize={this.fontSize}
-              transform={`rotate(90) translate(${(-1 * labelLength) / 2}, ${
-                (this.nodeWidth - this.fontSize) / 2
-              })`}
-            >
-              {`${nodeShortName}(${node.data.score})`}
-            </text>
-          </g>
-        </Tooltip>
-      );
-    });
-
-    return [
-      <g key="links" className="links">
-        {links}
-      </g>,
-      <g key="nodes" className="nodes">
-        {nodes}
-      </g>,
-    ];
-  }
   drawNodeAttentionHorizontal(
     nodeAttention: IAttentionTree,
     stepHeight: number,
@@ -158,33 +61,35 @@ class NodeLink extends React.Component<Props> {
     let linkGene = d3
       .linkHorizontal<any, d3.HierarchyPointLink<IAttentionTree>, any>()
       .x((d) =>
-        root.data.node.includes('drug')
+        root.data.nodeType === 'drug'
           ? width / 2 - d.y - 3 * this.labelLength
           : d.y
       )
       .y((d) => d.x);
 
+    const maxScore = Math.max(
+      ...root.links().map((link) => link.target.data.score)
+    );
+
+    let widthScale = d3.scaleLinear().domain([0, maxScore]).range([1, 5]);
+
     const links = root.links().map((link, i) => {
       return (
         <path
           d={linkGene(link)!}
-          className={`link ${link.source.data.node}=>${link.target.data.node}`}
-          key={`${link.source.data.node}=>${link.target.data.node}_link${i}`}
+          className={`link ${link.source.data.nodeId}=>${link.target.data.nodeId}`}
+          key={`${link.source.data.nodeId}=>${link.target.data.nodeId}_link${i}`}
           fill="none"
           stroke="gray"
-          strokeWidth={1 + 5 * link.target.data.score}
+          strokeWidth={widthScale(link.target.data.score)}
         />
       );
     });
 
     const nodes = root.descendants().map((node, i) => {
-      let nodeName = node.data.node;
-      let chunks = nodeName.split('_');
-      let nodeTypeID = chunks[chunks.length - 1];
-      let nodeType = chunks.slice(0, chunks.length - 1).join('_');
-
-      let nodeFullName = nodeNameDict[nodeType][nodeTypeID];
-      // let labelLength = getTextWidth(nodeTypeID, this.fontSize)
+      const { nodeId, nodeType } = node.data;
+      console.info(node);
+      const nodeFullName = nodeNameDict[nodeType][nodeId];
       let nodeShortName = cropText(
         nodeFullName,
         12,
@@ -196,11 +101,11 @@ class NodeLink extends React.Component<Props> {
       if (nodeType === 'drug') icon_path = DRUG_ICON;
 
       return (
-        <Tooltip title={tooltipTitle} key={`node${i}_${nodeName}`}>
+        <Tooltip title={tooltipTitle} key={`node${i}_${nodeFullName}`}>
           <g
-            className={`${nodeName} node`}
+            className={`${nodeId} node`}
             transform={`translate(${
-              root.data.node.includes('drug')
+              root.data.nodeType === 'drug'
                 ? width / 2 - node.y - 3 * this.labelLength
                 : node.y
             }, ${node.x})`}
