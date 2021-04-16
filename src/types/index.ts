@@ -22,7 +22,8 @@ export interface IMetaPath {
 }
 
 export interface IAttentionTree {
-  node: string;
+  nodeId: string;
+  nodeType: string;
   score: number;
   edgeInfo: string;
   children: IAttentionTree[];
