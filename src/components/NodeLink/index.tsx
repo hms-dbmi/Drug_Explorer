@@ -26,14 +26,16 @@ class NodeLink extends React.Component<Props> {
   nodeHeight = 20;
   fontSize = 14;
   labelLength = 150;
+  midGap = 60; // the gaph between two trees
 
   drawNodeAttentionHorizontal(
     nodeAttention: IAttentionTree,
     stepGap: number,
     edgeThreshold: number
   ) {
-    let { width } = this.props;
-    let { nodeNameDict } = this.props.globalState;
+    const { width } = this.props;
+    const svgWidth = width - 2 * this.padding - 2 * this.margin;
+    const { nodeNameDict } = this.props.globalState;
 
     let pruneEdge = (
       node: IAttentionTree,
@@ -53,7 +55,6 @@ class NodeLink extends React.Component<Props> {
     let nodeAttentionFiltered = pruneEdge(nodeAttention, edgeThreshold);
 
     const rootNode = d3.hierarchy(nodeAttentionFiltered);
-    // let root = d3.tree<IAttentionTree>().nodeSize([stepGap, this.nodeHeight+this.padding])(rootNode)
     const root = d3
       .tree<IAttentionTree>()
       .nodeSize([this.nodeHeight + 2, stepGap])(rootNode);
@@ -64,9 +65,10 @@ class NodeLink extends React.Component<Props> {
       .source((d) => {
         const newX =
           root.data.nodeType === 'drug'
-            ? width / 2 -
+            ? svgWidth / 2 -
+              this.midGap / 2 -
+              this.labelLength -
               d.source.y -
-              3 * this.labelLength -
               this.labelLength / 2
             : d.source.y + this.labelLength / 2;
         const newY = d.source.x;
@@ -76,9 +78,10 @@ class NodeLink extends React.Component<Props> {
       .target((d) => {
         const newX =
           root.data.nodeType === 'drug'
-            ? width / 2 -
-              d.target.y -
-              3 * this.labelLength +
+            ? svgWidth / 2 -
+              this.midGap / 2 -
+              this.labelLength -
+              d.target.y +
               this.labelLength / 2
             : d.target.y - this.labelLength / 2;
         const newY = d.target.x;
@@ -109,14 +112,15 @@ class NodeLink extends React.Component<Props> {
 
     const nodes = root.descendants().map((node, i) => {
       let { nodeId, nodeType } = node.data;
-      const nodeFullName = nodeNameDict[nodeType][nodeId];
+      let nodeFullName = nodeNameDict[nodeType][nodeId];
       if (nodeFullName === undefined) {
-        nodeId = nodeId.split('_')[0]; // the id of a merged node is xxx_xxx_xxxx
+        nodeId = nodeId.split('_')[0].toString() + '.0'; // the id of a merged node is xxx_xxx_xxxx
+        nodeFullName = nodeNameDict[nodeType][nodeId];
       }
       let nodeShortName = cropText(
         nodeFullName,
         12,
-        this.labelLength - 20 - getTextWidth('..(0.00)', 14)
+        this.labelLength - 25 - getTextWidth('..(0.00)', 14)
       );
       let tooltipTitle = nodeShortName?.includes('..') ? nodeFullName : '';
       let icon_path = '';
@@ -129,22 +133,22 @@ class NodeLink extends React.Component<Props> {
             className={`${nodeId} node`}
             transform={`translate(${
               root.data.nodeType === 'drug'
-                ? width / 2 - node.y - 3 * this.labelLength
+                ? svgWidth / 2 - this.midGap / 2 - this.labelLength - node.y
                 : node.y
             }, ${node.x})`}
             cursor="pointer"
           >
             <rect
-              width={this.labelLength + 2 * this.padding}
+              width={this.labelLength}
               height={this.nodeHeight}
               fill={getNodeColor(nodeType)}
-              x={(-1 * this.labelLength) / 2 - this.padding}
+              x={(-1 * this.labelLength) / 2}
               y={-this.nodeHeight / 2}
             />
             <path
               className="virus_icon"
               d={icon_path}
-              transform={`translate(${(-1 * this.labelLength) / 2 - 5}, ${
+              transform={`translate(${(-1 * this.labelLength) / 2}, ${
                 -this.nodeHeight / 2
               }) scale(0.04)`}
               fill="white"
@@ -152,7 +156,7 @@ class NodeLink extends React.Component<Props> {
             <text
               fill="white"
               fontSize={this.fontSize}
-              transform={`translate(${(-1 * this.labelLength) / 2 + 20}, ${
+              transform={`translate(${(-1 * this.labelLength) / 2 + 25}, ${
                 (this.nodeHeight - this.fontSize) / 2
               })`}
             >
@@ -176,22 +180,17 @@ class NodeLink extends React.Component<Props> {
   drawSubgraph() {
     let { attention, edgeThreshold } = this.props.globalState;
     let { width, height } = this.props;
+    const svgWidth = width - 2 * this.margin - 2 * this.padding;
 
-    // let stepGap = height/4
-    // return Object.keys(attention).map((nodeKey:string, idx)=>{
-    //     return <g className={nodeKey} key={nodeKey} transform={`translate(${width/2*idx + 1*width/5}, ${stepGap/2})`}>
-    //         {this.drawNodeAttentionVertical(attention[nodeKey], stepGap, edgeThreshold)}
-    //     </g>
-    // })
-    let stepGap = width / 8;
+    let stepGap = (svgWidth - 2 * this.labelLength - this.midGap) / 4;
     return Object.keys(attention).map((nodeKey: string, idx) => {
       return (
         <g
           className={nodeKey}
           key={nodeKey}
-          transform={`translate(${(width / 2) * idx + this.labelLength}, ${
-            height / 2
-          })`}
+          transform={`translate(${
+            ((svgWidth + this.midGap) / 2) * idx + this.labelLength / 2
+          }, ${height / 2})`}
         >
           {this.drawNodeAttentionHorizontal(
             attention[nodeKey],
@@ -205,7 +204,7 @@ class NodeLink extends React.Component<Props> {
   render() {
     const { width, height, globalState } = this.props;
     const { isAttentionLoading } = globalState;
-    let svgWidth = width - 2 * this.padding - 2 * this.margin,
+    let svgWidth = width - 2 * this.margin - 2 * this.padding,
       svgHeight =
         height - 2 * this.padding - this.titleHeight - 2 * this.margin;
     return (

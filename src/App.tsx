@@ -77,21 +77,6 @@ class App extends React.Component<Props, State> {
           payload: { diseaseOptions },
         });
       });
-
-    // requestEdgeTypes()
-    // .then((edgeTypes)=>{
-    //     this.props.dispatch({type: ACTION_TYPES.Load_Edge_Types, payload: {edgeTypes} })
-    // })
-
-    // requestNodeNameDict()
-    // .then((nodeNameDict)=>{
-    //   this.props.dispatch({type: ACTION_TYPES.Load_Node_Name_Dict, payload: {nodeNameDict} })
-    // })
-
-    // requestDiseaseOptions()
-    // .then((diseaseOptions)=>{
-    //   this.props.dispatch({type: ACTION_TYPES.Load_Node_Name_Dict, payload: {diseaseOptions} })
-    // })
   }
 
   componentWillUnmount() {
@@ -100,7 +85,7 @@ class App extends React.Component<Props, State> {
 
   render() {
     let siderWidth = 300,
-      mainViewWidth = window.innerWidth - 200,
+      mainViewWidth = window.innerWidth - siderWidth,
       headerHeight = 64,
       footHeight = 40,
       mainViewHeight = window.innerHeight - headerHeight - footHeight,
