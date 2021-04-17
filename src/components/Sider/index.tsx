@@ -32,12 +32,12 @@ class DrugSider extends React.Component<Props> {
     this.changeDrug = this.changeDrug.bind(this);
   }
   startAnalysis() {
-    requestMetaPaths().then((metaPaths) => {
-      this.props.dispatch({
-        type: ACTION_TYPES.Load_Meta_Paths,
-        payload: { metaPaths },
-      });
-    });
+    // requestMetaPaths().then((metaPaths) => {
+    //   this.props.dispatch({
+    //     type: ACTION_TYPES.Load_Meta_Paths,
+    //     payload: { metaPaths },
+    //   });
+    // });
 
     let { selectedDisease, selectedDrug } = this.props.globalState;
 

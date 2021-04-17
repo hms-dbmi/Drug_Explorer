@@ -48,7 +48,7 @@ class NodeLink extends React.Component<Props, States> {
   ) {
     const { width } = this.props;
     const svgWidth = width - 2 * this.padding - 2 * this.margin;
-    const { nodeNameDict } = this.props.globalState;
+    const { nodeNameDict, edgeTypes } = this.props.globalState;
 
     let pruneEdge = (
       node: IAttentionTree,
@@ -113,15 +113,31 @@ class NodeLink extends React.Component<Props, States> {
     let widthScale = d3.scaleLinear().domain([0, maxScore]).range([1, 5]);
 
     const links = root.links().map((link, i) => {
+      const edgeInfo = link.target.data.edgeInfo.replace('rev_', '');
+      const edgeType = edgeTypes[edgeInfo]['edgeInfo'] || edgeInfo;
       return (
-        <path
-          d={linkGene(link)!}
-          className={`link ${link.source.data.nodeId}=>${link.target.data.nodeId}`}
+        <Tooltip
+          title={edgeType}
           key={`${link.source.data.nodeId}=>${link.target.data.nodeId}_link${i}`}
-          fill="none"
-          stroke="gray"
-          strokeWidth={widthScale(link.target.data.score)}
-        />
+          destroyTooltipOnHide
+        >
+          <g>
+            <path
+              d={linkGene(link)!}
+              className={`link ${link.source.data.nodeId}=>${link.target.data.nodeId}`}
+              fill="none"
+              stroke="gray"
+              strokeWidth={widthScale(link.target.data.score)}
+            />
+            <path
+              d={linkGene(link)!}
+              className={'mask'}
+              fill="none"
+              stroke="transparent"
+              strokeWidth="3"
+            />
+          </g>
+        </Tooltip>
       );
     });
 
@@ -149,7 +165,12 @@ class NodeLink extends React.Component<Props, States> {
       if (nodeType === 'drug') icon_path = DRUG_ICON;
 
       return (
-        <Tooltip title={tooltipTitle} key={`node${i}_${nodeFullName}`}>
+        <Tooltip
+          title={tooltipTitle}
+          key={`node${i}_${nodeFullName}`}
+          destroyTooltipOnHide
+          mouseEnterDelay={0.3}
+        >
           <g
             className={`${nodeId} node`}
             transform={`translate(${

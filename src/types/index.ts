@@ -18,7 +18,12 @@ export interface IMetaPath {
     edgeInfo: string;
     score: number;
   }[];
-  nodes: string[];
+  nodes: { nodeId: string; nodeType: string }[];
+}
+
+export interface IMetaPathGroup {
+  nodeTypes: string[];
+  metaPaths: IMetaPath[];
 }
 
 export interface IAttentionTree {
@@ -59,7 +64,7 @@ export interface IState {
   edgeTypes: IEdgeTypes;
   diseaseOptions: string[];
   drugOptions: DrugOption[];
-  metaPaths: IMetaPath[];
+  metaPathGroups: IMetaPathGroup[];
   selectedDrug: string | undefined;
   selectedDisease: string | undefined;
   nodeNameDict: { [type: string]: { [id: string]: string } };

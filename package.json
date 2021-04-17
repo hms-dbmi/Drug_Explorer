@@ -24,7 +24,7 @@
   },
   "scripts": {
     "start": "cross-env PORT=3006 react-scripts start",
-    "build": "react-scripts build && rm drug_server/build && mv build drug_server/build",
+    "build": "react-scripts build && rm -r drug_server/build && mv build drug_server/build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint src/*.ts src/*.tsx"

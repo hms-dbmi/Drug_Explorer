@@ -4,7 +4,7 @@ import { getNodeColor } from 'helpers/color';
 import React from 'react';
 
 import { StateConsumer } from 'stores';
-import { IState } from 'types';
+import { IMetaPath, IState } from 'types';
 
 interface Props {
   width: number;
@@ -35,63 +35,6 @@ class PathMatrix extends React.Component<Props, State> {
 
     this.showModal = this.showModal.bind(this);
     this.hideModal = this.hideModal.bind(this);
-  }
-  drawSummary() {
-    let { EDGE_LENGTH, NODE_WIDTH, NODE_HEIGHT, VERTICAL_GAP } = this;
-    let { metaPaths, edgeThreshold } = this.props.globalState;
-    let summary = metaPaths
-      .filter((metaPath) => {
-        return Math.min(...metaPath.edges.map((e) => e.score)) > edgeThreshold;
-      })
-      .map((metaPath, pathIdx) => {
-        let { nodes, edges } = metaPath;
-        let svgNodes = nodes.map((node, nodeIdx) => {
-          let translate = `translate(${(EDGE_LENGTH + NODE_WIDTH) * nodeIdx}, ${
-            pathIdx * (NODE_HEIGHT + VERTICAL_GAP)
-          })`;
-          return (
-            <g key={`node_${nodeIdx}`} transform={translate}>
-              <rect
-                width={NODE_WIDTH}
-                height={NODE_HEIGHT}
-                fill={getNodeColor(node)}
-                rx={this.NODE_HEIGHT / 2}
-              />
-              <text
-                textAnchor="middle"
-                y={NODE_HEIGHT / 2 + 6}
-                x={NODE_WIDTH / 2}
-                fill="white"
-              >
-                {node}
-              </text>
-            </g>
-          );
-        });
-
-        let svgEdges = edges.map((edge, edgeIdx) => {
-          let translate = `translate(${
-            NODE_WIDTH + (EDGE_LENGTH + NODE_WIDTH) * edgeIdx
-          }, ${pathIdx * (NODE_HEIGHT + VERTICAL_GAP) + NODE_HEIGHT / 2})`;
-          return (
-            <g key={`edge_${edgeIdx}`} transform={translate}>
-              <line
-                stroke="gray"
-                strokeWidth={edge.score * 10}
-                x1={0}
-                y1={0}
-                x2={EDGE_LENGTH}
-                y2={0}
-              />
-              <text textAnchor="middle" x={EDGE_LENGTH / 2} y={-5}>
-                {edge.edgeInfo}
-              </text>
-            </g>
-          );
-        });
-        return [svgEdges, svgNodes];
-      });
-    return summary;
   }
   expandType(idx: number) {
     let { expand } = this.state;
@@ -129,6 +72,7 @@ class PathMatrix extends React.Component<Props, State> {
       nodeNameDict,
       selectedDrug,
       selectedDisease,
+      metaPathGroups,
       edgeTypes,
     } = this.props.globalState;
 
@@ -151,8 +95,8 @@ class PathMatrix extends React.Component<Props, State> {
     let childrenNums = [5, 2, 2];
 
     let offsetY = 0;
-    let summary = protoTypes.map((type, pathIdx) => {
-      let nodes = type.map((node, nodeIdx) => {
+    let summary = metaPathGroups.map((group, pathIdx) => {
+      let nodes = group.nodeTypes.map((node, nodeIdx) => {
         let translate = `translate(${
           (EDGE_LENGTH + NODE_WIDTH) * nodeIdx
         }, ${0})`;
@@ -161,21 +105,23 @@ class PathMatrix extends React.Component<Props, State> {
             <rect
               width={NODE_WIDTH}
               height={NODE_HEIGHT}
-              fill={getNodeColor(node)}
+              fill="white"
+              strokeWidth="3"
+              stroke={getNodeColor(node)}
               rx={this.NODE_HEIGHT / 2}
             />
             <text
               textAnchor="middle"
               y={NODE_HEIGHT / 2 + 6}
               x={NODE_WIDTH / 2}
-              fill="white"
+              fill="black"
             >
               {node}
             </text>
           </g>
         );
       });
-      let edges = [...Array(type.length - 1)].map((_, edgeIdx) => {
+      let edges = [...Array(nodes.length - 1)].map((_, edgeIdx) => {
         let translate = `translate(${
           NODE_WIDTH + (EDGE_LENGTH + NODE_WIDTH) * edgeIdx
         }, ${+NODE_HEIGHT / 2})`;
@@ -196,20 +142,11 @@ class PathMatrix extends React.Component<Props, State> {
       let currentY = offsetY;
       offsetY += NODE_HEIGHT + VERTICAL_GAP;
 
-      let numChildren = childrenNums[pathIdx],
-        showChildren = this.state.expand[pathIdx];
-      let children = [...Array(numChildren)].map((child, childIdx) => {
-        let nodes = type.map((node, nodeIdx) => {
-          let nodeName: string;
-          if (nodeIdx === 0) {
-            nodeName = nodeNameDict['disease'][selectedDisease!];
-            // }else if (nodeIdx===numChildren-1) {
-            //     nodeName = nodeNameDict['drug'][selectedDrug!.replace('drug_','')]
-          } else {
-            let possibleNames = Object.values(nodeNameDict[node]);
-            nodeName =
-              possibleNames[Math.floor(Math.random() * possibleNames.length)];
-          }
+      let showChildren = this.state.expand[pathIdx];
+      let children = group.metaPaths.map((path, childIdx) => {
+        let nodes = path.nodes.map((node, nodeIdx) => {
+          const { nodeId, nodeType } = node;
+          let nodeName = nodeNameDict[nodeType][nodeId];
 
           let shortNodeName = cropText(nodeName, 14, NODE_WIDTH - 10);
 
@@ -221,11 +158,11 @@ class PathMatrix extends React.Component<Props, State> {
               key={`node_${nodeIdx}`}
               title={shortNodeName.includes('.') ? nodeName : ''}
             >
-              <g transform={translate} opacity={0.7}>
+              <g transform={translate}>
                 <rect
                   width={NODE_WIDTH}
                   height={NODE_HEIGHT}
-                  fill={getNodeColor(node)}
+                  fill={getNodeColor(nodeType)}
                 />
                 <text
                   textAnchor="middle"
@@ -239,37 +176,23 @@ class PathMatrix extends React.Component<Props, State> {
             </Tooltip>
           );
         });
-        let edges = [...Array(type.length - 1)].map((_, edgeIdx) => {
-          let translate = `translate(${
+        let edges = path.edges.map((edge, edgeIdx) => {
+          const translate = `translate(${
             NODE_WIDTH + (EDGE_LENGTH + NODE_WIDTH) * edgeIdx
           }, ${+NODE_HEIGHT / 2})`;
-
-          let edgeInfos = Object.values(edgeTypes).filter(
-            (e) =>
-              e.nodes.sort().join() ===
-              type
-                .slice(edgeIdx, edgeIdx + 2)
-                .sort()
-                .join()
-          );
-
-          let edgeInfo =
-            edgeInfos.length > 0
-              ? edgeInfos[Math.floor(edgeInfos.length * Math.random())].edgeInfo
-              : '';
 
           return (
             <g key={`edge_${edgeIdx}`} transform={translate}>
               <line
                 stroke="lightgray"
-                strokeWidth={1 + Math.random() * 8}
+                strokeWidth={1 + edge.score * 0.2}
                 x1={0}
                 y1={0}
                 x2={EDGE_LENGTH}
                 y2={0}
               />
               <text x={EDGE_LENGTH / 2} y={3} textAnchor="middle">
-                {edgeInfo}
+                {edge.edgeInfo}
               </text>
             </g>
           );
@@ -296,7 +219,7 @@ class PathMatrix extends React.Component<Props, State> {
       });
 
       if (showChildren) {
-        offsetY += (NODE_HEIGHT + VERTICAL_GAP) * numChildren;
+        offsetY += (NODE_HEIGHT + VERTICAL_GAP) * group.metaPaths.length;
       }
 
       return (
@@ -306,7 +229,7 @@ class PathMatrix extends React.Component<Props, State> {
         >
           <g className="icon">
             <text x={10} y={NODE_HEIGHT / 2 + 6} textAnchor="middle">
-              {numChildren}
+              {group.metaPaths.length}
             </text>
             <path
               d={
@@ -339,12 +262,16 @@ class PathMatrix extends React.Component<Props, State> {
     this.setState({ isModalVisible: false });
   }
   render() {
-    let { width, height } = this.props,
-      { isModalVisible } = this.state;
-    let svgWidth = width - 2 * this.PADDING - 2 * this.MARGIN,
+    const { width, height } = this.props,
+      { isModalVisible } = this.state,
+      { metaPathGroups } = this.props.globalState;
+    const numberOfPath = metaPathGroups
+      .map((d) => d.metaPaths.length)
+      .reduce((a, b) => a + b, 0);
+    const svgWidth = width - 2 * this.PADDING - 2 * this.MARGIN,
       svgOuterHeight = height - 2 * this.PADDING - this.TITLE_HEIGHT,
       svgHeight =
-        this.props.globalState.metaPaths.length *
+        (numberOfPath + metaPathGroups.length) *
         (this.NODE_HEIGHT + this.VERTICAL_GAP);
     return (
       <>
@@ -364,7 +291,9 @@ class PathMatrix extends React.Component<Props, State> {
           headStyle={{ height: this.TITLE_HEIGHT }}
         >
           <svg width={svgWidth} height={svgHeight}>
-            {this.drawDummy()}
+            <g className="dummy" transform={`translate(${0}, ${this.PADDING})`}>
+              {this.drawDummy()}
+            </g>
           </svg>
         </Card>
         <Modal

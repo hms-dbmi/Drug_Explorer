@@ -7,7 +7,7 @@ const initialState: IState = {
   drugOptions: [],
   nodeTypes: [],
   edgeTypes: {},
-  metaPaths: [],
+  metaPathGroups: [],
   attention: {},
   selectedDisease: undefined,
   selectedDrug: undefined,
