@@ -4,7 +4,7 @@ import { getNodeColor } from 'helpers/color';
 import React from 'react';
 
 import { StateConsumer } from 'stores';
-import { IMetaPath, IState } from 'types';
+import { IState } from 'types';
 
 interface Props {
   width: number;
@@ -25,6 +25,7 @@ class PathMatrix extends React.Component<Props, State> {
   NODE_WIDTH = 130;
   NODE_HEIGHT = 25;
   VERTICAL_GAP = 5;
+  GROUP_GAP = 10;
 
   constructor(prop: Props) {
     super(prop);
@@ -65,7 +66,7 @@ class PathMatrix extends React.Component<Props, State> {
       </g>
     );
   }
-  drawDummy() {
+  drawSummary() {
     let { EDGE_LENGTH, NODE_WIDTH, NODE_HEIGHT, VERTICAL_GAP } = this;
 
     let {
@@ -73,7 +74,6 @@ class PathMatrix extends React.Component<Props, State> {
       selectedDrug,
       selectedDisease,
       metaPathGroups,
-      edgeTypes,
     } = this.props.globalState;
 
     const triangleRight =
@@ -85,14 +85,6 @@ class PathMatrix extends React.Component<Props, State> {
     if (!selectedDrug) return;
 
     const ICON_WIDTH = 70;
-
-    let protoTypes: string[][] = [
-      ['disease', 'gene/protein', 'gene/protein', 'gene/protein', 'drug'],
-      ['disease', 'disease', 'effect/phenotype', 'drug'],
-      ['disease', 'gene/protein', 'disease', 'gene/protein', 'drug'],
-    ];
-
-    let childrenNums = [5, 2, 2];
 
     let offsetY = 0;
     let summary = metaPathGroups.map((group, pathIdx) => {
@@ -148,7 +140,8 @@ class PathMatrix extends React.Component<Props, State> {
           const { nodeId, nodeType } = node;
           let nodeName = nodeNameDict[nodeType][nodeId];
 
-          let shortNodeName = cropText(nodeName, 14, NODE_WIDTH - 10);
+          let shortNodeName =
+            cropText(nodeName, 14, NODE_WIDTH - 10) || 'undefined';
 
           let translate = `translate(${
             (EDGE_LENGTH + NODE_WIDTH) * nodeIdx
@@ -185,7 +178,7 @@ class PathMatrix extends React.Component<Props, State> {
             <g key={`edge_${edgeIdx}`} transform={translate}>
               <line
                 stroke="lightgray"
-                strokeWidth={1 + edge.score * 0.2}
+                strokeWidth={1 + edge.score * 0.7}
                 x1={0}
                 y1={0}
                 x2={EDGE_LENGTH}
@@ -200,7 +193,7 @@ class PathMatrix extends React.Component<Props, State> {
         return (
           <g
             key={childIdx}
-            transform={`translate(${30 + ICON_WIDTH}, ${
+            transform={`translate(${ICON_WIDTH}, ${
               (NODE_HEIGHT + VERTICAL_GAP) * (1 + childIdx)
             })`}
           >
@@ -222,6 +215,8 @@ class PathMatrix extends React.Component<Props, State> {
         offsetY += (NODE_HEIGHT + VERTICAL_GAP) * group.metaPaths.length;
       }
 
+      offsetY += this.GROUP_GAP;
+
       return (
         <g
           key={`prototype_${pathIdx}`}
@@ -232,24 +227,18 @@ class PathMatrix extends React.Component<Props, State> {
               {group.metaPaths.length}
             </text>
             <path
-              d={
-                showChildren
-                  ? // `M25 0 L${25+NODE_HEIGHT} 0 L${NODE_HEIGHT/2+25} ${NODE_HEIGHT} Z`
-                    // :`M25 0 L25 ${NODE_HEIGHT} L${NODE_HEIGHT+25} ${NODE_HEIGHT/2} Z`
-                    triangelBottom
-                  : triangleRight
-              }
+              d={showChildren ? triangelBottom : triangleRight}
               transform={`translate(${25}, 0)`}
               fill="gray"
               onClick={() => this.expandType(pathIdx)}
               cursor="pointer"
             />
-            {showChildren ? children : <g />}
           </g>
           <g className="prototype" transform={`translate(${ICON_WIDTH}, 0)`}>
             {nodes}
             {edges}
           </g>
+          <g className="metapaths">{showChildren ? children : <g />}</g>
         </g>
       );
     });
@@ -272,7 +261,8 @@ class PathMatrix extends React.Component<Props, State> {
       svgOuterHeight = height - 2 * this.PADDING - this.TITLE_HEIGHT,
       svgHeight =
         (numberOfPath + metaPathGroups.length) *
-        (this.NODE_HEIGHT + this.VERTICAL_GAP);
+          (this.NODE_HEIGHT + this.VERTICAL_GAP) +
+        2 * this.PADDING;
     return (
       <>
         <Card
@@ -292,7 +282,7 @@ class PathMatrix extends React.Component<Props, State> {
         >
           <svg width={svgWidth} height={svgHeight}>
             <g className="dummy" transform={`translate(${0}, ${this.PADDING})`}>
-              {this.drawDummy()}
+              {this.drawSummary()}
             </g>
           </svg>
         </Card>
