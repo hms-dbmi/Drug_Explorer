@@ -145,7 +145,10 @@ class NodeLink extends React.Component<Props, States> {
     const minY = Math.min(...allY);
     const maxY = Math.max(...allY);
 
-    this.maxHeight = Math.max(maxY - minY + this.nodeHeight, this.maxHeight);
+    this.maxHeight = Math.max(
+      maxY - minY + this.nodeHeight + 2 * this.padding + 2 * this.margin,
+      this.maxHeight
+    );
 
     const nodes = root.descendants().map((node, i) => {
       let { nodeId, nodeType } = node.data;
@@ -245,12 +248,12 @@ class NodeLink extends React.Component<Props, States> {
   }
   updateSVGHeight() {
     this.maxHeight = Math.max(
-      this.props.height - 2 * this.padding - this.titleHeight - 2 * this.margin,
+      this.props.height - this.titleHeight,
       this.maxHeight
     );
     if (this.maxHeight > this.state.svgHeight) {
       this.setState({
-        svgHeight: this.maxHeight + 2 * this.padding + 2 * this.margin,
+        svgHeight: this.maxHeight,
       });
     }
   }
@@ -284,7 +287,7 @@ class NodeLink extends React.Component<Props, States> {
         >
           <svg
             width={cardWidth}
-            height={this.state.svgHeight}
+            height={isAttentionLoading ? height : this.state.svgHeight}
             className="nodeLink"
           >
             {isAttentionLoading || diseaseOptions.length === 0 ? (
