@@ -19,7 +19,11 @@ interface Props {
   globalState: IState;
 }
 
-class NodeLink extends React.Component<Props> {
+interface States {
+  svgHeight: number;
+}
+
+class NodeLink extends React.Component<Props, States> {
   titleHeight = 36;
   margin = 10;
   padding = 10;
@@ -27,6 +31,15 @@ class NodeLink extends React.Component<Props> {
   fontSize = 14;
   labelLength = 150;
   midGap = 60; // the gaph between two trees
+  maxHeight = 0;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      svgHeight: this.props.height,
+    };
+    this.updateSVGHeight = this.updateSVGHeight.bind(this);
+  }
 
   drawNodeAttentionHorizontal(
     nodeAttention: IAttentionTree,
@@ -55,9 +68,11 @@ class NodeLink extends React.Component<Props> {
     let nodeAttentionFiltered = pruneEdge(nodeAttention, edgeThreshold);
 
     const rootNode = d3.hierarchy(nodeAttentionFiltered);
-    const root = d3
+    const d3Tree = d3
       .tree<IAttentionTree>()
-      .nodeSize([this.nodeHeight + 2, stepGap])(rootNode);
+      .nodeSize([this.nodeHeight + 2, stepGap]);
+
+    const root = d3Tree(rootNode);
 
     const linkGene = d3
       .linkHorizontal<any, d3.HierarchyPointLink<IAttentionTree>, any>()
@@ -109,6 +124,15 @@ class NodeLink extends React.Component<Props> {
         />
       );
     });
+
+    const allY = root.descendants().map((node) => node.y);
+    const minY = Math.min(...allY);
+    const maxY = Math.max(...allY);
+
+    this.maxHeight = Math.max(
+      maxY - minY + this.padding * 2 + this.margin * 2,
+      this.maxHeight
+    );
 
     const nodes = root.descendants().map((node, i) => {
       let { nodeId, nodeType } = node.data;
@@ -179,7 +203,7 @@ class NodeLink extends React.Component<Props> {
   }
   drawSubgraph() {
     let { attention, edgeThreshold } = this.props.globalState;
-    let { width, height } = this.props;
+    let { width } = this.props;
     const svgWidth = width - 2 * this.margin - 2 * this.padding;
 
     let stepGap = (svgWidth - 2 * this.labelLength - this.midGap) / 4;
@@ -190,7 +214,7 @@ class NodeLink extends React.Component<Props> {
           key={nodeKey}
           transform={`translate(${
             ((svgWidth + this.midGap) / 2) * idx + this.labelLength / 2
-          }, ${height / 2})`}
+          }, ${this.state.svgHeight / 2})`}
         >
           {this.drawNodeAttentionHorizontal(
             attention[nodeKey],
@@ -201,11 +225,23 @@ class NodeLink extends React.Component<Props> {
       );
     });
   }
+  updateSVGHeight() {
+    this.maxHeight = Math.max(this.props.height, this.maxHeight);
+    if (this.maxHeight > this.state.svgHeight) {
+      this.setState({ svgHeight: this.maxHeight });
+    }
+  }
+  componentDidMount() {
+    this.updateSVGHeight();
+  }
+  componentDidUpdate() {
+    this.updateSVGHeight();
+  }
   render() {
     const { width, height, globalState } = this.props;
     const { isAttentionLoading } = globalState;
-    let svgWidth = width - 2 * this.margin - 2 * this.padding,
-      svgHeight =
+    let cardWidth = width - 2 * this.margin - 2 * this.padding,
+      cardHeight =
         height - 2 * this.padding - this.titleHeight - 2 * this.margin;
     return (
       <Card
@@ -219,15 +255,24 @@ class NodeLink extends React.Component<Props> {
         bodyStyle={{ padding: this.padding }}
         headStyle={{ height: this.titleHeight }}
       >
-        <svg width={svgWidth} height={svgHeight} className="nodeLink">
-          {isAttentionLoading ? (
-            <g transform={`translate(${width / 2}, ${height / 2})`}>
-              {LOADING_ICON}
-            </g>
-          ) : (
-            this.drawSubgraph()
-          )}
-        </svg>
+        <div
+          className="nodelink"
+          style={{ width: cardWidth, height: cardHeight, overflowY: 'scroll' }}
+        >
+          <svg
+            width={cardWidth}
+            height={this.state.svgHeight}
+            className="nodeLink"
+          >
+            {isAttentionLoading ? (
+              <g transform={`translate(${width / 2}, ${height / 2})`}>
+                {LOADING_ICON}
+              </g>
+            ) : (
+              this.drawSubgraph()
+            )}
+          </svg>
+        </div>
       </Card>
     );
   }
