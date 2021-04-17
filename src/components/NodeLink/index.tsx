@@ -125,14 +125,11 @@ class NodeLink extends React.Component<Props, States> {
       );
     });
 
-    const allY = root.descendants().map((node) => node.y);
+    const allY = root.descendants().map((node) => node.x);
     const minY = Math.min(...allY);
     const maxY = Math.max(...allY);
 
-    this.maxHeight = Math.max(
-      maxY - minY + this.padding * 2 + this.margin * 2,
-      this.maxHeight
-    );
+    this.maxHeight = Math.max(maxY - minY + this.nodeHeight, this.maxHeight);
 
     const nodes = root.descendants().map((node, i) => {
       let { nodeId, nodeType } = node.data;
@@ -172,7 +169,7 @@ class NodeLink extends React.Component<Props, States> {
             <path
               className="virus_icon"
               d={icon_path}
-              transform={`translate(${(-1 * this.labelLength) / 2}, ${
+              transform={`translate(${(-1 * this.labelLength) / 2 + 2}, ${
                 -this.nodeHeight / 2
               }) scale(0.04)`}
               fill="white"
@@ -214,7 +211,7 @@ class NodeLink extends React.Component<Props, States> {
           key={nodeKey}
           transform={`translate(${
             ((svgWidth + this.midGap) / 2) * idx + this.labelLength / 2
-          }, ${this.state.svgHeight / 2})`}
+          }, ${this.state.svgHeight / 2 + this.nodeHeight})`}
         >
           {this.drawNodeAttentionHorizontal(
             attention[nodeKey],
@@ -226,7 +223,10 @@ class NodeLink extends React.Component<Props, States> {
     });
   }
   updateSVGHeight() {
-    this.maxHeight = Math.max(this.props.height, this.maxHeight);
+    this.maxHeight = Math.max(
+      this.props.height - 2 * this.padding - this.titleHeight - 2 * this.margin,
+      this.maxHeight
+    );
     if (this.maxHeight > this.state.svgHeight) {
       this.setState({ svgHeight: this.maxHeight });
     }
