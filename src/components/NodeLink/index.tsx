@@ -249,7 +249,9 @@ class NodeLink extends React.Component<Props, States> {
       this.maxHeight
     );
     if (this.maxHeight > this.state.svgHeight) {
-      this.setState({ svgHeight: this.maxHeight });
+      this.setState({
+        svgHeight: this.maxHeight + 2 * this.padding + 2 * this.margin,
+      });
     }
   }
   componentDidMount() {
@@ -260,7 +262,7 @@ class NodeLink extends React.Component<Props, States> {
   }
   render() {
     const { width, height, globalState } = this.props;
-    const { isAttentionLoading } = globalState;
+    const { isAttentionLoading, diseaseOptions } = globalState;
     let cardWidth = width - 2 * this.margin - 2 * this.padding,
       cardHeight =
         height - 2 * this.padding - this.titleHeight - 2 * this.margin;
@@ -285,7 +287,7 @@ class NodeLink extends React.Component<Props, States> {
             height={this.state.svgHeight}
             className="nodeLink"
           >
-            {isAttentionLoading ? (
+            {isAttentionLoading || diseaseOptions.length === 0 ? (
               <g transform={`translate(${width / 2}, ${height / 2})`}>
                 {LOADING_ICON}
               </g>

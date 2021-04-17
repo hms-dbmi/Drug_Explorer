@@ -253,16 +253,18 @@ class PathMatrix extends React.Component<Props, State> {
   render() {
     const { width, height } = this.props,
       { isModalVisible } = this.state,
-      { metaPathGroups } = this.props.globalState;
+      { metaPathGroups, isAttentionLoading } = this.props.globalState;
     const numberOfPath = metaPathGroups
       .map((d) => d.metaPaths.length)
       .reduce((a, b) => a + b, 0);
     const svgWidth = width - 2 * this.PADDING - 2 * this.MARGIN,
       svgOuterHeight = height - 2 * this.PADDING - this.TITLE_HEIGHT,
-      svgHeight =
+      svgHeight = Math.max(
         (numberOfPath + metaPathGroups.length) *
           (this.NODE_HEIGHT + this.VERTICAL_GAP) +
-        2 * this.PADDING;
+          2 * this.PADDING,
+        svgOuterHeight
+      );
     return (
       <>
         <Card
@@ -282,7 +284,7 @@ class PathMatrix extends React.Component<Props, State> {
         >
           <svg width={svgWidth} height={svgHeight}>
             <g className="dummy" transform={`translate(${0}, ${this.PADDING})`}>
-              {this.drawSummary()}
+              {isAttentionLoading ? <></> : this.drawSummary()}
             </g>
           </svg>
         </Card>
