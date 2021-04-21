@@ -46,7 +46,7 @@ class PathMatrix extends React.Component<Props, State> {
   }
   getIconGroup() {
     return (
-      <g className="feedback" cursor="pointer">
+      <g className="feedback" cursor="pointer" style={{ fill: '#777' }}>
         <g className="yes">
           <rect width={30} height={30} fill="white" />
           <path d={YES_ICON} transform={`scale(0.04)`} />
@@ -120,7 +120,7 @@ class PathMatrix extends React.Component<Props, State> {
         return (
           <g key={`edge_${edgeIdx}`} transform={translate}>
             <line
-              stroke="gray"
+              stroke="lightgray"
               // strokeWidth={1+Math.random() * 8}
               strokeWidth={2}
               x1={0}
@@ -177,14 +177,14 @@ class PathMatrix extends React.Component<Props, State> {
           return (
             <g key={`edge_${edgeIdx}`} transform={translate}>
               <line
-                stroke="lightgray"
+                stroke="gray"
                 strokeWidth={1 + edge.score * 0.7}
                 x1={0}
-                y1={0}
+                y1={NODE_HEIGHT / 4}
                 x2={EDGE_LENGTH}
-                y2={0}
+                y2={NODE_HEIGHT / 4}
               />
-              <text x={EDGE_LENGTH / 2} y={3} textAnchor="middle">
+              <text x={EDGE_LENGTH / 2} y={0} textAnchor="middle">
                 {edge.edgeInfo}
               </text>
             </g>
