@@ -154,7 +154,7 @@ class NodeLink extends React.Component<Props, States> {
       let { nodeId, nodeType } = node.data;
       let nodeFullName = nodeNameDict[nodeType][nodeId];
       if (nodeFullName === undefined) {
-        nodeId = nodeId.split('_')[0].toString() + '.0'; // the id of a merged node is xxx_xxx_xxxx
+        nodeId = nodeId.replace(/_/g, '') + '.0'; // the id of a merged node is xxx_xxx_xxxx
         nodeFullName = nodeNameDict[nodeType][nodeId];
       }
       let nodeShortName = cropText(

@@ -137,8 +137,12 @@ class PathMatrix extends React.Component<Props, State> {
       let showChildren = this.state.expand[pathIdx];
       let children = group.metaPaths.map((path, childIdx) => {
         let nodes = path.nodes.map((node, nodeIdx) => {
-          const { nodeId, nodeType } = node;
+          let { nodeId, nodeType } = node;
           let nodeName = nodeNameDict[nodeType][nodeId];
+          if (nodeName === undefined) {
+            nodeId = nodeId.replace(/_/g, '') + '.0';
+            nodeName = nodeNameDict[nodeType][nodeId];
+          }
 
           let shortNodeName =
             cropText(nodeName, 14, NODE_WIDTH - 10) || 'undefined';
@@ -151,7 +155,7 @@ class PathMatrix extends React.Component<Props, State> {
               key={`node_${nodeIdx}`}
               title={shortNodeName.includes('.') ? nodeName : ''}
             >
-              <g transform={translate}>
+              <g transform={translate} className={`node_${nodeId}`}>
                 <rect
                   width={NODE_WIDTH}
                   height={NODE_HEIGHT}
