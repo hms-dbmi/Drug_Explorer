@@ -19,11 +19,7 @@ interface Props {
   globalState: IState;
 }
 
-interface States {
-  svgHeight: number;
-}
-
-class NodeLink extends React.Component<Props, States> {
+class NodeLink extends React.Component<Props, {}> {
   titleHeight = 36;
   margin = 10;
   padding = 10;
@@ -31,15 +27,6 @@ class NodeLink extends React.Component<Props, States> {
   fontSize = 14;
   labelLength = 150;
   midGap = 60; // the gaph between two trees
-  maxHeight = 0;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      svgHeight: this.props.height,
-    };
-    this.updateSVGHeight = this.updateSVGHeight.bind(this);
-  }
 
   drawNodeAttentionHorizontal(
     nodeAttention: IAttentionTree,
@@ -145,10 +132,8 @@ class NodeLink extends React.Component<Props, States> {
     const minY = Math.min(...allY);
     const maxY = Math.max(...allY);
 
-    this.maxHeight = Math.max(
-      maxY - minY + this.nodeHeight + 2 * this.padding + 2 * this.margin,
-      this.maxHeight
-    );
+    const height =
+      maxY - minY + this.nodeHeight + 2 * this.padding + 2 * this.margin;
 
     const nodes = root.descendants().map((node, i) => {
       let { nodeId, nodeType } = node.data;
@@ -213,14 +198,17 @@ class NodeLink extends React.Component<Props, States> {
       );
     });
 
-    return [
-      <g key="links" className="links">
-        {links}
-      </g>,
-      <g key="nodes" className="nodes">
-        {nodes}
-      </g>,
-    ];
+    return {
+      content: [
+        <g key="links" className="links">
+          {links}
+        </g>,
+        <g key="nodes" className="nodes">
+          {nodes}
+        </g>,
+      ],
+      height: height,
+    };
   }
   drawSubgraph() {
     let { attention, edgeThreshold } = this.props.globalState;
@@ -228,47 +216,37 @@ class NodeLink extends React.Component<Props, States> {
     const svgWidth = width - 2 * this.margin - 2 * this.padding;
 
     let stepGap = (svgWidth - 2 * this.labelLength - this.midGap) / 4;
-    return Object.keys(attention).map((nodeKey: string, idx) => {
+    let maxHeight = 0;
+    const content = Object.keys(attention).map((nodeKey: string, idx) => {
+      const { height, content } = this.drawNodeAttentionHorizontal(
+        attention[nodeKey],
+        stepGap,
+        edgeThreshold
+      );
+      maxHeight = Math.max(maxHeight, height);
       return (
         <g
           className={nodeKey}
           key={nodeKey}
           transform={`translate(${
             ((svgWidth + this.midGap) / 2) * idx + this.labelLength / 2
-          }, ${this.state.svgHeight / 2 + this.nodeHeight})`}
+          }, ${height / 2 + this.padding + this.margin + this.nodeHeight})`}
         >
-          {this.drawNodeAttentionHorizontal(
-            attention[nodeKey],
-            stepGap,
-            edgeThreshold
-          )}
+          {content}
         </g>
       );
     });
+    return { content, height: maxHeight };
   }
-  updateSVGHeight() {
-    this.maxHeight = Math.max(
-      this.props.height - this.titleHeight,
-      this.maxHeight
-    );
-    if (this.maxHeight > this.state.svgHeight) {
-      this.setState({
-        svgHeight: this.maxHeight,
-      });
-    }
-  }
-  componentDidMount() {
-    this.updateSVGHeight();
-  }
-  componentDidUpdate() {
-    this.updateSVGHeight();
-  }
+
   render() {
     const { width, height, globalState } = this.props;
     const { isAttentionLoading, diseaseOptions, attention } = globalState;
     let cardWidth = width - 2 * this.margin - 2 * this.padding,
       cardHeight =
         height - 2 * this.padding - this.titleHeight - 2 * this.margin;
+
+    const { content, height: svgMaxHeight } = this.drawSubgraph();
     return (
       <Card
         size="small"
@@ -285,17 +263,13 @@ class NodeLink extends React.Component<Props, States> {
           className="nodelink"
           style={{ width: cardWidth, height: cardHeight, overflowY: 'scroll' }}
         >
-          <svg
-            width={cardWidth}
-            height={isAttentionLoading ? height : this.state.svgHeight}
-            className="nodeLink"
-          >
+          <svg width={cardWidth} height={svgMaxHeight} className="nodeLink">
             {isAttentionLoading || diseaseOptions.length === 0 ? (
               <g transform={`translate(${width / 2}, ${height / 2})`}>
                 {LOADING_ICON}
               </g>
             ) : attention['disease'] ? (
-              this.drawSubgraph()
+              content
             ) : (
               <text x={width / 2} y={height / 2} fill="gray">
                 Please select drug and disease first
