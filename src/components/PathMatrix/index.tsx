@@ -30,7 +30,7 @@ class PathMatrix extends React.Component<Props, State> {
   constructor(prop: Props) {
     super(prop);
     this.state = {
-      expand: [false, true, true, false],
+      expand: this.props.globalState.metaPathGroups.map((d) => true),
       isModalVisible: false,
     };
 
@@ -38,31 +38,30 @@ class PathMatrix extends React.Component<Props, State> {
     this.hideModal = this.hideModal.bind(this);
     this.filterMetaPathGroups = this.filterMetaPathGroups.bind(this);
   }
-  expandType(idx: number) {
+  toggleExpand(idx: number) {
     let { expand } = this.state;
-    if (idx < expand.length) {
-      expand[idx] = !expand[idx];
-      this.setState({ expand });
-    }
+    expand[idx] = !expand[idx];
+    this.setState({ expand });
   }
   getIconGroup() {
+    const dimension = 20;
     return (
       <g className="feedback" cursor="pointer" style={{ fill: '#777' }}>
         <g className="yes">
-          <rect width={30} height={30} fill="white" />
-          <path d={YES_ICON} transform={`scale(0.04)`} />
+          <rect width={dimension} height={dimension} fill="white" />
+          <path d={YES_ICON} transform={`scale(0.03)`} />
         </g>
-        <g className="no" transform={`translate(${30}, 0)`}>
-          <rect width={30} height={30} fill="white" />
-          <path d={NO_ICON} transform={`scale(0.04)`} />
+        <g className="no" transform={`translate(${dimension}, 0)`}>
+          <rect width={dimension} height={dimension} fill="white" />
+          <path d={NO_ICON} transform={`scale(0.03)`} />
         </g>
         <g
           className="edit"
-          transform={`translate(${60}, 0)`}
+          transform={`translate(${2 * dimension}, 0)`}
           onClick={this.showModal}
         >
-          <rect width={30} height={30} fill="white" />
-          <path d={EDIT_ICON} transform={`scale(0.04)`} />
+          <rect width={dimension} height={dimension} fill="white" />
+          <path d={EDIT_ICON} transform={`scale(0.03)`} />
         </g>
       </g>
     );
@@ -235,7 +234,7 @@ class PathMatrix extends React.Component<Props, State> {
               d={showChildren ? triangelBottom : triangleRight}
               transform={`translate(${25}, 0)`}
               fill="gray"
-              onClick={() => this.expandType(pathIdx)}
+              onClick={() => this.toggleExpand(pathIdx)}
               cursor="pointer"
             />
           </g>
@@ -267,6 +266,20 @@ class PathMatrix extends React.Component<Props, State> {
     let b = a.filter((metaPathGroup) => metaPathGroup.metaPaths.length > 0);
 
     return b;
+  }
+  componentDidMount() {
+    const groups = this.filterMetaPathGroups();
+    if (groups.length > this.state.expand.length) {
+      const expand = groups.map((d) => true);
+      this.setState({ expand });
+    }
+  }
+  componentDidUpdate() {
+    const groups = this.filterMetaPathGroups();
+    if (groups.length > this.state.expand.length) {
+      const expand = groups.map((d) => true);
+      this.setState({ expand });
+    }
   }
   render() {
     const { width, height } = this.props,
