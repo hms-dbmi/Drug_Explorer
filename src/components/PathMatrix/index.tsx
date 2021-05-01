@@ -269,14 +269,14 @@ class PathMatrix extends React.Component<Props, State> {
   }
   componentDidMount() {
     const groups = this.filterMetaPathGroups();
-    if (groups.length > this.state.expand.length) {
+    if (groups.length !== this.state.expand.length) {
       const expand = groups.map((d) => true);
       this.setState({ expand });
     }
   }
   componentDidUpdate() {
     const groups = this.filterMetaPathGroups();
-    if (groups.length > this.state.expand.length) {
+    if (groups.length !== this.state.expand.length) {
       const expand = groups.map((d) => true);
       this.setState({ expand });
     }
