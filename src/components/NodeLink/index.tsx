@@ -272,7 +272,7 @@ class NodeLink extends React.Component<Props, States> {
     return (
       <Card
         size="small"
-        title="Node attention"
+        title="Node Attention"
         style={{
           width: width - 2 * this.margin,
           height: height - 2 * this.margin,

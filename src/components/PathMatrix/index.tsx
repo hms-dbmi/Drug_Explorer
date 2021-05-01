@@ -36,6 +36,7 @@ class PathMatrix extends React.Component<Props, State> {
 
     this.showModal = this.showModal.bind(this);
     this.hideModal = this.hideModal.bind(this);
+    this.filterMetaPathGroups = this.filterMetaPathGroups.bind(this);
   }
   expandType(idx: number) {
     let { expand } = this.state;
@@ -73,9 +74,9 @@ class PathMatrix extends React.Component<Props, State> {
       nodeNameDict,
       selectedDrug,
       selectedDisease,
-      metaPathGroups,
     } = this.props.globalState;
 
+    let metaPathGroups = this.filterMetaPathGroups();
     const triangleRight =
         'M 9 17.879 V 6.707 A 1 1 0 0 1 10.707 6 l 5.586 5.586 a 1 1 0 0 1 0 1.414 l -5.586 5.586 A 1 1 0 0 1 9 17.879 Z',
       triangelBottom =
@@ -254,13 +255,28 @@ class PathMatrix extends React.Component<Props, State> {
   hideModal() {
     this.setState({ isModalVisible: false });
   }
+  filterMetaPathGroups() {
+    let { metaPathGroups, edgeThreshold } = this.props.globalState;
+    let a = metaPathGroups.map((metaPathGroup) => {
+      const metaPaths = metaPathGroup.metaPaths.filter((metaPath) =>
+        metaPath.edges.every((e) => e.score > edgeThreshold)
+      );
+      return { ...metaPathGroup, metaPaths };
+    });
+
+    let b = a.filter((metaPathGroup) => metaPathGroup.metaPaths.length > 0);
+
+    return b;
+  }
   render() {
     const { width, height } = this.props,
-      { isModalVisible } = this.state,
-      { metaPathGroups, isAttentionLoading } = this.props.globalState;
+      { isModalVisible } = this.state;
+    const { isAttentionLoading } = this.props.globalState;
+    let metaPathGroups = this.filterMetaPathGroups();
     const numberOfPath = metaPathGroups
       .map((d) => d.metaPaths.length)
       .reduce((a, b) => a + b, 0);
+
     const svgWidth = width - 2 * this.PADDING - 2 * this.MARGIN,
       svgOuterHeight = height - 2 * this.PADDING - this.TITLE_HEIGHT,
       svgHeight = Math.max(
@@ -273,7 +289,7 @@ class PathMatrix extends React.Component<Props, State> {
       <>
         <Card
           size="small"
-          title="Path Matrix"
+          title="Meta Paths"
           style={{
             width: width - 2 * this.MARGIN,
             height: height,

@@ -149,7 +149,9 @@ class DrugSider extends React.Component<Props> {
                   <Option value={drug_id} key={`disease_${idx}`} label={name}>
                     <div>
                       <span>{name}</span>
-                      <span style={{ float: 'right' }}>score: {score}</span>
+                      <span style={{ float: 'right' }}>
+                        score: {score.toFixed(3)}
+                      </span>
                     </div>
                   </Option>
                 );
