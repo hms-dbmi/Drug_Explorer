@@ -265,7 +265,7 @@ class NodeLink extends React.Component<Props, States> {
   }
   render() {
     const { width, height, globalState } = this.props;
-    const { isAttentionLoading, diseaseOptions } = globalState;
+    const { isAttentionLoading, diseaseOptions, attention } = globalState;
     let cardWidth = width - 2 * this.margin - 2 * this.padding,
       cardHeight =
         height - 2 * this.padding - this.titleHeight - 2 * this.margin;
@@ -294,8 +294,12 @@ class NodeLink extends React.Component<Props, States> {
               <g transform={`translate(${width / 2}, ${height / 2})`}>
                 {LOADING_ICON}
               </g>
-            ) : (
+            ) : attention['disease'] ? (
               this.drawSubgraph()
+            ) : (
+              <text x={width / 2} y={height / 2} fill="gray">
+                Please select drug and disease first
+              </text>
             )}
           </svg>
         </div>

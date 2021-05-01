@@ -271,8 +271,8 @@ class PathMatrix extends React.Component<Props, State> {
   render() {
     const { width, height } = this.props,
       { isModalVisible } = this.state;
-    const { isAttentionLoading } = this.props.globalState;
-    let metaPathGroups = this.filterMetaPathGroups();
+    const { isAttentionLoading, attention } = this.props.globalState;
+    const metaPathGroups = this.filterMetaPathGroups();
     const numberOfPath = metaPathGroups
       .map((d) => d.metaPaths.length)
       .reduce((a, b) => a + b, 0);
@@ -285,6 +285,21 @@ class PathMatrix extends React.Component<Props, State> {
           2 * this.PADDING,
         svgOuterHeight
       );
+
+    const reminderText = (
+      <text x={svgWidth / 2} y={svgOuterHeight / 2} fill="gray">
+        {attention['disease']
+          ? 'There is no meta path'
+          : 'Please select disease and drug first'}
+      </text>
+    );
+    const content = isAttentionLoading ? (
+      <></>
+    ) : metaPathGroups.length === 0 ? (
+      reminderText
+    ) : (
+      this.drawSummary()
+    );
     return (
       <>
         <Card
@@ -303,8 +318,11 @@ class PathMatrix extends React.Component<Props, State> {
           headStyle={{ height: this.TITLE_HEIGHT }}
         >
           <svg width={svgWidth} height={svgHeight}>
-            <g className="dummy" transform={`translate(${0}, ${this.PADDING})`}>
-              {isAttentionLoading ? <></> : this.drawSummary()}
+            <g
+              className="metaPath"
+              transform={`translate(${0}, ${this.PADDING})`}
+            >
+              {content}
             </g>
           </svg>
         </Card>
