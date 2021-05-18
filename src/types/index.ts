@@ -55,7 +55,7 @@ export type IDispatch = ({
 
 export type DrugOption = {
   score: number;
-  drug_id: string;
+  id: string;
 };
 
 export interface IState {

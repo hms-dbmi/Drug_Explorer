@@ -143,7 +143,7 @@ class DrugSider extends React.Component<Props> {
           {selectedDisease !== undefined ? (
             drugOptions.length > 0 ? (
               drugOptions.map((d, idx) => {
-                const { drug_id, score } = d;
+                const { id: drug_id, score } = d;
                 const name = nodeNameDict['drug'][drug_id];
                 return (
                   <Option value={drug_id} key={`disease_${idx}`} label={name}>
