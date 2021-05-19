@@ -30,7 +30,7 @@ class PathMatrix extends React.Component<Props, State> {
   constructor(prop: Props) {
     super(prop);
     this.state = {
-      expand: this.props.globalState.metaPathGroups.map((d) => true),
+      expand: this.props.globalState.metaPathSummary.map((d) => false),
       isModalVisible: false,
     };
 
@@ -272,20 +272,20 @@ class PathMatrix extends React.Component<Props, State> {
 
     return b;
   }
-  componentDidMount() {
-    const groups = this.filterMetaPathGroups();
-    if (groups.length !== this.state.expand.length) {
-      const expand = groups.map((d) => false);
-      this.setState({ expand });
-    }
-  }
-  componentDidUpdate() {
-    const groups = this.filterMetaPathGroups();
-    if (groups.length !== this.state.expand.length) {
-      const expand = groups.map((d) => false);
-      this.setState({ expand });
-    }
-  }
+  // componentDidMount() {
+  //   const groups = this.props.globalState.metaPathSummary;
+  //   if (groups.length !== this.state.expand.length) {
+  //     const expand = groups.map((d) => false);
+  //     this.setState({ expand });
+  //   }
+  // }
+  // componentDidUpdate() {
+  //   const groups = this.props.globalState.metaPathSummary;
+  //   if (groups.length !== this.state.expand.length) {
+  //     const expand = groups.map((d) => false);
+  //     this.setState({ expand });
+  //   }
+  // }
   render() {
     const { width, height } = this.props,
       { isModalVisible } = this.state;
