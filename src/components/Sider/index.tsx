@@ -2,11 +2,7 @@ import React from 'react';
 import { StateConsumer } from 'stores';
 import { IDispatch, IState } from 'types';
 import { ACTION_TYPES } from 'stores/actions';
-import {
-  requestMetaPaths,
-  requestAttention,
-  requestDrugOptions,
-} from 'stores/DataService';
+import { requestAttention, requestDrugPredictions } from 'stores/DataService';
 
 import './Sider.css';
 
@@ -32,14 +28,7 @@ class DrugSider extends React.Component<Props> {
     this.changeDrug = this.changeDrug.bind(this);
   }
   startAnalysis() {
-    // requestMetaPaths().then((metaPaths) => {
-    //   this.props.dispatch({
-    //     type: ACTION_TYPES.Load_Meta_Paths,
-    //     payload: { metaPaths },
-    //   });
-    // });
-
-    let { selectedDisease, selectedDrug } = this.props.globalState;
+    const { selectedDisease, selectedDrug } = this.props.globalState;
 
     if (selectedDrug !== undefined && selectedDisease !== undefined) {
       this.props.dispatch({
@@ -82,10 +71,14 @@ class DrugSider extends React.Component<Props> {
       payload: { selectedDisease },
     });
 
-    requestDrugOptions(selectedDisease).then((drugOptions) => {
+    requestDrugPredictions(selectedDisease).then((res) => {
+      const {
+        predictions: drugPredictions,
+        metapathSummary: metaPathSummary,
+      } = res;
       this.props.dispatch({
         type: ACTION_TYPES.Load_Edge_Types,
-        payload: { drugOptions },
+        payload: { drugPredictions, metaPathSummary },
       });
     });
   }
@@ -95,7 +88,7 @@ class DrugSider extends React.Component<Props> {
       edgeThreshold,
       nodeTypes,
       diseaseOptions,
-      drugOptions,
+      drugPredictions,
       nodeNameDict,
       selectedDisease,
     } = this.props.globalState;
@@ -141,8 +134,8 @@ class DrugSider extends React.Component<Props> {
           onChange={this.changeDrug}
         >
           {selectedDisease !== undefined ? (
-            drugOptions.length > 0 ? (
-              drugOptions.map((d, idx) => {
+            drugPredictions.length > 0 ? (
+              drugPredictions.map((d, idx) => {
                 const { id: drug_id, score } = d;
                 console.info(d);
                 const name = nodeNameDict['drug'][drug_id];

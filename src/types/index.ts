@@ -26,6 +26,11 @@ export interface IMetaPathGroup {
   metaPaths: IMetaPath[];
 }
 
+export interface IMetaPathSummary {
+  nodeTypes: string[];
+  count: number;
+}
+
 export interface IAttentionTree {
   nodeId: string;
   nodeType: string;
@@ -53,7 +58,7 @@ export type IDispatch = ({
   payload?: Partial<IState>;
 }) => void;
 
-export type DrugOption = {
+export type DrugPrediction = {
   score: number;
   id: string;
 };
@@ -63,11 +68,12 @@ export interface IState {
   nodeTypes: string[];
   edgeTypes: IEdgeTypes;
   diseaseOptions: string[];
-  drugOptions: DrugOption[];
+  drugPredictions: DrugPrediction[];
   metaPathGroups: IMetaPathGroup[];
   selectedDrug: string | undefined;
   selectedDisease: string | undefined;
   nodeNameDict: { [type: string]: { [id: string]: string } };
   isAttentionLoading: boolean;
   attention: { [nodeKey: string]: IAttentionTree };
+  metaPathSummary: IMetaPathSummary[];
 }

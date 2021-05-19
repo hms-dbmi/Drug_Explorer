@@ -105,8 +105,8 @@ class App extends React.Component<Props, State> {
         <Layout>
           <DrugSider siderWidth={siderWidth} />
           <Content className="main" style={{ height: mainViewHeight }}>
-            <NodeLink width={mainViewWidth} height={NodeLinkHeight} />
             <PathMatrix width={mainViewWidth} height={MatrixHeight} />
+            <NodeLink width={mainViewWidth} height={NodeLinkHeight} />
           </Content>
         </Layout>
         <Footer className="footer" style={{ height: footHeight }}>
