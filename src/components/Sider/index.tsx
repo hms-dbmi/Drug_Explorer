@@ -2,11 +2,7 @@ import React from 'react';
 import { StateConsumer } from 'stores';
 import { IDispatch, IState } from 'types';
 import { ACTION_TYPES } from 'stores/actions';
-import {
-  requestMetaPaths,
-  requestAttention,
-  requestDrugOptions,
-} from 'stores/DataService';
+import { requestAttention, requestDrugOptions } from 'stores/DataService';
 
 import './Sider.css';
 
@@ -85,7 +81,7 @@ class DrugSider extends React.Component<Props> {
     requestDrugOptions(selectedDisease).then((drugOptions) => {
       this.props.dispatch({
         type: ACTION_TYPES.Load_Edge_Types,
-        payload: { drugOptions },
+        payload: { drugOptions: drugOptions.predictions },
       });
     });
   }
