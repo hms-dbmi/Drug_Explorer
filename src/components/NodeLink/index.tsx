@@ -119,7 +119,7 @@ class NodeLink extends React.Component<Props, {}> {
               fill="none"
               stroke="gray"
               strokeWidth={widthScale(link.target.data.score)}
-              opacity={selectedPathNodes.length > 0 ? 1 : 0.5}
+              opacity={selectedPathNodes.length > 0 ? 0.5 : 1}
             />
             <path
               d={linkGene(link)!}

@@ -56,15 +56,40 @@ class PathMatrix extends React.Component<Props, State> {
       payload: { selectedPathNodes: nodes },
     });
   }
+
+  isPathSelected(nodes: IMetaPath['nodes']) {
+    const { selectedPathNodes } = this.props.globalState;
+    const doesExist =
+      selectedPathNodes.map((d) => d.nodeId).join() ===
+        nodes.map((d) => d.nodeId).join() &&
+      selectedPathNodes.map((d) => d.nodeType).join() ===
+        nodes.map((d) => d.nodeType).join();
+    return doesExist;
+  }
+
+  togglePathNodes(nodes: IMetaPath['nodes'], doesExist: boolean) {
+    if (doesExist) {
+      this.props.dispatch({
+        type: ACTION_TYPES.Select_Path_Noes,
+        payload: { selectedPathNodes: [] },
+      });
+    } else {
+      this.props.dispatch({
+        type: ACTION_TYPES.Select_Path_Noes,
+        payload: { selectedPathNodes: nodes },
+      });
+    }
+  }
   getIconGroup(nodes: IMetaPath['nodes']) {
     const dimension = 20;
+    const doesExist = this.isPathSelected(nodes);
     return (
       <g className="feedback" cursor="pointer" style={{ fill: '#777' }}>
         <g
           className="search"
           transform={`translate(0, 0)`}
-          onMouseEnter={() => this.setSelectPathNodes(nodes)}
-          onMouseLeave={() => this.setSelectPathNodes([])}
+          fill={doesExist ? 'red' : 'inherit'}
+          onClick={() => this.togglePathNodes(nodes, doesExist)}
         >
           <rect
             width={dimension}
