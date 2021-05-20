@@ -233,7 +233,7 @@ class PathMatrix extends React.Component<Props, State> {
         >
           <g className="icon">
             <text x={10} y={NODE_HEIGHT / 2 + 6} textAnchor="start">
-              {`${metaPaths.length} | ${group.count}`}
+              {`${metaPaths.length} | ${group.sum}`}
             </text>
             <path
               d={showChildren ? triangelBottom : triangleRight}

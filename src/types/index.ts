@@ -28,7 +28,8 @@ export interface IMetaPathGroup {
 
 export interface IMetaPathSummary {
   nodeTypes: string[];
-  count: number;
+  count: number[];
+  sum: number;
 }
 
 export interface IAttentionTree {
