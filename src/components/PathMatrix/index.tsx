@@ -28,6 +28,7 @@ class PathMatrix extends React.Component<Props, State> {
   VERTICAL_GAP = 5; // vertical gap between path
   GROUP_GAP = 10; // vertical gap between path groups
   COUNT_GAP = 5; // horizontal gap between count circles
+  RADIUS = this.NODE_HEIGHT / 2; // max radius of the count circle
 
   constructor(prop: Props) {
     super(prop);
@@ -84,7 +85,7 @@ class PathMatrix extends React.Component<Props, State> {
     } = this.props.globalState;
 
     const ICON_WIDTH =
-      (drugPredictions.length + 1) * (NODE_HEIGHT + this.COUNT_GAP);
+      (drugPredictions.length + 1) * (this.RADIUS * 2 + this.COUNT_GAP);
 
     let metaPathGroups = this.filterMetaPathGroups();
     const triangleRight =
@@ -98,7 +99,7 @@ class PathMatrix extends React.Component<Props, State> {
     const maxCount = Math.max(...metaPathSummary.map((d) => d.sum));
     const rScale = d3
       .scaleLinear()
-      .range([1, NODE_HEIGHT / 2])
+      .range([1, this.RADIUS])
       .domain([0, maxCount]);
 
     let offsetY = 0;
@@ -272,9 +273,13 @@ class PathMatrix extends React.Component<Props, State> {
     summary: IMetaPathSummary,
     rScale: d3.ScaleLinear<number, number>
   ) {
+    const { drugPredictions, selectedDrug } = this.props.globalState;
     const { count, sum } = summary;
-    const RADIUS = this.NODE_HEIGHT / 2;
+    const selectedDrugIdx = drugPredictions
+      .map((d) => d.id)
+      .indexOf(selectedDrug || '');
     const vis = count.map((num, idx) => {
+      const isSelected = idx === selectedDrugIdx;
       return (
         <circle
           key={idx}
@@ -282,8 +287,8 @@ class PathMatrix extends React.Component<Props, State> {
           r={rScale(num)}
           fill="lightGray"
           xlinkTitle={num.toString()}
-          stroke="lightGray"
-          cx={RADIUS / 2 + idx * (2 * RADIUS + this.COUNT_GAP)}
+          stroke={isSelected ? 'black' : 'lightGray'}
+          cx={this.RADIUS + idx * (2 * this.RADIUS + this.COUNT_GAP)}
           cy={this.NODE_HEIGHT / 2}
         />
       );
@@ -294,18 +299,22 @@ class PathMatrix extends React.Component<Props, State> {
         <g
           className="sum"
           transform={`translate(${
-            count.length * (2 * RADIUS + this.COUNT_GAP)
+            count.length * (2 * this.RADIUS + this.COUNT_GAP)
           }, 0)`}
         >
           {/* <circle
             className="sum"
-            cx={RADIUS / 2}
+            cx={this.RADIUS}
             cy={this.NODE_HEIGHT / 2}
             fill="lightGray"
             stroke="lightGray"
             r={rScale(sum)}
           /> */}
-          <text x={RADIUS / 2} y={this.NODE_HEIGHT / 2 + 6} textAnchor="middle">
+          <text
+            x={this.RADIUS}
+            y={this.NODE_HEIGHT / 2 + 6}
+            textAnchor="middle"
+          >
             {' '}
             {`| ${sum}`}{' '}
           </text>
