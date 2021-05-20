@@ -1,10 +1,11 @@
 import { Card, Tooltip, Modal } from 'antd';
-import { cropText, YES_ICON, NO_ICON, EDIT_ICON } from 'helpers';
+import { cropText, YES_ICON, NO_ICON, EDIT_ICON, SEARCH_ICON } from 'helpers';
 import { getNodeColor } from 'helpers/color';
 import React from 'react';
 
 import { StateConsumer } from 'stores';
-import { IState } from 'types';
+import { IMetaPathSummary, IState } from 'types';
+import * as d3 from 'd3';
 
 interface Props {
   width: number;
@@ -24,8 +25,9 @@ class PathMatrix extends React.Component<Props, State> {
   EDGE_LENGTH = 100;
   NODE_WIDTH = 130;
   NODE_HEIGHT = 25;
-  VERTICAL_GAP = 5;
-  GROUP_GAP = 10;
+  VERTICAL_GAP = 5; // vertical gap between path
+  GROUP_GAP = 10; // vertical gap between path groups
+  COUNT_GAP = 5; // horizontal gap between count circles
 
   constructor(prop: Props) {
     super(prop);
@@ -47,17 +49,21 @@ class PathMatrix extends React.Component<Props, State> {
     const dimension = 20;
     return (
       <g className="feedback" cursor="pointer" style={{ fill: '#777' }}>
-        <g className="yes">
+        <g className="search" transform={`translate(0, 0)`}>
+          <rect width={dimension} height={dimension} fill="white" />
+          <path d={SEARCH_ICON} transform={`scale(0.018)`} />
+        </g>
+        <g className="yes" transform={`translate(${dimension}, 0)`}>
           <rect width={dimension} height={dimension} fill="white" />
           <path d={YES_ICON} transform={`scale(0.03)`} />
         </g>
-        <g className="no" transform={`translate(${dimension}, 0)`}>
+        <g className="no" transform={`translate(${2 * dimension}, 0)`}>
           <rect width={dimension} height={dimension} fill="white" />
           <path d={NO_ICON} transform={`scale(0.03)`} />
         </g>
         <g
           className="edit"
-          transform={`translate(${2 * dimension}, 0)`}
+          transform={`translate(${3 * dimension}, 0)`}
           onClick={this.showModal}
         >
           <rect width={dimension} height={dimension} fill="white" />
@@ -74,7 +80,11 @@ class PathMatrix extends React.Component<Props, State> {
       selectedDrug,
       selectedDisease,
       metaPathSummary,
+      drugPredictions,
     } = this.props.globalState;
+
+    const ICON_WIDTH =
+      (drugPredictions.length + 1) * (NODE_HEIGHT + this.COUNT_GAP);
 
     let metaPathGroups = this.filterMetaPathGroups();
     const triangleRight =
@@ -85,10 +95,14 @@ class PathMatrix extends React.Component<Props, State> {
     if (!selectedDisease) return;
     if (!selectedDrug) return;
 
-    const ICON_WIDTH = 70;
+    const maxCount = Math.max(...metaPathSummary.map((d) => d.sum));
+    const rScale = d3
+      .scaleLinear()
+      .range([1, NODE_HEIGHT / 2])
+      .domain([0, maxCount]);
 
     let offsetY = 0;
-    let summary = metaPathSummary.map((group, pathIdx) => {
+    let allPaths = metaPathSummary.map((group, groupIdx) => {
       let nodes = group.nodeTypes.map((node, nodeIdx) => {
         let translate = `translate(${
           (EDGE_LENGTH + NODE_WIDTH) * nodeIdx
@@ -135,7 +149,7 @@ class PathMatrix extends React.Component<Props, State> {
       let currentY = offsetY;
       offsetY += NODE_HEIGHT + VERTICAL_GAP;
 
-      let showChildren = this.state.expand[pathIdx];
+      let showChildren = this.state.expand[groupIdx];
       const metaPaths =
         metaPathGroups.filter(
           (d) => d.nodeTypes.join('') === group.nodeTypes.join('')
@@ -202,7 +216,7 @@ class PathMatrix extends React.Component<Props, State> {
         return (
           <g
             key={childIdx}
-            transform={`translate(${ICON_WIDTH}, ${
+            transform={`translate(${ICON_WIDTH + 20}, ${
               (NODE_HEIGHT + VERTICAL_GAP) * (1 + childIdx)
             })`}
           >
@@ -228,22 +242,23 @@ class PathMatrix extends React.Component<Props, State> {
 
       return (
         <g
-          key={`prototype_${pathIdx}`}
+          key={`prototype_${groupIdx}`}
           transform={`translate(${0}, ${currentY})`}
         >
+          <g className="metaCount">{this.drawMetaCount(group, rScale)}</g>
           <g className="icon">
-            <text x={10} y={NODE_HEIGHT / 2 + 6} textAnchor="start">
-              {`${metaPaths.length} | ${group.sum}`}
-            </text>
             <path
               d={showChildren ? triangelBottom : triangleRight}
-              transform={`translate(${ICON_WIDTH - 20}, 0)`}
+              transform={`translate(${ICON_WIDTH}, 0)`}
               fill="gray"
-              onClick={() => this.toggleExpand(pathIdx)}
+              onClick={() => this.toggleExpand(groupIdx)}
               cursor="pointer"
             />
           </g>
-          <g className="prototype" transform={`translate(${ICON_WIDTH}, 0)`}>
+          <g
+            className="prototype"
+            transform={`translate(${ICON_WIDTH + 20}, 0)`}
+          >
             {nodes}
             {edges}
           </g>
@@ -251,7 +266,52 @@ class PathMatrix extends React.Component<Props, State> {
         </g>
       );
     });
-    return summary;
+    return allPaths;
+  }
+  drawMetaCount(
+    summary: IMetaPathSummary,
+    rScale: d3.ScaleLinear<number, number>
+  ) {
+    const { count, sum } = summary;
+    const RADIUS = this.NODE_HEIGHT / 2;
+    const vis = count.map((num, idx) => {
+      return (
+        <circle
+          key={idx}
+          className="count"
+          r={rScale(num)}
+          fill="lightGray"
+          xlinkTitle={num.toString()}
+          stroke="lightGray"
+          cx={RADIUS / 2 + idx * (2 * RADIUS + this.COUNT_GAP)}
+          cy={this.NODE_HEIGHT / 2}
+        />
+      );
+    });
+    return (
+      <g className="metaCount" transform={`translate(${this.PADDING}, 0)`}>
+        {vis}
+        <g
+          className="sum"
+          transform={`translate(${
+            count.length * (2 * RADIUS + this.COUNT_GAP)
+          }, 0)`}
+        >
+          {/* <circle
+            className="sum"
+            cx={RADIUS / 2}
+            cy={this.NODE_HEIGHT / 2}
+            fill="lightGray"
+            stroke="lightGray"
+            r={rScale(sum)}
+          /> */}
+          <text x={RADIUS / 2} y={this.NODE_HEIGHT / 2 + 6} textAnchor="middle">
+            {' '}
+            {`| ${sum}`}{' '}
+          </text>
+        </g>
+      </g>
+    );
   }
   showModal() {
     this.setState({ isModalVisible: true });
@@ -272,20 +332,6 @@ class PathMatrix extends React.Component<Props, State> {
 
     return b;
   }
-  // componentDidMount() {
-  //   const groups = this.props.globalState.metaPathSummary;
-  //   if (groups.length !== this.state.expand.length) {
-  //     const expand = groups.map((d) => false);
-  //     this.setState({ expand });
-  //   }
-  // }
-  // componentDidUpdate() {
-  //   const groups = this.props.globalState.metaPathSummary;
-  //   if (groups.length !== this.state.expand.length) {
-  //     const expand = groups.map((d) => false);
-  //     this.setState({ expand });
-  //   }
-  // }
   render() {
     const { width, height } = this.props,
       { isModalVisible } = this.state;

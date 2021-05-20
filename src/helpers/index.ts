@@ -6,4 +6,5 @@ export {
   DRUG_ICON,
   EDIT_ICON,
   LOADING_ICON,
+  SEARCH_ICON,
 } from './icon';
