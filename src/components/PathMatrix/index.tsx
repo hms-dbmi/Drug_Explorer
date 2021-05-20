@@ -1,16 +1,20 @@
 import { Card, Tooltip, Modal } from 'antd';
 import { cropText, YES_ICON, NO_ICON, EDIT_ICON, SEARCH_ICON } from 'helpers';
 import { getNodeColor } from 'helpers/color';
+import { ACTION_TYPES } from 'stores/actions';
 import React from 'react';
 
 import { StateConsumer } from 'stores';
-import { IMetaPathSummary, IState } from 'types';
+import { IMetaPath, IMetaPathSummary, IState, IDispatch } from 'types';
 import * as d3 from 'd3';
+
+import './index.css';
 
 interface Props {
   width: number;
   height: number;
   globalState: IState;
+  dispatch: IDispatch;
 }
 
 interface State {
@@ -46,12 +50,28 @@ class PathMatrix extends React.Component<Props, State> {
     expand[idx] = !expand[idx];
     this.setState({ expand });
   }
-  getIconGroup() {
+  setSelectPathNodes(nodes: IMetaPath['nodes']) {
+    this.props.dispatch({
+      type: ACTION_TYPES.Select_Path_Noes,
+      payload: { selectedPathNodes: nodes },
+    });
+  }
+  getIconGroup(nodes: IMetaPath['nodes']) {
     const dimension = 20;
     return (
       <g className="feedback" cursor="pointer" style={{ fill: '#777' }}>
-        <g className="search" transform={`translate(0, 0)`}>
-          <rect width={dimension} height={dimension} fill="white" />
+        <g
+          className="search"
+          transform={`translate(0, 0)`}
+          onMouseEnter={() => this.setSelectPathNodes(nodes)}
+          onMouseLeave={() => this.setSelectPathNodes([])}
+        >
+          <rect
+            width={dimension}
+            height={dimension}
+            fill="white"
+            stroke="white"
+          />
           <path d={SEARCH_ICON} transform={`scale(0.018)`} />
         </g>
         <g className="yes" transform={`translate(${dimension}, 0)`}>
@@ -229,7 +249,7 @@ class PathMatrix extends React.Component<Props, State> {
                 NODE_WIDTH * nodes.length + EDGE_LENGTH * edges.length + 20
               }, 0)`}
             >
-              {this.getIconGroup()}
+              {this.getIconGroup(path.nodes)}
             </g>
           </g>
         );

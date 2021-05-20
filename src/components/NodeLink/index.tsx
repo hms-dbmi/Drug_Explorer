@@ -35,7 +35,11 @@ class NodeLink extends React.Component<Props, {}> {
   ) {
     const { width } = this.props;
     const svgWidth = width - 2 * this.padding - 2 * this.margin;
-    const { nodeNameDict, edgeTypes } = this.props.globalState;
+    const {
+      nodeNameDict,
+      edgeTypes,
+      selectedPathNodes,
+    } = this.props.globalState;
 
     let pruneEdge = (
       node: IAttentionTree,
@@ -115,10 +119,11 @@ class NodeLink extends React.Component<Props, {}> {
               fill="none"
               stroke="gray"
               strokeWidth={widthScale(link.target.data.score)}
+              opacity={selectedPathNodes.length > 0 ? 1 : 0.5}
             />
             <path
               d={linkGene(link)!}
-              className={'mask'}
+              className="mask"
               fill="none"
               stroke="transparent"
               strokeWidth="3"
@@ -152,6 +157,11 @@ class NodeLink extends React.Component<Props, {}> {
       if (nodeType === 'disease') icon_path = VIRUS_ICON;
       if (nodeType === 'drug') icon_path = DRUG_ICON;
 
+      const isHighlighted =
+        selectedPathNodes.length === 0 ||
+        (selectedPathNodes.map((d) => d.nodeType).includes(nodeType) &&
+          selectedPathNodes.map((d) => d.nodeId).includes(nodeId));
+
       return (
         <Tooltip
           title={tooltipTitle}
@@ -174,6 +184,7 @@ class NodeLink extends React.Component<Props, {}> {
               fill={getNodeColor(nodeType)}
               x={(-1 * this.labelLength) / 2}
               y={-this.nodeHeight / 2}
+              opacity={isHighlighted ? 1 : 0.2}
             />
             <path
               className="virus_icon"

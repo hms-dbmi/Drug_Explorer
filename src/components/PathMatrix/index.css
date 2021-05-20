@@ -1,0 +1,6 @@
+g.search:hover {
+  fill: blue;
+  stroke: blue;
+  stroke-width: 1px;
+  transform: scale(1.2);
+}

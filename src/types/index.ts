@@ -77,4 +77,5 @@ export interface IState {
   isAttentionLoading: boolean;
   attention: { [nodeKey: string]: IAttentionTree };
   metaPathSummary: IMetaPathSummary[];
+  selectedPathNodes: IMetaPath['nodes'];
 }

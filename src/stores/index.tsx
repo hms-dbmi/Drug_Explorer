@@ -15,6 +15,7 @@ const initialState: IState = {
   isAttentionLoading: false,
   edgeThreshold: 0,
   metaPathSummary: [],
+  selectedPathNodes: [],
 };
 
 interface IStateContext {

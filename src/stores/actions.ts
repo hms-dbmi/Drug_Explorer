@@ -12,4 +12,5 @@ export const ACTION_TYPES = {
   Change_Edge_THR: 'Change_Edge_THR',
   Change_Drug: 'Change_Drug',
   Change_Disease: 'Change_Disease',
+  Select_Path_Noes: 'Select_Path_Nodes',
 };
