@@ -371,26 +371,41 @@ class PathMatrix extends React.Component<Props, State> {
       const content =
         num === 0 ? (
           <line
-            key={idx}
-            className="count"
-            x1={0.5 * this.RADIUS + idx * (2 * this.RADIUS + this.COUNT_GAP)}
-            x2={1.5 * this.RADIUS + idx * (2 * this.RADIUS + this.COUNT_GAP)}
-            y1={this.NODE_HEIGHT / 2}
-            y2={this.NODE_HEIGHT / 2}
+            x1={0.5 * this.RADIUS}
+            x2={1.5 * this.RADIUS}
             stroke={isSelected ? HIGHLIGHT_COLOR : 'lightgray'}
           />
         ) : (
-          <circle
-            key={idx}
-            className="count"
-            r={rScale(num)}
-            fill={isSelected ? HIGHLIGHT_COLOR : 'lightgray'}
-            xlinkTitle={num.toString()}
-            cx={this.RADIUS + idx * (2 * this.RADIUS + this.COUNT_GAP)}
-            cy={this.NODE_HEIGHT / 2}
-          />
+          <>
+            <circle
+              r={rScale(num)}
+              fill={isSelected ? HIGHLIGHT_COLOR : 'lightgray'}
+              xlinkTitle={num.toString()}
+              cx={this.RADIUS}
+            />
+            <text
+              textAnchor="middle"
+              transform={`
+                translate(${this.RADIUS}, ${rScale(num) / 2}) 
+              scale(${rScale(num) / this.RADIUS})
+              `}
+              fill={isSelected ? 'white' : 'black'}
+            >
+              {num}
+            </text>
+          </>
         );
-      return content;
+      return (
+        <g
+          key={idx}
+          className="count"
+          transform={`translate(${idx * (2 * this.RADIUS + this.COUNT_GAP)}, ${
+            this.NODE_HEIGHT / 2
+          })`}
+        >
+          {content}
+        </g>
+      );
     });
     return (
       <g className="metaCount" transform={`translate(${this.PADDING}, 0)`}>
