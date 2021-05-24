@@ -2,6 +2,7 @@ import { Card, Tooltip, Modal } from 'antd';
 import { cropText, YES_ICON, NO_ICON, EDIT_ICON, SEARCH_ICON } from 'helpers';
 import { getNodeColor, HIGHLIGHT_COLOR } from 'helpers/color';
 import { ACTION_TYPES } from 'stores/actions';
+import { requestAttention } from 'stores/DataService';
 import React from 'react';
 
 import { StateConsumer } from 'stores';
@@ -357,6 +358,45 @@ class PathMatrix extends React.Component<Props, State> {
     );
     return content;
   }
+  queryAttention(
+    selectedDrug: string | undefined,
+    selectedDisease: string | undefined
+  ) {
+    if (!selectedDrug) {
+      selectedDrug = this.props.globalState.selectedDrug;
+    }
+    if (!selectedDisease) {
+      selectedDisease = this.props.globalState.selectedDisease;
+    }
+
+    if (selectedDrug !== undefined && selectedDisease !== undefined) {
+      this.props.dispatch({
+        type: ACTION_TYPES.Set_Attention_Loading_Status,
+        payload: { isAttentionLoading: true },
+      });
+
+      requestAttention(selectedDisease, selectedDrug)
+        .then((attention) => {
+          this.props.dispatch({
+            type: ACTION_TYPES.Load_Attention,
+            payload: { attention },
+          });
+        })
+        .then(() => {
+          this.props.dispatch({
+            type: ACTION_TYPES.Set_Attention_Loading_Status,
+            payload: { isAttentionLoading: false },
+          });
+        });
+    }
+  }
+  changeDrug(selectedDrug: string) {
+    this.props.dispatch({
+      type: ACTION_TYPES.Change_Drug,
+      payload: { selectedDrug },
+    });
+    this.queryAttention(selectedDrug, undefined);
+  }
   drawMetaCount(
     summary: IMetaPathSummary,
     rScale: d3.ScaleLinear<number, number>
@@ -402,6 +442,8 @@ class PathMatrix extends React.Component<Props, State> {
           transform={`translate(${idx * (2 * this.RADIUS + this.COUNT_GAP)}, ${
             this.NODE_HEIGHT / 2
           })`}
+          cursor="pointer"
+          onClick={() => this.changeDrug(drugPredictions[idx]['id'])}
         >
           {content}
         </g>

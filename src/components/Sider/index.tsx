@@ -6,17 +6,7 @@ import { requestAttention, requestDrugPredictions } from 'stores/DataService';
 
 import './Sider.css';
 
-import {
-  Button,
-  Col,
-  InputNumber,
-  Layout,
-  notification,
-  Row,
-  Select,
-  Slider,
-} from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { Col, InputNumber, Layout, Row, Select, Slider } from 'antd';
 import { getNodeColor } from 'helpers/color';
 const { Sider } = Layout;
 const { Option } = Select;
@@ -68,6 +58,13 @@ class DrugSider extends React.Component<Props> {
         });
     }
   }
+  changeDrug(selectedDrug: string) {
+    this.props.dispatch({
+      type: ACTION_TYPES.Change_Drug,
+      payload: { selectedDrug },
+    });
+    this.queryAttention(selectedDrug, undefined);
+  }
   changeEdgeTHR(value: number | undefined | string) {
     if (typeof value == 'number') {
       this.props.dispatch({
@@ -76,13 +73,7 @@ class DrugSider extends React.Component<Props> {
       });
     }
   }
-  changeDrug(selectedDrug: string) {
-    this.props.dispatch({
-      type: ACTION_TYPES.Change_Drug,
-      payload: { selectedDrug },
-    });
-    this.queryAttention(selectedDrug, undefined);
-  }
+
   changeDisease(selectedDisease: string) {
     this.props.dispatch({
       type: ACTION_TYPES.Change_Disease,
