@@ -6,7 +6,16 @@ import { requestAttention, requestDrugPredictions } from 'stores/DataService';
 
 import './Sider.css';
 
-import { Button, Col, InputNumber, Layout, Row, Select, Slider } from 'antd';
+import {
+  Button,
+  Col,
+  InputNumber,
+  Layout,
+  notification,
+  Row,
+  Select,
+  Slider,
+} from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { getNodeColor } from 'helpers/color';
 const { Sider } = Layout;
@@ -27,8 +36,16 @@ class DrugSider extends React.Component<Props> {
     this.changeDisease = this.changeDisease.bind(this);
     this.changeDrug = this.changeDrug.bind(this);
   }
-  startAnalysis() {
-    const { selectedDisease, selectedDrug } = this.props.globalState;
+  queryAttention(
+    selectedDrug: string | undefined,
+    selectedDisease: string | undefined
+  ) {
+    if (!selectedDrug) {
+      selectedDrug = this.props.globalState.selectedDrug;
+    }
+    if (!selectedDisease) {
+      selectedDisease = this.props.globalState.selectedDisease;
+    }
 
     if (selectedDrug !== undefined && selectedDisease !== undefined) {
       this.props.dispatch({
@@ -64,6 +81,7 @@ class DrugSider extends React.Component<Props> {
       type: ACTION_TYPES.Change_Drug,
       payload: { selectedDrug },
     });
+    this.queryAttention(selectedDrug, undefined);
   }
   changeDisease(selectedDisease: string) {
     this.props.dispatch({
@@ -202,14 +220,14 @@ class DrugSider extends React.Component<Props> {
           })}
         </div>
         <br />
-        <Button
+        {/* <Button
           icon={<SearchOutlined />}
           type="primary"
           shape="round"
           onClick={() => this.startAnalysis()}
         >
-          Start Analysis
-        </Button>
+          Show Attention Tree
+        </Button> */}
         <br />
       </Sider>
     );
