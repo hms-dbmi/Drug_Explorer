@@ -30,4 +30,6 @@ const getNodeColor = (nodeType: string) => {
   return colorDict[nodeType];
 };
 
-export { setNodeColor, getNodeColor };
+const HIGHLIGHT_COLOR = '#1890ff';
+
+export { setNodeColor, getNodeColor, HIGHLIGHT_COLOR };

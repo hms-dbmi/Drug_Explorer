@@ -1,6 +1,6 @@
 import { Card, Tooltip, Modal } from 'antd';
 import { cropText, YES_ICON, NO_ICON, EDIT_ICON, SEARCH_ICON } from 'helpers';
-import { getNodeColor } from 'helpers/color';
+import { getNodeColor, HIGHLIGHT_COLOR } from 'helpers/color';
 import { ACTION_TYPES } from 'stores/actions';
 import React from 'react';
 
@@ -33,6 +33,7 @@ class PathMatrix extends React.Component<Props, State> {
   GROUP_GAP = 10; // vertical gap between path groups
   COUNT_GAP = 5; // horizontal gap between count circles
   RADIUS = this.NODE_HEIGHT / 2; // max radius of the count circle
+  HEAD_HEIGHT = 50; // height of the header ()
 
   constructor(prop: Props) {
     super(prop);
@@ -49,12 +50,6 @@ class PathMatrix extends React.Component<Props, State> {
     let { expand } = this.state;
     expand[idx] = !expand[idx];
     this.setState({ expand });
-  }
-  setSelectPathNodes(nodes: IMetaPath['nodes']) {
-    this.props.dispatch({
-      type: ACTION_TYPES.Select_Path_Noes,
-      payload: { selectedPathNodes: nodes },
-    });
   }
 
   isPathSelected(nodes: IMetaPath['nodes']) {
@@ -118,6 +113,37 @@ class PathMatrix extends React.Component<Props, State> {
       </g>
     );
   }
+  drawHeader() {
+    const {
+      drugPredictions,
+      nodeNameDict,
+      selectedDrug,
+    } = this.props.globalState;
+    const headerNames = drugPredictions.map(
+      (drug) => nodeNameDict['drug'][drug.id]
+    );
+    headerNames.push('SUM');
+    const selectedDrugIdx = drugPredictions
+      .map((d) => d.id)
+      .indexOf(selectedDrug || '');
+    const header = headerNames.map((name, idx) => {
+      const isSelected = idx === selectedDrugIdx;
+      return (
+        <text
+          key={name}
+          className={name}
+          fill={isSelected ? HIGHLIGHT_COLOR : 'gray'}
+          transform={`translate(
+            ${idx * (this.RADIUS * 2 + this.COUNT_GAP) + this.RADIUS}, 
+            ${this.HEAD_HEIGHT}) 
+            rotate(-45)`}
+        >
+          {name}
+        </text>
+      );
+    });
+    return header;
+  }
   drawSummary() {
     let { EDGE_LENGTH, NODE_WIDTH, NODE_HEIGHT, VERTICAL_GAP } = this;
 
@@ -141,14 +167,14 @@ class PathMatrix extends React.Component<Props, State> {
     if (!selectedDisease) return;
     if (!selectedDrug) return;
 
-    const maxCount = Math.max(...metaPathSummary.map((d) => d.sum));
+    const maxCount = Math.max(...metaPathSummary.map((d) => d.count).flat());
     const rScale = d3
       .scaleLinear()
-      .range([1, this.RADIUS])
+      .range([4, this.RADIUS])
       .domain([0, maxCount]);
 
     let offsetY = 0;
-    let allPaths = metaPathSummary.map((group, groupIdx) => {
+    const allRows = metaPathSummary.map((group, groupIdx) => {
       let nodes = group.nodeTypes.map((node, nodeIdx) => {
         let translate = `translate(${
           (EDGE_LENGTH + NODE_WIDTH) * nodeIdx
@@ -312,7 +338,24 @@ class PathMatrix extends React.Component<Props, State> {
         </g>
       );
     });
-    return allPaths;
+    const header = this.drawHeader();
+    const content = (
+      <g>
+        <g
+          className="header"
+          transform={`translate(${this.PADDING}, ${this.PADDING})`}
+        >
+          {header}
+        </g>
+        <g
+          className="rows"
+          transform={`translate(${0}, ${this.PADDING + this.HEAD_HEIGHT})`}
+        >
+          {allRows}
+        </g>
+      </g>
+    );
+    return content;
   }
   drawMetaCount(
     summary: IMetaPathSummary,
@@ -325,18 +368,29 @@ class PathMatrix extends React.Component<Props, State> {
       .indexOf(selectedDrug || '');
     const vis = count.map((num, idx) => {
       const isSelected = idx === selectedDrugIdx;
-      return (
-        <circle
-          key={idx}
-          className="count"
-          r={rScale(num)}
-          fill="lightGray"
-          xlinkTitle={num.toString()}
-          stroke={isSelected ? 'black' : 'lightGray'}
-          cx={this.RADIUS + idx * (2 * this.RADIUS + this.COUNT_GAP)}
-          cy={this.NODE_HEIGHT / 2}
-        />
-      );
+      const content =
+        num === 0 ? (
+          <line
+            key={idx}
+            className="count"
+            x1={0.5 * this.RADIUS + idx * (2 * this.RADIUS + this.COUNT_GAP)}
+            x2={1.5 * this.RADIUS + idx * (2 * this.RADIUS + this.COUNT_GAP)}
+            y1={this.NODE_HEIGHT / 2}
+            y2={this.NODE_HEIGHT / 2}
+            stroke={isSelected ? HIGHLIGHT_COLOR : 'lightgray'}
+          />
+        ) : (
+          <circle
+            key={idx}
+            className="count"
+            r={rScale(num)}
+            fill={isSelected ? HIGHLIGHT_COLOR : 'lightgray'}
+            xlinkTitle={num.toString()}
+            cx={this.RADIUS + idx * (2 * this.RADIUS + this.COUNT_GAP)}
+            cy={this.NODE_HEIGHT / 2}
+          />
+        );
+      return content;
     });
     return (
       <g className="metaCount" transform={`translate(${this.PADDING}, 0)`}>
@@ -404,7 +458,8 @@ class PathMatrix extends React.Component<Props, State> {
       svgHeight = Math.max(
         (numberOfPath + metaPathGroups.length) *
           (this.NODE_HEIGHT + this.VERTICAL_GAP) +
-          2 * this.PADDING,
+          2 * this.PADDING +
+          this.HEAD_HEIGHT,
         svgOuterHeight
       );
 
@@ -440,12 +495,7 @@ class PathMatrix extends React.Component<Props, State> {
           headStyle={{ height: this.TITLE_HEIGHT }}
         >
           <svg width={svgWidth} height={svgHeight}>
-            <g
-              className="metaPath"
-              transform={`translate(${0}, ${this.PADDING})`}
-            >
-              {content}
-            </g>
+            {content}
           </svg>
         </Card>
         <Modal
