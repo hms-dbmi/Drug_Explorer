@@ -8,8 +8,7 @@ import {
   LOADING_ICON,
 } from 'helpers';
 import { getNodeColor, HIGHLIGHT_COLOR } from 'helpers/color';
-import { ACTION_TYPES } from 'stores/actions';
-import { requestAttention } from 'stores/DataService';
+import { ACTION_TYPES, queryAttention, changeDrug } from 'stores/actions';
 import React from 'react';
 
 import { StateConsumer } from 'stores';
@@ -360,45 +359,16 @@ class PathMatrix extends React.Component<Props, State> {
     );
     return content;
   }
-  queryAttention(
-    selectedDrug: string | undefined,
-    selectedDisease: string | undefined
-  ) {
-    if (!selectedDrug) {
-      selectedDrug = this.props.globalState.selectedDrug;
-    }
-    if (!selectedDisease) {
-      selectedDisease = this.props.globalState.selectedDisease;
-    }
 
-    if (selectedDrug !== undefined && selectedDisease !== undefined) {
-      this.props.dispatch({
-        type: ACTION_TYPES.Set_Loading_Status,
-        payload: { isLoading: true },
-      });
+  onChangeDrug(selectedDrug: string) {
+    changeDrug(selectedDrug, this.props.dispatch);
+    queryAttention(
+      selectedDrug,
+      this.props.globalState.selectedDisease,
+      this.props.dispatch
+    );
+  }
 
-      requestAttention(selectedDisease, selectedDrug)
-        .then((attention) => {
-          this.props.dispatch({
-            type: ACTION_TYPES.Load_Attention,
-            payload: { attention },
-          });
-        })
-        .then(() => {
-          this.props.dispatch({
-            type: ACTION_TYPES.Set_Loading_Status,
-            payload: { isLoading: false },
-          });
-        });
-    }
-  }
-  changeDrug(selectedDrug: string) {
-    this.props.dispatch({
-      type: ACTION_TYPES.Change_Drug,
-      payload: { selectedDrug },
-    });
-    this.queryAttention(selectedDrug, undefined);
-  }
   drawMetaCount(
     summary: IMetaPathSummary,
     rScale: d3.ScaleLinear<number, number>
@@ -445,7 +415,7 @@ class PathMatrix extends React.Component<Props, State> {
             this.NODE_HEIGHT / 2
           })`}
           cursor="pointer"
-          onClick={() => this.changeDrug(drugPredictions[idx]['id'])}
+          onClick={() => this.onChangeDrug(drugPredictions[idx]['id'])}
         >
           {content}
         </g>

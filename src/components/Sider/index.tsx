@@ -1,8 +1,12 @@
 import React from 'react';
 import { StateConsumer } from 'stores';
 import { IDispatch, IState } from 'types';
-import { ACTION_TYPES } from 'stores/actions';
-import { requestAttention, requestDrugPredictions } from 'stores/DataService';
+import {
+  ACTION_TYPES,
+  changeDisease,
+  changeDrug,
+  queryAttention,
+} from 'stores/actions';
 
 import './Sider.css';
 
@@ -23,47 +27,16 @@ class DrugSider extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
     this.changeEdgeTHR = this.changeEdgeTHR.bind(this);
-    this.changeDisease = this.changeDisease.bind(this);
-    this.changeDrug = this.changeDrug.bind(this);
+    this.onChangeDisease = this.onChangeDisease.bind(this);
+    this.onChangeDrug = this.onChangeDrug.bind(this);
   }
-  queryAttention(
-    selectedDrug: string | undefined,
-    selectedDisease: string | undefined
-  ) {
-    if (!selectedDrug) {
-      selectedDrug = this.props.globalState.selectedDrug;
-    }
-    if (!selectedDisease) {
-      selectedDisease = this.props.globalState.selectedDisease;
-    }
-
-    if (selectedDrug !== undefined && selectedDisease !== undefined) {
-      this.props.dispatch({
-        type: ACTION_TYPES.Set_Loading_Status,
-        payload: { isLoading: true },
-      });
-
-      requestAttention(selectedDisease, selectedDrug)
-        .then((attention) => {
-          this.props.dispatch({
-            type: ACTION_TYPES.Load_Attention,
-            payload: { attention },
-          });
-        })
-        .then(() => {
-          this.props.dispatch({
-            type: ACTION_TYPES.Set_Loading_Status,
-            payload: { isLoading: false },
-          });
-        });
-    }
-  }
-  changeDrug(selectedDrug: string) {
-    this.props.dispatch({
-      type: ACTION_TYPES.Change_Drug,
-      payload: { selectedDrug },
-    });
-    this.queryAttention(selectedDrug, undefined);
+  onChangeDrug(selectedDrug: string) {
+    changeDrug(selectedDrug, this.props.dispatch);
+    queryAttention(
+      selectedDrug,
+      this.props.globalState.selectedDisease,
+      this.props.dispatch
+    );
   }
   changeEdgeTHR(value: number | undefined | string) {
     if (typeof value == 'number') {
@@ -74,39 +47,8 @@ class DrugSider extends React.Component<Props> {
     }
   }
 
-  changeDisease(selectedDisease: string) {
-    this.props.dispatch({
-      type: ACTION_TYPES.Set_Loading_Status,
-      payload: { isLoading: true },
-    });
-
-    this.props.dispatch({
-      type: ACTION_TYPES.Change_Disease,
-      payload: { selectedDisease },
-    });
-
-    this.props.dispatch({
-      type: ACTION_TYPES.Change_Drug,
-      payload: { selectedDrug: undefined },
-    });
-
-    requestDrugPredictions(selectedDisease)
-      .then((res) => {
-        const {
-          predictions: drugPredictions,
-          metapathSummary: metaPathSummary,
-        } = res;
-        this.props.dispatch({
-          type: ACTION_TYPES.Load_Edge_Types,
-          payload: { drugPredictions, metaPathSummary },
-        });
-      })
-      .then(() => {
-        this.props.dispatch({
-          type: ACTION_TYPES.Set_Loading_Status,
-          payload: { isLoading: false },
-        });
-      });
+  onChangeDisease(selectedDisease: string) {
+    changeDisease(selectedDisease, this.props.dispatch);
   }
   render() {
     let { siderWidth } = this.props;
@@ -132,7 +74,7 @@ class DrugSider extends React.Component<Props> {
         <Select
           defaultValue={defaultDiseaseText}
           style={{ width: siderWidth - 2 * this.padding }}
-          onChange={this.changeDisease}
+          onChange={this.onChangeDisease}
           showSearch
           optionFilterProp="label"
         >
@@ -159,7 +101,7 @@ class DrugSider extends React.Component<Props> {
           showSearch
           optionFilterProp="label"
           listHeight={this.listHeight}
-          onChange={this.changeDrug}
+          onChange={this.onChangeDrug}
           value={selectedDrug || defaultDrugText}
         >
           {selectedDisease !== undefined ? (
