@@ -39,8 +39,8 @@ class DrugSider extends React.Component<Props> {
 
     if (selectedDrug !== undefined && selectedDisease !== undefined) {
       this.props.dispatch({
-        type: ACTION_TYPES.Set_Attention_Loading_Status,
-        payload: { isAttentionLoading: true },
+        type: ACTION_TYPES.Set_Loading_Status,
+        payload: { isLoading: true },
       });
 
       requestAttention(selectedDisease, selectedDrug)
@@ -52,8 +52,8 @@ class DrugSider extends React.Component<Props> {
         })
         .then(() => {
           this.props.dispatch({
-            type: ACTION_TYPES.Set_Attention_Loading_Status,
-            payload: { isAttentionLoading: false },
+            type: ACTION_TYPES.Set_Loading_Status,
+            payload: { isLoading: false },
           });
         });
     }
@@ -76,20 +76,37 @@ class DrugSider extends React.Component<Props> {
 
   changeDisease(selectedDisease: string) {
     this.props.dispatch({
+      type: ACTION_TYPES.Set_Loading_Status,
+      payload: { isLoading: true },
+    });
+
+    this.props.dispatch({
       type: ACTION_TYPES.Change_Disease,
       payload: { selectedDisease },
     });
 
-    requestDrugPredictions(selectedDisease).then((res) => {
-      const {
-        predictions: drugPredictions,
-        metapathSummary: metaPathSummary,
-      } = res;
-      this.props.dispatch({
-        type: ACTION_TYPES.Load_Edge_Types,
-        payload: { drugPredictions, metaPathSummary },
-      });
+    this.props.dispatch({
+      type: ACTION_TYPES.Change_Drug,
+      payload: { selectedDrug: undefined },
     });
+
+    requestDrugPredictions(selectedDisease)
+      .then((res) => {
+        const {
+          predictions: drugPredictions,
+          metapathSummary: metaPathSummary,
+        } = res;
+        this.props.dispatch({
+          type: ACTION_TYPES.Load_Edge_Types,
+          payload: { drugPredictions, metaPathSummary },
+        });
+      })
+      .then(() => {
+        this.props.dispatch({
+          type: ACTION_TYPES.Set_Loading_Status,
+          payload: { isLoading: false },
+        });
+      });
   }
   render() {
     let { siderWidth } = this.props;
@@ -100,7 +117,10 @@ class DrugSider extends React.Component<Props> {
       drugPredictions,
       nodeNameDict,
       selectedDisease,
+      selectedDrug,
     } = this.props.globalState;
+    const defaultDiseaseText = 'Select a disease';
+    const defaultDrugText = 'Select a drug from the prediction';
 
     let sider = (
       <Sider
@@ -110,7 +130,7 @@ class DrugSider extends React.Component<Props> {
       >
         Disease:
         <Select
-          defaultValue="select a disease"
+          defaultValue={defaultDiseaseText}
           style={{ width: siderWidth - 2 * this.padding }}
           onChange={this.changeDisease}
           showSearch
@@ -134,13 +154,13 @@ class DrugSider extends React.Component<Props> {
         <br />
         Drug:
         <Select
-          defaultValue="select a drug from the predictions"
           style={{ width: siderWidth - 2 * this.padding }}
-          open
+          // open
           showSearch
           optionFilterProp="label"
           listHeight={this.listHeight}
           onChange={this.changeDrug}
+          value={selectedDrug || defaultDrugText}
         >
           {selectedDisease !== undefined ? (
             drugPredictions.length > 0 ? (

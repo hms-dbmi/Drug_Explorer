@@ -252,12 +252,12 @@ class NodeLink extends React.Component<Props, {}> {
 
   render() {
     const { width, height, globalState } = this.props;
-    const { isAttentionLoading, diseaseOptions, attention } = globalState;
+    const { isLoading, selectedDrug, selectedDisease } = globalState;
     let cardWidth = width - 2 * this.margin - 2 * this.padding,
       cardHeight =
         height - 2 * this.padding - this.titleHeight - 2 * this.margin;
 
-    const { content, height: svgMaxHeight } = this.drawSubgraph();
+    const { content, height: graphHeight } = this.drawSubgraph();
     return (
       <Card
         size="small"
@@ -274,12 +274,19 @@ class NodeLink extends React.Component<Props, {}> {
           className="nodelink"
           style={{ width: cardWidth, height: cardHeight, overflowY: 'scroll' }}
         >
-          <svg width={cardWidth} height={svgMaxHeight} className="nodeLink">
-            {isAttentionLoading || diseaseOptions.length === 0 ? (
-              <g transform={`translate(${width / 2}, ${height / 2})`}>
+          <svg
+            width={cardWidth}
+            height={Math.max(graphHeight, height)}
+            className="nodeLink"
+          >
+            {isLoading ? (
+              <g
+                transform={`translate(${width / 2}, ${height / 2})`}
+                textAnchor="middle"
+              >
                 {LOADING_ICON}
               </g>
-            ) : attention['disease'] ? (
+            ) : selectedDisease && selectedDrug ? (
               content
             ) : (
               <text x={width / 2} y={height / 2} fill="gray">

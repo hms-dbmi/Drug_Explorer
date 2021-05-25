@@ -1,5 +1,12 @@
 import { Card, Tooltip, Modal } from 'antd';
-import { cropText, YES_ICON, NO_ICON, EDIT_ICON, SEARCH_ICON } from 'helpers';
+import {
+  cropText,
+  YES_ICON,
+  NO_ICON,
+  EDIT_ICON,
+  SEARCH_ICON,
+  LOADING_ICON,
+} from 'helpers';
 import { getNodeColor, HIGHLIGHT_COLOR } from 'helpers/color';
 import { ACTION_TYPES } from 'stores/actions';
 import { requestAttention } from 'stores/DataService';
@@ -150,8 +157,6 @@ class PathMatrix extends React.Component<Props, State> {
 
     let {
       nodeNameDict,
-      selectedDrug,
-      selectedDisease,
       metaPathSummary,
       drugPredictions,
     } = this.props.globalState;
@@ -164,9 +169,6 @@ class PathMatrix extends React.Component<Props, State> {
         'M 9 17.879 V 6.707 A 1 1 0 0 1 10.707 6 l 5.586 5.586 a 1 1 0 0 1 0 1.414 l -5.586 5.586 A 1 1 0 0 1 9 17.879 Z',
       triangelBottom =
         'M 6.414 9 h 11.172 a 1 1 0 0 1 0.707 1.707 l -5.586 5.586 a 1 1 0 0 1 -1.414 0 l -5.586 -5.586 A 1 1 0 0 1 6.414 9 Z';
-
-    if (!selectedDisease) return;
-    if (!selectedDrug) return;
 
     const maxCount = Math.max(...metaPathSummary.map((d) => d.count).flat());
     const rScale = d3
@@ -371,8 +373,8 @@ class PathMatrix extends React.Component<Props, State> {
 
     if (selectedDrug !== undefined && selectedDisease !== undefined) {
       this.props.dispatch({
-        type: ACTION_TYPES.Set_Attention_Loading_Status,
-        payload: { isAttentionLoading: true },
+        type: ACTION_TYPES.Set_Loading_Status,
+        payload: { isLoading: true },
       });
 
       requestAttention(selectedDisease, selectedDrug)
@@ -384,8 +386,8 @@ class PathMatrix extends React.Component<Props, State> {
         })
         .then(() => {
           this.props.dispatch({
-            type: ACTION_TYPES.Set_Attention_Loading_Status,
-            payload: { isAttentionLoading: false },
+            type: ACTION_TYPES.Set_Loading_Status,
+            payload: { isLoading: false },
           });
         });
     }
@@ -500,11 +502,7 @@ class PathMatrix extends React.Component<Props, State> {
   render() {
     const { width, height } = this.props,
       { isModalVisible } = this.state;
-    const {
-      isAttentionLoading,
-      attention,
-      metaPathSummary,
-    } = this.props.globalState;
+    const { isLoading, attention, metaPathSummary } = this.props.globalState;
     const metaPathGroups = this.filterMetaPathGroups();
     const numberOfPath = metaPathGroups
       .map((d) => d.metaPaths.length)
@@ -527,8 +525,10 @@ class PathMatrix extends React.Component<Props, State> {
           : 'Please select a disease first'}
       </text>
     );
-    const content = isAttentionLoading ? (
-      <></>
+    const content = isLoading ? (
+      <g transform={`translate(${svgWidth / 2}, ${svgHeight / 2})`}>
+        {LOADING_ICON}
+      </g>
     ) : metaPathSummary.length === 0 ? (
       reminderText
     ) : (

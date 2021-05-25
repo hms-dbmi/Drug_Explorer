@@ -12,7 +12,7 @@ const initialState: IState = {
   selectedDisease: undefined,
   selectedDrug: undefined,
   nodeNameDict: {},
-  isAttentionLoading: false,
+  isLoading: false,
   edgeThreshold: 0,
   metaPathSummary: [],
   selectedPathNodes: [],
