@@ -28,7 +28,7 @@ export const changeDrug = (selectedDrug: string, dispatch: IDispatch) => {
 export const changeDisease = (selectedDisease: string, dispatch: IDispatch) => {
   dispatch({
     type: ACTION_TYPES.Set_Loading_Status,
-    payload: { isLoading: true },
+    payload: { isDrugLoading: true },
   });
 
   dispatch({
@@ -55,7 +55,7 @@ export const changeDisease = (selectedDisease: string, dispatch: IDispatch) => {
     .then(() => {
       dispatch({
         type: ACTION_TYPES.Set_Loading_Status,
-        payload: { isLoading: false },
+        payload: { isDrugLoading: false },
       });
     });
 };
@@ -68,7 +68,7 @@ export const queryAttention = (
   if (selectedDrug !== undefined && selectedDisease !== undefined) {
     dispatch({
       type: ACTION_TYPES.Set_Loading_Status,
-      payload: { isLoading: true },
+      payload: { isAttentionLoading: true },
     });
 
     requestAttention(selectedDisease, selectedDrug)
@@ -81,7 +81,7 @@ export const queryAttention = (
       .then(() => {
         dispatch({
           type: ACTION_TYPES.Set_Loading_Status,
-          payload: { isLoading: false },
+          payload: { isAttentionLoading: false },
         });
       });
   }

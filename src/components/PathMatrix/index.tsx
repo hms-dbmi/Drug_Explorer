@@ -472,7 +472,12 @@ class PathMatrix extends React.Component<Props, State> {
   render() {
     const { width, height } = this.props,
       { isModalVisible } = this.state;
-    const { isLoading, attention, metaPathSummary } = this.props.globalState;
+    const {
+      isDrugLoading,
+      isDiseaseLoading,
+      attention,
+      metaPathSummary,
+    } = this.props.globalState;
     const metaPathGroups = this.filterMetaPathGroups();
     const numberOfPath = metaPathGroups
       .map((d) => d.metaPaths.length)
@@ -495,7 +500,7 @@ class PathMatrix extends React.Component<Props, State> {
           : 'Please select a disease first'}
       </text>
     );
-    const content = isLoading ? (
+    const content = isDrugLoading ? (
       <g transform={`translate(${svgWidth / 2}, ${svgHeight / 2})`}>
         {LOADING_ICON}
       </g>

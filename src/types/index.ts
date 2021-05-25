@@ -74,7 +74,9 @@ export interface IState {
   selectedDrug: string | undefined;
   selectedDisease: string | undefined;
   nodeNameDict: { [type: string]: { [id: string]: string } };
-  isLoading: boolean;
+  isAttentionLoading: boolean;
+  isDrugLoading: boolean;
+  isDiseaseLoading: boolean;
   attention: { [nodeKey: string]: IAttentionTree };
   metaPathSummary: IMetaPathSummary[];
   selectedPathNodes: IMetaPath['nodes'];
