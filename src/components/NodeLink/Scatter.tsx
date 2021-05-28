@@ -16,6 +16,7 @@ interface Props {
 }
 
 export default class Scatter extends React.Component<Props, State> {
+  circleRadius = 3;
   constructor(props: Props) {
     super(props);
     this.state = { embedding: {} };
@@ -44,32 +45,35 @@ export default class Scatter extends React.Component<Props, State> {
         number
       ];
 
-    const xScale = d3.scaleLinear().domain(xDomain).range([0, width]);
-    const yScale = d3.scaleLinear().domain(yDomain).range([0, height]);
+    const xScale = d3
+      .scaleLinear()
+      .domain(xDomain)
+      .range([0, width - this.circleRadius * 2]);
+    const yScale = d3
+      .scaleLinear()
+      .domain(yDomain)
+      .range([0, height - this.circleRadius * 2]);
 
-    const R = 3;
     const drugIds = drugPredictions.map((d) => d.id);
 
     const nodes = Object.keys(embedding)
       .sort((a, b) => drugIds.indexOf(a) - drugIds.indexOf(b))
-      .map((drug_id) => {
-        const [x, y] = embedding[drug_id];
-        const isHighlighted = drugIds.includes(drug_id); // the top n predicted drugs
-        const isSelected = selectedDrug === drug_id; // the drug selected by users
-        const tipText = `drug: ${nodeNameDict['drug'][drug_id]}`;
+      .map((drugId) => {
+        const [x, y] = embedding[drugId];
+        const drugRank = drugIds.indexOf(drugId);
+        const isHighlighted = drugRank > -1; // the top n predicted drugs
+        const isSelected = selectedDrug === drugId; // the drug selected by users
+        const tipText = `drug: ${nodeNameDict['drug'][drugId]}`;
         return (
-          <Tooltip destroyTooltipOnHide title={tipText} key={drug_id}>
-            <g key={drug_id}>
-              <circle
-                cx={xScale(x)}
-                cy={yScale(y)}
-                fill={isHighlighted ? HIGHLIGHT_COLOR : 'lightGray'}
-                opacity={0.5}
-                stroke={'white'}
-                r={isHighlighted ? R * 1.5 : R}
-              />
-            </g>
-          </Tooltip>
+          <g key={drugId}>
+            <circle
+              cx={xScale(x)}
+              cy={yScale(y)}
+              fill={isHighlighted ? HIGHLIGHT_COLOR : 'lightGray'}
+              stroke={'white'}
+              r={isHighlighted ? this.circleRadius * 1.5 : this.circleRadius}
+            />
+          </g>
         );
       });
     return nodes;
@@ -82,12 +86,22 @@ export default class Scatter extends React.Component<Props, State> {
       <svg width={width} height={height}>
         <g className="scatter">
           {selectedDisease ? (
-            this.drawScatter()
+            this.state.embedding ? (
+              this.drawScatter()
+            ) : (
+              <g
+                transform={`translate(${width / 2}, ${height / 2})`}
+                textAnchor="middle"
+              >
+                {LOADING_ICON}
+              </g>
+            )
           ) : (
             <text x={width / 2} y={height / 2} fill="gray">
               Please select a disease first
             </text>
           )}
+          {/* overlap a loading icon when loading */}
           {isDrugLoading ? (
             <g
               transform={`translate(${width / 2}, ${height / 2})`}

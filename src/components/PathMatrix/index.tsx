@@ -474,9 +474,9 @@ class PathMatrix extends React.Component<Props, State> {
       { isModalVisible } = this.state;
     const {
       isDrugLoading,
-      isDiseaseLoading,
-      attention,
+      isAttentionLoading,
       metaPathSummary,
+      selectedDisease,
     } = this.props.globalState;
     const metaPathGroups = this.filterMetaPathGroups();
     const numberOfPath = metaPathGroups
@@ -495,20 +495,15 @@ class PathMatrix extends React.Component<Props, State> {
 
     const reminderText = (
       <text x={svgWidth / 2} y={svgOuterHeight / 2} fill="gray">
-        {attention['disease']
+        {isDrugLoading || isAttentionLoading
+          ? ''
+          : selectedDisease
           ? 'There is no meta path'
           : 'Please select a disease first'}
       </text>
     );
-    const content = isDrugLoading ? (
-      <g transform={`translate(${svgWidth / 2}, ${svgHeight / 2})`}>
-        {LOADING_ICON}
-      </g>
-    ) : metaPathSummary.length === 0 ? (
-      reminderText
-    ) : (
-      this.drawSummary()
-    );
+    const content =
+      metaPathSummary.length === 0 ? reminderText : this.drawSummary();
     return (
       <>
         <Card
@@ -528,6 +523,17 @@ class PathMatrix extends React.Component<Props, State> {
         >
           <svg width={svgWidth} height={svgHeight}>
             {content}
+            {/* overlap loading icon when it is loading */}
+            {isDrugLoading ||
+            (isAttentionLoading && this.state.expand.some((d) => d)) ? (
+              <g
+                transform={`translate(${svgWidth / 2}, ${svgOuterHeight / 2})`}
+              >
+                {LOADING_ICON}
+              </g>
+            ) : (
+              <></>
+            )}
           </svg>
         </Card>
         <Modal
