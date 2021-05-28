@@ -18,7 +18,6 @@ interface Props {
 }
 
 export default class AttentionTree extends React.Component<Props, {}> {
-  titleHeight = 36;
   nodeHeight = 20;
   fontSize = 14;
   labelLength = 150;
@@ -131,7 +130,7 @@ export default class AttentionTree extends React.Component<Props, {}> {
     const minY = Math.min(...allY);
     const maxY = Math.max(...allY);
 
-    const height = maxY - minY + this.nodeHeight;
+    const height = maxY - minY + this.nodeHeight + 4; // default seperation in d3 tree is 2
 
     const nodes = root.descendants().map((node, i) => {
       let { nodeId, nodeType } = node.data;
@@ -219,27 +218,27 @@ export default class AttentionTree extends React.Component<Props, {}> {
     let { width } = this.props;
 
     let stepGap = (width - 2 * this.labelLength - this.midGap) / 4;
-    let maxHeight = 0;
+    let heights = [0];
     const content = Object.keys(attention).map((nodeKey: string, idx) => {
       const { height, content } = this.drawNodeAttentionHorizontal(
         attention[nodeKey],
         stepGap,
         edgeThreshold
       );
-      maxHeight = Math.max(maxHeight, height);
+      heights.push(height);
       return (
         <g
           className={nodeKey}
           key={nodeKey}
           transform={`translate(${
             ((width + this.midGap) / 2) * idx + this.labelLength / 2
-          }, ${height / 2 + this.nodeHeight})`}
+          }, ${height / 2 + 2 * this.nodeHeight})`}
         >
           {content}
         </g>
       );
     });
-    return { content, height: maxHeight };
+    return { content, height: Math.max(...heights) };
   }
   render() {
     const { width, height, globalState } = this.props;
@@ -252,6 +251,7 @@ export default class AttentionTree extends React.Component<Props, {}> {
         height={Math.max(graphHeight, height)}
         className="nodeLink"
       >
+        {content}
         {isAttentionLoading ? (
           <g
             transform={`translate(${width / 2}, ${height / 2})`}
@@ -260,7 +260,7 @@ export default class AttentionTree extends React.Component<Props, {}> {
             {LOADING_ICON}
           </g>
         ) : (
-          content
+          <g />
         )}
       </svg>
     );

@@ -108,7 +108,6 @@ class DrugSider extends React.Component<Props> {
             drugPredictions.length > 0 ? (
               drugPredictions.map((d, idx) => {
                 const { id: drug_id, score } = d;
-                console.info(d);
                 const name = nodeNameDict['drug'][drug_id];
                 return (
                   <Option value={drug_id} key={`disease_${idx}`} label={name}>
