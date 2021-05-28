@@ -7,7 +7,7 @@ import {
   SEARCH_ICON,
   LOADING_ICON,
 } from 'helpers';
-import { getNodeColor, HIGHLIGHT_COLOR } from 'helpers/color';
+import { getNodeColor, SELECTED_COLOR } from 'helpers/color';
 import { ACTION_TYPES, queryAttention, changeDrug } from 'stores/actions';
 import React from 'react';
 
@@ -139,7 +139,7 @@ class PathMatrix extends React.Component<Props, State> {
         <text
           key={name}
           className={name}
-          fill={isSelected ? HIGHLIGHT_COLOR : 'gray'}
+          fill={isSelected ? SELECTED_COLOR : 'gray'}
           transform={`translate(
             ${idx * (this.RADIUS * 2 + this.COUNT_GAP) + this.RADIUS}, 
             ${this.HEAD_HEIGHT}) 
@@ -385,13 +385,13 @@ class PathMatrix extends React.Component<Props, State> {
           <line
             x1={0.5 * this.RADIUS}
             x2={1.5 * this.RADIUS}
-            stroke={isSelected ? HIGHLIGHT_COLOR : 'lightgray'}
+            stroke={isSelected ? SELECTED_COLOR : 'lightgray'}
           />
         ) : (
           <>
             <circle
               r={rScale(num)}
-              fill={isSelected ? HIGHLIGHT_COLOR : 'lightgray'}
+              fill={isSelected ? SELECTED_COLOR : 'lightgray'}
               xlinkTitle={num.toString()}
               cx={this.RADIUS}
             />

@@ -2,7 +2,7 @@ import React from 'react';
 import { requestEmbedding } from 'stores/DataService';
 import { IState } from 'types';
 import * as d3 from 'd3';
-import { HIGHLIGHT_COLOR } from 'helpers/color';
+import { HIGHLIGHT_COLOR, SELECTED_COLOR } from 'helpers/color';
 import { LOADING_ICON } from 'helpers';
 import { Tooltip } from 'antd';
 
@@ -63,13 +63,18 @@ export default class Scatter extends React.Component<Props, State> {
         const drugRank = drugIds.indexOf(drugId);
         const isHighlighted = drugRank > -1; // the top n predicted drugs
         const isSelected = selectedDrug === drugId; // the drug selected by users
-        const tipText = `drug: ${nodeNameDict['drug'][drugId]}`;
         return (
           <g key={drugId}>
             <circle
               cx={xScale(x)}
               cy={yScale(y)}
-              fill={isHighlighted ? HIGHLIGHT_COLOR : 'lightGray'}
+              fill={
+                isSelected
+                  ? SELECTED_COLOR
+                  : isHighlighted
+                  ? HIGHLIGHT_COLOR
+                  : 'lightGray'
+              }
               stroke={'white'}
               r={isHighlighted ? this.circleRadius * 1.5 : this.circleRadius}
             />
