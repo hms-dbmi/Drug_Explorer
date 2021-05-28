@@ -4,7 +4,6 @@ import { IState } from 'types';
 import * as d3 from 'd3';
 import { HIGHLIGHT_COLOR, SELECTED_COLOR } from 'helpers/color';
 import { LOADING_ICON } from 'helpers';
-import { Tooltip } from 'antd';
 
 interface State {
   embedding: { [key: string]: [number, number] };
@@ -29,11 +28,7 @@ export default class Scatter extends React.Component<Props, State> {
     this.loadEmbedding();
   }
   drawScatter() {
-    const {
-      drugPredictions,
-      nodeNameDict,
-      selectedDrug,
-    } = this.props.globalState;
+    const { drugPredictions, selectedDrug } = this.props.globalState;
     const { width, height } = this.props;
     const { embedding } = this.state;
     const xDomain = d3.extent(Object.values(embedding).map((d) => d[0])) as [

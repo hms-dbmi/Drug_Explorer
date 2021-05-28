@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Tabs, Tooltip } from 'antd';
+import { Tabs } from 'antd';
 import { StateConsumer } from 'stores';
 import { IState } from 'types';
 

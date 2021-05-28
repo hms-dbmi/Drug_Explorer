@@ -9,7 +9,6 @@ import {
 import { ACTION_TYPES } from 'stores/actions';
 
 import * as d3 from 'd3';
-import { group } from 'd3';
 
 const rootReducer = (state: IState, action: IAction): IState => {
   switch (action.type) {
