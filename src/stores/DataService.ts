@@ -49,6 +49,12 @@ const requestDrugPredictions = async (diseaseID: string) => {
   return { predictions, metapathSummary };
 };
 
+const requestEmbedding = async () => {
+  const url = './data/drug_tsne.json';
+  const response = await axiosInstance.get(url);
+  return response.data;
+};
+
 export {
   requestNodeTypes,
   requestEdgeTypes,
@@ -56,4 +62,5 @@ export {
   requestNodeNameDict,
   requestDrugPredictions,
   requestDiseaseOptions,
+  requestEmbedding,
 };
