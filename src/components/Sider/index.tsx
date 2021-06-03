@@ -1,13 +1,16 @@
 import React from 'react';
 import { StateConsumer } from 'stores';
 import { IDispatch, IState } from 'types';
-import { ACTION_TYPES } from 'stores/actions';
-import { requestAttention, requestDrugOptions } from 'stores/DataService';
+import {
+  ACTION_TYPES,
+  changeDisease,
+  changeDrug,
+  queryAttentionPair,
+} from 'stores/actions';
 
 import './Sider.css';
 
-import { Button, Col, InputNumber, Layout, Row, Select, Slider } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { Col, InputNumber, Layout, Row, Select, Slider } from 'antd';
 import { getNodeColor } from 'helpers/color';
 const { Sider } = Layout;
 const { Option } = Select;
@@ -24,39 +27,16 @@ class DrugSider extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
     this.changeEdgeTHR = this.changeEdgeTHR.bind(this);
-    this.changeDisease = this.changeDisease.bind(this);
-    this.changeDrug = this.changeDrug.bind(this);
+    this.onChangeDisease = this.onChangeDisease.bind(this);
+    this.onChangeDrug = this.onChangeDrug.bind(this);
   }
-  startAnalysis() {
-    // requestMetaPaths().then((metaPaths) => {
-    //   this.props.dispatch({
-    //     type: ACTION_TYPES.Load_Meta_Paths,
-    //     payload: { metaPaths },
-    //   });
-    // });
-
-    let { selectedDisease, selectedDrug } = this.props.globalState;
-
-    if (selectedDrug !== undefined && selectedDisease !== undefined) {
-      this.props.dispatch({
-        type: ACTION_TYPES.Set_Attention_Loading_Status,
-        payload: { isAttentionLoading: true },
-      });
-
-      requestAttention(selectedDisease, selectedDrug)
-        .then((attention) => {
-          this.props.dispatch({
-            type: ACTION_TYPES.Load_Attention,
-            payload: { attention },
-          });
-        })
-        .then(() => {
-          this.props.dispatch({
-            type: ACTION_TYPES.Set_Attention_Loading_Status,
-            payload: { isAttentionLoading: false },
-          });
-        });
-    }
+  onChangeDrug(selectedDrug: string) {
+    changeDrug(selectedDrug, this.props.dispatch);
+    queryAttentionPair(
+      selectedDrug,
+      this.props.globalState.selectedDisease,
+      this.props.dispatch
+    );
   }
   changeEdgeTHR(value: number | undefined | string) {
     if (typeof value == 'number') {
@@ -66,24 +46,9 @@ class DrugSider extends React.Component<Props> {
       });
     }
   }
-  changeDrug(selectedDrug: string) {
-    this.props.dispatch({
-      type: ACTION_TYPES.Change_Drug,
-      payload: { selectedDrug },
-    });
-  }
-  changeDisease(selectedDisease: string) {
-    this.props.dispatch({
-      type: ACTION_TYPES.Change_Disease,
-      payload: { selectedDisease },
-    });
 
-    requestDrugOptions(selectedDisease).then((drugOptions) => {
-      this.props.dispatch({
-        type: ACTION_TYPES.Load_Edge_Types,
-        payload: { drugOptions: drugOptions.predictions },
-      });
-    });
+  onChangeDisease(selectedDisease: string) {
+    changeDisease(selectedDisease, this.props.dispatch);
   }
   render() {
     let { siderWidth } = this.props;
@@ -91,10 +56,13 @@ class DrugSider extends React.Component<Props> {
       edgeThreshold,
       nodeTypes,
       diseaseOptions,
-      drugOptions,
+      drugPredictions,
       nodeNameDict,
       selectedDisease,
+      selectedDrug,
     } = this.props.globalState;
+    const defaultDiseaseText = 'Select a disease';
+    const defaultDrugText = 'Select a drug from the prediction';
 
     let sider = (
       <Sider
@@ -104,9 +72,9 @@ class DrugSider extends React.Component<Props> {
       >
         Disease:
         <Select
-          defaultValue="select a disease"
+          defaultValue={defaultDiseaseText}
           style={{ width: siderWidth - 2 * this.padding }}
-          onChange={this.changeDisease}
+          onChange={this.onChangeDisease}
           showSearch
           optionFilterProp="label"
         >
@@ -128,19 +96,18 @@ class DrugSider extends React.Component<Props> {
         <br />
         Drug:
         <Select
-          defaultValue="select a drug from the predictions"
           style={{ width: siderWidth - 2 * this.padding }}
-          open
+          // open
           showSearch
           optionFilterProp="label"
           listHeight={this.listHeight}
-          onChange={this.changeDrug}
+          onChange={this.onChangeDrug}
+          value={selectedDrug || defaultDrugText}
         >
           {selectedDisease !== undefined ? (
-            drugOptions.length > 0 ? (
-              drugOptions.map((d, idx) => {
+            drugPredictions.length > 0 ? (
+              drugPredictions.map((d, idx) => {
                 const { id: drug_id, score } = d;
-                console.info(d);
                 const name = nodeNameDict['drug'][drug_id];
                 return (
                   <Option value={drug_id} key={`disease_${idx}`} label={name}>
@@ -205,14 +172,14 @@ class DrugSider extends React.Component<Props> {
           })}
         </div>
         <br />
-        <Button
+        {/* <Button
           icon={<SearchOutlined />}
           type="primary"
           shape="round"
           onClick={() => this.startAnalysis()}
         >
-          Start Analysis
-        </Button>
+          Show Attention Tree
+        </Button> */}
         <br />
       </Sider>
     );

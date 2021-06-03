@@ -1,15 +1,27 @@
 import { Card, Tooltip, Modal } from 'antd';
-import { cropText, YES_ICON, NO_ICON, EDIT_ICON } from 'helpers';
-import { getNodeColor } from 'helpers/color';
+import {
+  cropText,
+  YES_ICON,
+  NO_ICON,
+  EDIT_ICON,
+  SEARCH_ICON,
+  LOADING_ICON,
+} from 'helpers';
+import { getNodeColor, SELECTED_COLOR } from 'helpers/color';
+import { ACTION_TYPES, changeDrug, queryAttentionPair } from 'stores/actions';
 import React from 'react';
 
 import { StateConsumer } from 'stores';
-import { IState } from 'types';
+import { IMetaPath, IMetaPathSummary, IState, IDispatch } from 'types';
+import * as d3 from 'd3';
+
+import './index.css';
 
 interface Props {
   width: number;
   height: number;
   globalState: IState;
+  dispatch: IDispatch;
 }
 
 interface State {
@@ -24,13 +36,16 @@ class PathMatrix extends React.Component<Props, State> {
   EDGE_LENGTH = 100;
   NODE_WIDTH = 130;
   NODE_HEIGHT = 25;
-  VERTICAL_GAP = 5;
-  GROUP_GAP = 10;
+  VERTICAL_GAP = 5; // vertical gap between path
+  GROUP_GAP = 10; // vertical gap between path groups
+  COUNT_GAP = 5; // horizontal gap between count circles
+  RADIUS = this.NODE_HEIGHT / 2; // max radius of the count circle
+  HEAD_HEIGHT = 50; // height of the header ()
 
   constructor(prop: Props) {
     super(prop);
     this.state = {
-      expand: this.props.globalState.metaPathGroups.map((d) => true),
+      expand: this.props.globalState.metaPathSummary.map((d) => false),
       isModalVisible: false,
     };
 
@@ -43,21 +58,60 @@ class PathMatrix extends React.Component<Props, State> {
     expand[idx] = !expand[idx];
     this.setState({ expand });
   }
-  getIconGroup() {
+
+  isPathSelected(nodes: IMetaPath['nodes']) {
+    const { selectedPathNodes } = this.props.globalState;
+    const doesExist =
+      selectedPathNodes.map((d) => d.nodeId).join() ===
+        nodes.map((d) => d.nodeId).join() &&
+      selectedPathNodes.map((d) => d.nodeType).join() ===
+        nodes.map((d) => d.nodeType).join();
+    return doesExist;
+  }
+
+  togglePathNodes(nodes: IMetaPath['nodes'], doesExist: boolean) {
+    if (doesExist) {
+      this.props.dispatch({
+        type: ACTION_TYPES.Select_Path_Noes,
+        payload: { selectedPathNodes: [] },
+      });
+    } else {
+      this.props.dispatch({
+        type: ACTION_TYPES.Select_Path_Noes,
+        payload: { selectedPathNodes: nodes },
+      });
+    }
+  }
+  getIconGroup(nodes: IMetaPath['nodes']) {
     const dimension = 20;
+    const doesExist = this.isPathSelected(nodes);
     return (
       <g className="feedback" cursor="pointer" style={{ fill: '#777' }}>
-        <g className="yes">
+        <g
+          className="search"
+          transform={`translate(0, 0)`}
+          fill={doesExist ? 'red' : 'inherit'}
+          onClick={() => this.togglePathNodes(nodes, doesExist)}
+        >
+          <rect
+            width={dimension}
+            height={dimension}
+            fill="white"
+            stroke="white"
+          />
+          <path d={SEARCH_ICON} transform={`scale(0.018)`} />
+        </g>
+        <g className="yes" transform={`translate(${dimension}, 0)`}>
           <rect width={dimension} height={dimension} fill="white" />
           <path d={YES_ICON} transform={`scale(0.03)`} />
         </g>
-        <g className="no" transform={`translate(${dimension}, 0)`}>
+        <g className="no" transform={`translate(${2 * dimension}, 0)`}>
           <rect width={dimension} height={dimension} fill="white" />
           <path d={NO_ICON} transform={`scale(0.03)`} />
         </g>
         <g
           className="edit"
-          transform={`translate(${2 * dimension}, 0)`}
+          transform={`translate(${3 * dimension}, 0)`}
           onClick={this.showModal}
         >
           <rect width={dimension} height={dimension} fill="white" />
@@ -66,14 +120,48 @@ class PathMatrix extends React.Component<Props, State> {
       </g>
     );
   }
+  drawHeader() {
+    const {
+      drugPredictions,
+      nodeNameDict,
+      selectedDrug,
+    } = this.props.globalState;
+    const headerNames = drugPredictions.map(
+      (drug) => nodeNameDict['drug'][drug.id]
+    );
+    headerNames.push('SUM');
+    const selectedDrugIdx = drugPredictions
+      .map((d) => d.id)
+      .indexOf(selectedDrug || '');
+    const header = headerNames.map((name, idx) => {
+      const isSelected = idx === selectedDrugIdx;
+      return (
+        <text
+          key={name}
+          className={name}
+          fill={isSelected ? SELECTED_COLOR : 'gray'}
+          transform={`translate(
+            ${idx * (this.RADIUS * 2 + this.COUNT_GAP) + this.RADIUS}, 
+            ${this.HEAD_HEIGHT}) 
+            rotate(-45)`}
+        >
+          {name}
+        </text>
+      );
+    });
+    return header;
+  }
   drawSummary() {
     let { EDGE_LENGTH, NODE_WIDTH, NODE_HEIGHT, VERTICAL_GAP } = this;
 
     let {
       nodeNameDict,
-      selectedDrug,
-      selectedDisease,
+      metaPathSummary,
+      drugPredictions,
     } = this.props.globalState;
+
+    const ICON_WIDTH =
+      (drugPredictions.length + 1) * (this.RADIUS * 2 + this.COUNT_GAP);
 
     let metaPathGroups = this.filterMetaPathGroups();
     const triangleRight =
@@ -81,13 +169,14 @@ class PathMatrix extends React.Component<Props, State> {
       triangelBottom =
         'M 6.414 9 h 11.172 a 1 1 0 0 1 0.707 1.707 l -5.586 5.586 a 1 1 0 0 1 -1.414 0 l -5.586 -5.586 A 1 1 0 0 1 6.414 9 Z';
 
-    if (!selectedDisease) return;
-    if (!selectedDrug) return;
-
-    const ICON_WIDTH = 70;
+    const maxCount = Math.max(...metaPathSummary.map((d) => d.count).flat());
+    const rScale = d3
+      .scaleLinear()
+      .range([4, this.RADIUS])
+      .domain([0, maxCount]);
 
     let offsetY = 0;
-    let summary = metaPathGroups.map((group, pathIdx) => {
+    const allRows = metaPathSummary.map((group, groupIdx) => {
       let nodes = group.nodeTypes.map((node, nodeIdx) => {
         let translate = `translate(${
           (EDGE_LENGTH + NODE_WIDTH) * nodeIdx
@@ -134,8 +223,12 @@ class PathMatrix extends React.Component<Props, State> {
       let currentY = offsetY;
       offsetY += NODE_HEIGHT + VERTICAL_GAP;
 
-      let showChildren = this.state.expand[pathIdx];
-      let children = group.metaPaths.map((path, childIdx) => {
+      let showChildren = this.state.expand[groupIdx];
+      const metaPaths =
+        metaPathGroups.filter(
+          (d) => d.nodeTypes.join('') === group.nodeTypes.join('')
+        )[0]?.metaPaths || [];
+      let children = metaPaths.map((path, childIdx) => {
         let nodes = path.nodes.map((node, nodeIdx) => {
           let { nodeId, nodeType } = node;
           let nodeName = nodeNameDict[nodeType][nodeId];
@@ -189,7 +282,7 @@ class PathMatrix extends React.Component<Props, State> {
                 y2={NODE_HEIGHT / 4}
               />
               <text x={EDGE_LENGTH / 2} y={0} textAnchor="middle">
-                {edge.edgeInfo}
+                {edge.edgeInfo.replace('rev_', '')}
               </text>
             </g>
           );
@@ -197,7 +290,7 @@ class PathMatrix extends React.Component<Props, State> {
         return (
           <g
             key={childIdx}
-            transform={`translate(${ICON_WIDTH}, ${
+            transform={`translate(${ICON_WIDTH + 20}, ${
               (NODE_HEIGHT + VERTICAL_GAP) * (1 + childIdx)
             })`}
           >
@@ -209,36 +302,37 @@ class PathMatrix extends React.Component<Props, State> {
                 NODE_WIDTH * nodes.length + EDGE_LENGTH * edges.length + 20
               }, 0)`}
             >
-              {this.getIconGroup()}
+              {this.getIconGroup(path.nodes)}
             </g>
           </g>
         );
       });
 
       if (showChildren) {
-        offsetY += (NODE_HEIGHT + VERTICAL_GAP) * group.metaPaths.length;
+        offsetY += (NODE_HEIGHT + VERTICAL_GAP) * metaPaths.length;
       }
 
       offsetY += this.GROUP_GAP;
 
       return (
         <g
-          key={`prototype_${pathIdx}`}
+          key={`prototype_${groupIdx}`}
           transform={`translate(${0}, ${currentY})`}
         >
+          <g className="metaCount">{this.drawMetaCount(group, rScale)}</g>
           <g className="icon">
-            <text x={10} y={NODE_HEIGHT / 2 + 6} textAnchor="middle">
-              {group.metaPaths.length}
-            </text>
             <path
               d={showChildren ? triangelBottom : triangleRight}
-              transform={`translate(${25}, 0)`}
+              transform={`translate(${ICON_WIDTH}, 0)`}
               fill="gray"
-              onClick={() => this.toggleExpand(pathIdx)}
+              onClick={() => this.toggleExpand(groupIdx)}
               cursor="pointer"
             />
           </g>
-          <g className="prototype" transform={`translate(${ICON_WIDTH}, 0)`}>
+          <g
+            className="prototype"
+            transform={`translate(${ICON_WIDTH + 20}, 0)`}
+          >
             {nodes}
             {edges}
           </g>
@@ -246,7 +340,115 @@ class PathMatrix extends React.Component<Props, State> {
         </g>
       );
     });
-    return summary;
+    const header = this.drawHeader();
+    const content = (
+      <g>
+        <g
+          className="header"
+          transform={`translate(${this.PADDING}, ${this.PADDING})`}
+        >
+          {header}
+        </g>
+        <g
+          className="rows"
+          transform={`translate(${0}, ${this.PADDING + this.HEAD_HEIGHT})`}
+        >
+          {allRows}
+        </g>
+      </g>
+    );
+    return content;
+  }
+
+  onChangeDrug(selectedDrug: string) {
+    changeDrug(selectedDrug, this.props.dispatch);
+    queryAttentionPair(
+      selectedDrug,
+      this.props.globalState.selectedDisease,
+      this.props.dispatch
+    );
+  }
+
+  drawMetaCount(
+    summary: IMetaPathSummary,
+    rScale: d3.ScaleLinear<number, number>
+  ) {
+    const { drugPredictions, selectedDrug } = this.props.globalState;
+    const { count, sum } = summary;
+    const selectedDrugIdx = drugPredictions
+      .map((d) => d.id)
+      .indexOf(selectedDrug || '');
+    const vis = count.map((num, idx) => {
+      const isSelected = idx === selectedDrugIdx;
+      const content =
+        num === 0 ? (
+          <line
+            x1={0.5 * this.RADIUS}
+            x2={1.5 * this.RADIUS}
+            stroke={isSelected ? SELECTED_COLOR : 'lightgray'}
+          />
+        ) : (
+          <>
+            <circle
+              r={rScale(num)}
+              fill={isSelected ? SELECTED_COLOR : 'lightgray'}
+              xlinkTitle={num.toString()}
+              cx={this.RADIUS}
+            />
+            <text
+              textAnchor="middle"
+              transform={`
+                translate(${this.RADIUS}, ${rScale(num) / 2}) 
+              scale(${rScale(num) / this.RADIUS})
+              `}
+              fill={isSelected ? 'white' : 'black'}
+            >
+              {num}
+            </text>
+          </>
+        );
+      return (
+        <g
+          key={idx}
+          className="count"
+          transform={`translate(${idx * (2 * this.RADIUS + this.COUNT_GAP)}, ${
+            this.NODE_HEIGHT / 2
+          })`}
+          cursor="pointer"
+          onClick={() => this.onChangeDrug(drugPredictions[idx]['id'])}
+        >
+          {content}
+        </g>
+      );
+    });
+    return (
+      <g className="metaCount" transform={`translate(${this.PADDING}, 0)`}>
+        {vis}
+        <g
+          className="sum"
+          transform={`translate(${
+            count.length * (2 * this.RADIUS + this.COUNT_GAP)
+          }, 0)`}
+        >
+          {/* <circle
+            className="sum"
+            cx={this.RADIUS}
+            cy={this.NODE_HEIGHT / 2}
+            fill="lightGray"
+            stroke="lightGray"
+            r={rScale(sum)}
+          /> */}
+          <text
+            x={this.RADIUS}
+            y={this.NODE_HEIGHT / 2 + 6}
+            textAnchor="middle"
+          >
+            {' '}
+            {`| ${sum}`}{' '}
+          </text>
+        </g>
+      </g>
+    );
   }
   showModal() {
     this.setState({ isModalVisible: true });
@@ -267,24 +469,15 @@ class PathMatrix extends React.Component<Props, State> {
 
     return b;
   }
-  componentDidMount() {
-    const groups = this.filterMetaPathGroups();
-    if (groups.length !== this.state.expand.length) {
-      const expand = groups.map((d) => true);
-      this.setState({ expand });
-    }
-  }
-  componentDidUpdate() {
-    const groups = this.filterMetaPathGroups();
-    if (groups.length !== this.state.expand.length) {
-      const expand = groups.map((d) => true);
-      this.setState({ expand });
-    }
-  }
   render() {
     const { width, height } = this.props,
       { isModalVisible } = this.state;
-    const { isAttentionLoading, attention } = this.props.globalState;
+    const {
+      isDrugLoading,
+      isAttentionLoading,
+      metaPathSummary,
+      selectedDisease,
+    } = this.props.globalState;
     const metaPathGroups = this.filterMetaPathGroups();
     const numberOfPath = metaPathGroups
       .map((d) => d.metaPaths.length)
@@ -295,24 +488,22 @@ class PathMatrix extends React.Component<Props, State> {
       svgHeight = Math.max(
         (numberOfPath + metaPathGroups.length) *
           (this.NODE_HEIGHT + this.VERTICAL_GAP) +
-          2 * this.PADDING,
+          2 * this.PADDING +
+          this.HEAD_HEIGHT,
         svgOuterHeight
       );
 
     const reminderText = (
       <text x={svgWidth / 2} y={svgOuterHeight / 2} fill="gray">
-        {attention['disease']
+        {isDrugLoading || isAttentionLoading
+          ? ''
+          : selectedDisease
           ? 'There is no meta path'
-          : 'Please select disease and drug first'}
+          : 'Please select a disease first'}
       </text>
     );
-    const content = isAttentionLoading ? (
-      <></>
-    ) : metaPathGroups.length === 0 ? (
-      reminderText
-    ) : (
-      this.drawSummary()
-    );
+    const content =
+      metaPathSummary.length === 0 ? reminderText : this.drawSummary();
     return (
       <>
         <Card
@@ -331,12 +522,18 @@ class PathMatrix extends React.Component<Props, State> {
           headStyle={{ height: this.TITLE_HEIGHT }}
         >
           <svg width={svgWidth} height={svgHeight}>
-            <g
-              className="metaPath"
-              transform={`translate(${0}, ${this.PADDING})`}
-            >
-              {content}
-            </g>
+            {content}
+            {/* overlap loading icon when it is loading */}
+            {isDrugLoading ||
+            (isAttentionLoading && this.state.expand.some((d) => d)) ? (
+              <g
+                transform={`translate(${svgWidth / 2}, ${svgOuterHeight / 2})`}
+              >
+                {LOADING_ICON}
+              </g>
+            ) : (
+              <></>
+            )}
           </svg>
         </Card>
         <Modal

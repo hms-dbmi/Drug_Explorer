@@ -4,7 +4,7 @@ import { IState } from 'types';
 
 const initialState: IState = {
   diseaseOptions: [],
-  drugOptions: [],
+  drugPredictions: [],
   nodeTypes: [],
   edgeTypes: {},
   metaPathGroups: [],
@@ -12,8 +12,12 @@ const initialState: IState = {
   selectedDisease: undefined,
   selectedDrug: undefined,
   nodeNameDict: {},
+  isDrugLoading: false,
   isAttentionLoading: false,
+  isDiseaseLoading: false,
   edgeThreshold: 0,
+  metaPathSummary: [],
+  selectedPathNodes: [],
 };
 
 interface IStateContext {

@@ -24,12 +24,6 @@ const requestEdgeTypes = async (): Promise<IEdgeTypes> => {
   return response.data;
 };
 
-const requestMetaPaths = async () => {
-  const url = './data/meta_path_json.json';
-  let response = await axiosInstance.get(url);
-  return response.data;
-};
-
 const requestNodeNameDict = async () => {
   const url = './data/node_name_dict.json';
   let response = await axiosInstance.get(url);
@@ -42,25 +36,38 @@ const requestAttention = async (diseaseID: string, drugID: string) => {
   return response.data;
 };
 
+const requestAttentionPair = async (diseaseID: string, drugID: string) => {
+  const url = `./api/attention_pair?disease=${diseaseID}&drug=${drugID}`;
+  let response = await axiosInstance.get(url);
+  return response.data;
+};
+
 const requestDiseaseOptions = async () => {
   const url = './api/diseases';
   let response = await axiosInstance.get(url);
   return response.data;
 };
 
-const requestDrugOptions = async (diseaseID: string) => {
+const requestDrugPredictions = async (diseaseID: string) => {
   const url = `./api/drug_predictions?disease_id=${diseaseID}`;
-  let response = await axiosInstance.get(url);
-  let drugOptions = response.data;
-  return drugOptions;
+  const response = await axiosInstance.get(url);
+  const { predictions, metapath_summary: metapathSummary } = response.data;
+  return { predictions, metapathSummary };
+};
+
+const requestEmbedding = async () => {
+  const url = './data/drug_tsne.json';
+  const response = await axiosInstance.get(url);
+  return response.data;
 };
 
 export {
   requestNodeTypes,
   requestEdgeTypes,
-  requestMetaPaths,
   requestAttention,
   requestNodeNameDict,
-  requestDrugOptions,
+  requestDrugPredictions,
   requestDiseaseOptions,
+  requestEmbedding,
+  requestAttentionPair,
 };
