@@ -51,7 +51,7 @@ export const changeDisease = (selectedDisease: string, dispatch: IDispatch) => {
         metapathSummary: metaPathSummary,
       } = res;
       dispatch({
-        type: ACTION_TYPES.Load_Edge_Types,
+        type: ACTION_TYPES.Load_Drug_Options,
         payload: { drugPredictions, metaPathSummary },
       });
     })

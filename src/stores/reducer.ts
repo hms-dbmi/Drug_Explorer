@@ -4,7 +4,11 @@ import { ACTION_TYPES } from 'stores/actions';
 const rootReducer = (state: IState, action: IAction): IState => {
   switch (action.type) {
     case ACTION_TYPES.Load_Drug_Options:
-      return { ...state, drugPredictions: action.payload.drugPredictions };
+      return {
+        ...state,
+        drugPredictions: action.payload.drugPredictions,
+        metaPathSummary: action.payload.metaPathSummary,
+      };
 
     case ACTION_TYPES.Load_Disease_Options:
       return { ...state, diseaseOptions: action.payload.diseaseOptions };
