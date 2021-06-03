@@ -5,7 +5,7 @@ import {
   ACTION_TYPES,
   changeDisease,
   changeDrug,
-  queryAttention,
+  queryAttentionPair,
 } from 'stores/actions';
 
 import './Sider.css';
@@ -32,7 +32,7 @@ class DrugSider extends React.Component<Props> {
   }
   onChangeDrug(selectedDrug: string) {
     changeDrug(selectedDrug, this.props.dispatch);
-    queryAttention(
+    queryAttentionPair(
       selectedDrug,
       this.props.globalState.selectedDisease,
       this.props.dispatch

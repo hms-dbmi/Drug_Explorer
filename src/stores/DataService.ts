@@ -36,6 +36,12 @@ const requestAttention = async (diseaseID: string, drugID: string) => {
   return response.data;
 };
 
+const requestAttentionPair = async (diseaseID: string, drugID: string) => {
+  const url = `./api/attention_pair?disease=${diseaseID}&drug=${drugID}`;
+  let response = await axiosInstance.get(url);
+  return response.data;
+};
+
 const requestDiseaseOptions = async () => {
   const url = './api/diseases';
   let response = await axiosInstance.get(url);
@@ -63,4 +69,5 @@ export {
   requestDrugPredictions,
   requestDiseaseOptions,
   requestEmbedding,
+  requestAttentionPair,
 };

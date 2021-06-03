@@ -1,11 +1,14 @@
-import { IDispatch } from 'types';
-import { requestAttention, requestDrugPredictions } from 'stores/DataService';
+import { IDispatch, IMetaPath, IMetaPathGroup } from 'types';
+import {
+  requestAttentionPair,
+  requestDrugPredictions,
+} from 'stores/DataService';
 
 export const ACTION_TYPES = {
   Load_Node_Types: 'Load_Node_Types',
   Load_Edge_Types: 'Load_Edge_Types',
   Load_Meta_Paths: 'Load_Meta_Paths',
-  Load_Attention: 'Load_Attention',
+  Load_Attention_Pair: 'Load_Attention_Pair',
   Load_Node_Name_Dict: 'Load_Node_Name_Dict',
   Load_Drug_Options: 'Load_Drug_Options',
   Load_Disease_Options: 'Load_Disease_Options',
@@ -60,7 +63,7 @@ export const changeDisease = (selectedDisease: string, dispatch: IDispatch) => {
     });
 };
 
-export const queryAttention = (
+export const queryAttentionPair = (
   selectedDrug: string | undefined,
   selectedDisease: string | undefined,
   dispatch: IDispatch
@@ -71,11 +74,14 @@ export const queryAttention = (
       payload: { isAttentionLoading: true },
     });
 
-    requestAttention(selectedDisease, selectedDrug)
-      .then((attention) => {
+    requestAttentionPair(selectedDisease, selectedDrug)
+      .then((res) => {
         dispatch({
-          type: ACTION_TYPES.Load_Attention,
-          payload: { attention },
+          type: ACTION_TYPES.Load_Attention_Pair,
+          payload: {
+            attention: res.attention,
+            metaPathGroups: groupMetaPaths(res.metapaths),
+          },
         });
       })
       .then(() => {
@@ -85,4 +91,23 @@ export const queryAttention = (
         });
       });
   }
+};
+
+const groupMetaPaths = (metaPaths: IMetaPath[]): IMetaPathGroup[] => {
+  let groups: IMetaPathGroup[] = [];
+  let groupDict: string[] = [];
+  metaPaths.forEach((metaPath) => {
+    const nodeTypeString = metaPath.nodes.map((d) => d.nodeType).join('_');
+    const groupIdx = groupDict.indexOf(nodeTypeString);
+    if (groupIdx > -1) {
+      groups[groupIdx].metaPaths.push(metaPath);
+    } else {
+      groupDict.push(nodeTypeString);
+      groups.push({
+        nodeTypes: metaPath.nodes.map((d) => d.nodeType),
+        metaPaths: [metaPath],
+      });
+    }
+  });
+  return groups;
 };

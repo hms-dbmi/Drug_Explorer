@@ -8,7 +8,7 @@ import {
   LOADING_ICON,
 } from 'helpers';
 import { getNodeColor, SELECTED_COLOR } from 'helpers/color';
-import { ACTION_TYPES, queryAttention, changeDrug } from 'stores/actions';
+import { ACTION_TYPES, changeDrug, queryAttentionPair } from 'stores/actions';
 import React from 'react';
 
 import { StateConsumer } from 'stores';
@@ -282,7 +282,7 @@ class PathMatrix extends React.Component<Props, State> {
                 y2={NODE_HEIGHT / 4}
               />
               <text x={EDGE_LENGTH / 2} y={0} textAnchor="middle">
-                {edge.edgeInfo}
+                {edge.edgeInfo.replace('rev_', '')}
               </text>
             </g>
           );
@@ -362,7 +362,7 @@ class PathMatrix extends React.Component<Props, State> {
 
   onChangeDrug(selectedDrug: string) {
     changeDrug(selectedDrug, this.props.dispatch);
-    queryAttention(
+    queryAttentionPair(
       selectedDrug,
       this.props.globalState.selectedDisease,
       this.props.dispatch
