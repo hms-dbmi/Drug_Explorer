@@ -1,9 +1,10 @@
 import React from 'react';
 import { requestEmbedding } from 'stores/DataService';
-import { IState } from 'types';
+import { IState, IDispatch } from 'types';
 import * as d3 from 'd3';
 import { HIGHLIGHT_COLOR, SELECTED_COLOR } from 'helpers/color';
 import { LOADING_ICON } from 'helpers';
+import { changeDrug, queryAttentionPair } from 'stores/actions';
 
 interface State {
   embedding: { [key: string]: [number, number] };
@@ -12,6 +13,7 @@ interface Props {
   width: number;
   height: number;
   globalState: IState;
+  dispatch: IDispatch;
 }
 
 export default class Scatter extends React.Component<Props, State> {
@@ -19,6 +21,7 @@ export default class Scatter extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = { embedding: {} };
+    this.onChangeDrug = this.onChangeDrug.bind(this);
   }
   async loadEmbedding() {
     const embedding = await requestEmbedding();
@@ -72,11 +75,20 @@ export default class Scatter extends React.Component<Props, State> {
               }
               stroke={'white'}
               r={isHighlighted ? this.circleRadius * 1.5 : this.circleRadius}
+              onClick={() => this.onChangeDrug(drugId)}
             />
           </g>
         );
       });
     return nodes;
+  }
+  onChangeDrug(selectedDrug: string) {
+    changeDrug(selectedDrug, this.props.dispatch);
+    queryAttentionPair(
+      selectedDrug,
+      this.props.globalState.selectedDisease,
+      this.props.dispatch
+    );
   }
   render() {
     const { isDrugLoading, selectedDisease } = this.props.globalState;
