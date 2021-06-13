@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs } from 'antd';
 import { StateConsumer } from 'stores';
-import { IState } from 'types';
+import { IState, IDispatch } from 'types';
 
 import AttentionTree from './AttentionTree';
 import Scatter from './Scatter';
@@ -14,6 +14,7 @@ interface Props {
   width: number;
   height: number;
   globalState: IState;
+  dispatch: IDispatch;
 }
 
 interface State {
