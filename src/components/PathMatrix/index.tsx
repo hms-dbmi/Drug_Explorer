@@ -172,7 +172,7 @@ class PathMatrix extends React.Component<Props, State> {
     const maxCount = Math.max(...metaPathSummary.map((d) => d.count).flat());
     const rScale = d3
       .scaleLinear()
-      .range([4, this.RADIUS])
+      .range([this.RADIUS / 3, this.RADIUS])
       .domain([0, maxCount]);
 
     let offsetY = 0;
@@ -367,6 +367,28 @@ class PathMatrix extends React.Component<Props, State> {
       this.props.globalState.selectedDisease,
       this.props.dispatch
     );
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    // update expended metapaths when selected drug changes
+    if (
+      prevProps.globalState.selectedDrug !== this.props.globalState.selectedDrug
+    ) {
+      const {
+        selectedDrug,
+        metaPathSummary,
+        drugPredictions,
+      } = this.props.globalState;
+
+      const selectedDrugIdx = drugPredictions
+        .map((d) => d.id)
+        .indexOf(selectedDrug || '');
+
+      const expandStatus = metaPathSummary.map(
+        (d) => d.count[selectedDrugIdx] > 0
+      );
+      this.setState({ expand: expandStatus });
+    }
   }
 
   drawMetaCount(
