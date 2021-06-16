@@ -158,6 +158,7 @@ class PathMatrix extends React.Component<Props, State> {
       nodeNameDict,
       metaPathSummary,
       drugPredictions,
+      edgeTypes,
     } = this.props.globalState;
 
     const ICON_WIDTH =
@@ -271,6 +272,8 @@ class PathMatrix extends React.Component<Props, State> {
             NODE_WIDTH + (EDGE_LENGTH + NODE_WIDTH) * edgeIdx
           }, ${+NODE_HEIGHT / 2})`;
 
+          let edgeName = edge.edgeInfo.replace('rev_', '');
+          edgeName = edgeTypes[edgeName]?.edgeInfo || edgeName;
           return (
             <g key={`edge_${edgeIdx}`} transform={translate}>
               <line
@@ -282,7 +285,7 @@ class PathMatrix extends React.Component<Props, State> {
                 y2={NODE_HEIGHT / 4}
               />
               <text x={EDGE_LENGTH / 2} y={0} textAnchor="middle">
-                {edge.edgeInfo.replace('rev_', '')}
+                {edgeName}
               </text>
             </g>
           );
