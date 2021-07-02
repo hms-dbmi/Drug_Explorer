@@ -97,7 +97,7 @@ class DrugSider extends React.Component<Props> {
         Drug:
         <Select
           style={{ width: siderWidth - 2 * this.padding }}
-          // open
+          open
           showSearch
           optionFilterProp="label"
           listHeight={this.listHeight}

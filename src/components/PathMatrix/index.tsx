@@ -33,14 +33,14 @@ class PathMatrix extends React.Component<Props, State> {
   TITLE_HEIGHT = 36;
   MARGIN = 10;
   PADDING = 10;
-  EDGE_LENGTH = 100;
+  EDGE_LENGTH = 120;
   NODE_WIDTH = 130;
   NODE_HEIGHT = 25;
   VERTICAL_GAP = 5; // vertical gap between path
   GROUP_GAP = 10; // vertical gap between path groups
   COUNT_GAP = 5; // horizontal gap between count circles
   RADIUS = this.NODE_HEIGHT / 2; // max radius of the count circle
-  HEAD_HEIGHT = 50; // height of the header ()
+  HEAD_HEIGHT = 70; // height of the header ()
 
   constructor(prop: Props) {
     super(prop);
@@ -229,21 +229,29 @@ class PathMatrix extends React.Component<Props, State> {
         metaPathGroups.filter(
           (d) => d.nodeTypes.join('') === group.nodeTypes.join('')
         )[0]?.metaPaths || [];
-      let children = metaPaths.map((path, childIdx) => {
-        let nodes = path.nodes.map((node, nodeIdx) => {
-          let { nodeId, nodeType } = node;
-          let nodeName = nodeNameDict[nodeType][nodeId];
-          if (nodeName === undefined) {
-            nodeId = nodeId.replace(/_/g, '') + '.0';
-            nodeName = nodeNameDict[nodeType][nodeId];
+
+      const children = metaPaths.map((path, childIdx) => {
+        const nodes = path.nodes.map((node, nodeIdx) => {
+          const { nodeId, nodeType } = node;
+          const nodeName = nodeNameDict[nodeType][nodeId];
+
+          let prevNodeName = '';
+          if (childIdx > 0) {
+            const { nodeId: prevNodeId, nodeType: prevNodeType } = metaPaths[
+              childIdx - 1
+            ].nodes[nodeIdx];
+            prevNodeName = nodeNameDict[prevNodeType][prevNodeId];
           }
 
           let shortNodeName =
-            cropText(nodeName, 14, NODE_WIDTH - 10) || 'undefined';
+            nodeName === prevNodeName
+              ? '---'
+              : cropText(nodeName, 14, NODE_WIDTH - 10) || 'undefined';
 
           let translate = `translate(${
             (EDGE_LENGTH + NODE_WIDTH) * nodeIdx
           }, ${0})`;
+
           return (
             <Tooltip
               key={`node_${nodeIdx}`}
@@ -274,6 +282,7 @@ class PathMatrix extends React.Component<Props, State> {
 
           let edgeName = edge.edgeInfo.replace('rev_', '');
           edgeName = edgeTypes[edgeName]?.edgeInfo || edgeName;
+          edgeName = cropText(edgeName, 14, this.EDGE_LENGTH);
           return (
             <g key={`edge_${edgeIdx}`} transform={translate}>
               <line
@@ -375,7 +384,9 @@ class PathMatrix extends React.Component<Props, State> {
   componentDidUpdate(prevProps: Props) {
     // update expended metapaths when selected drug changes
     if (
-      prevProps.globalState.selectedDrug !== this.props.globalState.selectedDrug
+      prevProps.globalState.selectedDrug !==
+        this.props.globalState.selectedDrug &&
+      prevProps.globalState.selectedDrug === undefined
     ) {
       const {
         selectedDrug,
@@ -391,6 +402,15 @@ class PathMatrix extends React.Component<Props, State> {
         (d) => d.count[selectedDrugIdx] > 0
       );
       this.setState({ expand: expandStatus });
+    }
+
+    if (
+      prevProps.globalState.selectedDisease !==
+      this.props.globalState.selectedDisease
+    ) {
+      this.setState({
+        expand: this.props.globalState.metaPathSummary.map((d) => false),
+      });
     }
   }
 
@@ -455,14 +475,6 @@ class PathMatrix extends React.Component<Props, State> {
             count.length * (2 * this.RADIUS + this.COUNT_GAP)
           }, 0)`}
         >
-          {/* <circle
-            className="sum"
-            cx={this.RADIUS}
-            cy={this.NODE_HEIGHT / 2}
-            fill="lightGray"
-            stroke="lightGray"
-            r={rScale(sum)}
-          /> */}
           <text
             x={this.RADIUS}
             y={this.NODE_HEIGHT / 2 + 6}

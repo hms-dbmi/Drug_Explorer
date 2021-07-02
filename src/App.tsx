@@ -89,7 +89,7 @@ class App extends React.Component<Props, State> {
       headerHeight = 64,
       footHeight = 40,
       mainViewHeight = window.innerHeight - headerHeight - footHeight,
-      NodeLinkHeight = mainViewHeight * 0.6,
+      NodeLinkHeight = mainViewHeight * 0.55,
       MatrixHeight = mainViewHeight - NodeLinkHeight;
 
     let header = (
