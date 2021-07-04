@@ -1,3 +1,19 @@
-.nodeLink path, g.node{
-    transition: all 0.8s ease;
+.nodeLink path,
+g.node {
+  transition: all 0.8s ease;
+}
+
+.tooltip {
+  position: absolute;
+  padding: 0px 5px;
+  background-color: black;
+  color: white;
+}
+
+.tooltip-hide {
+  opacity: 0;
+}
+
+.tooltip-show {
+  opacity: 0.6;
 }

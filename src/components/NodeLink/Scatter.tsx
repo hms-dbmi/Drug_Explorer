@@ -8,6 +8,11 @@ import { changeDrug, queryAttentionPair } from 'stores/actions';
 
 interface State {
   embedding: { [key: string]: [number, number] };
+  tooltip: {
+    visible: boolean;
+    info: string;
+    position: [number, number];
+  };
 }
 interface Props {
   width: number;
@@ -18,9 +23,14 @@ interface Props {
 
 export default class Scatter extends React.Component<Props, State> {
   circleRadius = 3;
+  hoverTimeout: number = 0;
+  WAIT = 500;
   constructor(props: Props) {
     super(props);
-    this.state = { embedding: {} };
+    this.state = {
+      embedding: {},
+      tooltip: { visible: false, info: '', position: [0, 0] },
+    };
     this.onChangeDrug = this.onChangeDrug.bind(this);
   }
   async loadEmbedding() {
@@ -75,7 +85,13 @@ export default class Scatter extends React.Component<Props, State> {
               }
               stroke={'white'}
               r={isHighlighted ? this.circleRadius * 1.5 : this.circleRadius}
-              onClick={() => this.onChangeDrug(drugId)}
+              onClick={() => {
+                if (isHighlighted) this.onChangeDrug(drugId);
+              }}
+              onMouseEnter={() =>
+                this.showTooltip(drugId, [xScale(x), yScale(y)])
+              }
+              onMouseLeave={() => this.hideTooltip()}
             />
           </g>
         );
@@ -90,42 +106,76 @@ export default class Scatter extends React.Component<Props, State> {
       this.props.dispatch
     );
   }
+  showTooltip(drugId: string, position: [number, number]) {
+    const { nodeNameDict } = this.props.globalState;
+    this.hoverTimeout = window.setTimeout(() => {
+      this.setState({
+        tooltip: {
+          visible: true,
+          info: `drug: ${nodeNameDict['drug'][drugId]}`,
+          position,
+        },
+      });
+    }, this.WAIT);
+  }
+  hideTooltip() {
+    window.clearTimeout(this.hoverTimeout);
+    this.setState({
+      tooltip: {
+        visible: false,
+        info: ``,
+        position: [0, 0],
+      },
+    });
+  }
   render() {
     const { isDrugLoading, selectedDisease } = this.props.globalState;
     const { width, height } = this.props;
+    const { tooltip } = this.state;
 
     return (
-      <svg width={width} height={height}>
-        <g className="scatter">
-          {selectedDisease ? (
-            this.state.embedding ? (
-              this.drawScatter()
+      <div style={{ position: 'relative' }}>
+        <svg width={width} height={height}>
+          <g className="scatter">
+            {selectedDisease ? (
+              this.state.embedding ? (
+                this.drawScatter()
+              ) : (
+                <g
+                  transform={`translate(${width / 2}, ${height / 2})`}
+                  textAnchor="middle"
+                >
+                  {LOADING_ICON}
+                </g>
+              )
             ) : (
+              <text x={width / 2} y={height / 2} fill="gray">
+                Please select a disease first
+              </text>
+            )}
+            {/* overlap a loading icon when loading */}
+            {isDrugLoading ? (
               <g
                 transform={`translate(${width / 2}, ${height / 2})`}
                 textAnchor="middle"
               >
                 {LOADING_ICON}
               </g>
-            )
-          ) : (
-            <text x={width / 2} y={height / 2} fill="gray">
-              Please select a disease first
-            </text>
-          )}
-          {/* overlap a loading icon when loading */}
-          {isDrugLoading ? (
-            <g
-              transform={`translate(${width / 2}, ${height / 2})`}
-              textAnchor="middle"
-            >
-              {LOADING_ICON}
-            </g>
-          ) : (
-            <g />
-          )}
-        </g>{' '}
-      </svg>
+            ) : (
+              <g />
+            )}
+          </g>{' '}
+        </svg>
+        <div
+          className={`tooltip tooltip-${tooltip.visible ? 'show' : 'hide'}`}
+          style={{
+            left: tooltip.position[0] + this.circleRadius,
+            top: tooltip.position[1] + this.circleRadius,
+          }}
+        >
+          {tooltip.info}
+        </div>
+      </div>
     );
   }
 }

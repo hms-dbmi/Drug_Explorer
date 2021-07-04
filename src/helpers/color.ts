@@ -1,14 +1,14 @@
 const COLORS = [
-  '#4e79a7',
-  '#edc949',
-  '#e15759',
-  '#f28e2c',
-  '#76b7b2',
-  '#59a14f',
-  '#af7aa1',
-  '#ff9da7',
-  '#9c755f',
-  '#bab0ab',
+  '#4e79a7', // "anatomy",
+  '#edc949', // "biological_process",
+  '#e15759', // "cellular_component",
+  '#f28e2c', // "disease",
+  '#76b7b2', // "drug",
+  '#59a14f', // "effect/phenotype",
+  '#af7aa1', // "exposure",
+  '#ff9da7', // "gene/protein",
+  '#9c755f', // "molecular_function",
+  '#bab0ab', // "pathway"
 ];
 let colorDict: { [node: string]: string } = {};
 
