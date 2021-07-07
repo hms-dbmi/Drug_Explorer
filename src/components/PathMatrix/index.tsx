@@ -162,7 +162,8 @@ class PathMatrix extends React.Component<Props, State> {
     } = this.props.globalState;
 
     const ICON_WIDTH =
-      (drugPredictions.length + 1) * (this.RADIUS * 2 + this.COUNT_GAP);
+      (drugPredictions.length + 1) * (this.RADIUS * 2 + this.COUNT_GAP) +
+      this.COUNT_GAP;
 
     let metaPathGroups = this.filterMetaPathGroups();
     const triangleRight =
