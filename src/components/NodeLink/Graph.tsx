@@ -34,6 +34,7 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       edgeThreshold,
       selectedDisease,
       nodeNameDict,
+      selectedPathNodes,
     } = this.props.globalState;
     const { width, height } = this.props;
     if (selectedDrug === undefined)
@@ -89,33 +90,6 @@ export default class ModelNodeForce extends React.Component<Props, State> {
     d3.select('g.drugGraph').remove();
     let g = d3.select('g.model').append('g').attr('class', 'drugGraph');
 
-    // // loading icon
-    // let loadingIcon = g.append('g').attr('class', 'loading');
-    // let loadingIconWidth = 300,
-    //   loadingIconHeight = 30;
-
-    // loadingIcon
-    //   .append('rect')
-    //   .attr('class', 'bg')
-    //   .attr('width', loadingIconWidth)
-    //   .attr('height', loadingIconHeight)
-    //   .attr('rx', 15)
-    //   .attr('x', width / 2)
-    //   .attr('y', height / 2)
-    //   .attr('fill', 'white')
-    //   .attr('stroke', 'gray')
-    //   .attr('strokeWidth', '4');
-
-    // loadingIcon
-    //   .append('rect')
-    //   .attr('class', 'loadingbar')
-    //   .attr('width', loadingIconWidth * 0.3)
-    //   .attr('height', loadingIconHeight)
-    //   .attr('rx', loadingIconHeight * 0.3)
-    //   .attr('x', width / 2)
-    //   .attr('y', height / 2)
-    //   .attr('fill', '#1890ff');
-
     let simulation = d3
       .forceSimulation<INode, ILink>()
       .force('charge', d3.forceManyBody<INode>().strength(-170))
@@ -124,8 +98,8 @@ export default class ModelNodeForce extends React.Component<Props, State> {
         d3
           .forceLink<INode, ILink>()
           .id((d) => d.id)
-          .distance(30)
-          .strength(1)
+          .distance(10)
+          .strength(0.3)
       )
       .force('collision', d3.forceCollide().radius(this.RADIUS + 2));
 
@@ -147,6 +121,10 @@ export default class ModelNodeForce extends React.Component<Props, State> {
     }
     const isTargetNode = (d: INode) =>
       d.nodeId === selectedDrug || d.nodeId === selectedDisease;
+
+    const isHighlighted = (d: INode) =>
+      selectedPathNodes.map((i) => i.nodeType).includes(d.nodeType) &&
+      selectedPathNodes.map((i) => i.nodeId).includes(d.nodeId);
 
     let svgLinks: any = g
       .append('g')
@@ -194,10 +172,15 @@ export default class ModelNodeForce extends React.Component<Props, State> {
         (exit) => exit.remove()
       );
 
-    svgNodes.append('title').text((d: INode) => d.id);
+    svgNodes
+      .append('title')
+      .text(
+        (d: INode) =>
+          `${d.nodeType}: ${nodeNameDict[d.nodeType][d.nodeId] || d.nodeId}`
+      );
 
     svgNodes
-      .filter((d) => isTargetNode(d))
+      .filter((d) => isTargetNode(d) || isHighlighted(d))
       .append('text')
       .attr('class', 'targetLabel')
       .attr('transform', `translate(${-1 * this.RADIUS}, ${-2 * this.RADIUS} )`)
@@ -211,7 +194,9 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       .attr('class', 'virus_host')
       .attr('id', (d) => d.id)
       .attr('fill', (d: INode) => getNodeColor(d.nodeType))
-      .attr('opacity', (d) => (isTargetNode(d) ? 1 : 0.4))
+      .attr('opacity', (d) =>
+        isTargetNode(d) ? 1 : isHighlighted(d) ? 0.6 : 0.3
+      )
       .attr('stroke', 'none');
 
     simulation.nodes(nodes);
