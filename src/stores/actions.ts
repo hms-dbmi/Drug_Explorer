@@ -121,7 +121,6 @@ export const toggleMetaPathHide = (
   hide: boolean,
   dispatch: IDispatch
 ) => {
-  console.info(idx, hide);
   metaPathSummary[idx]['hide'] = hide;
   dispatch({
     type: ACTION_TYPES.Toggle_Meta_Path_Hide,

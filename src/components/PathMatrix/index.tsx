@@ -90,19 +90,15 @@ class PathMatrix extends React.Component<Props, State> {
   }
   getMetaIconGroup(toggleHideFunc: (hide: boolean) => void) {
     return (
-      <g className="feedback" cursor="pointer" style={{ fill: '#777' }}>
-        <g className="search" transform={`translate(0, 0)`}>
-          <rect
-            width={this.ICON_GAP}
-            height={this.ICON_GAP}
-            fill="white"
-            stroke="white"
-          />
-          <path d={SEARCH_ICON} transform={`scale(0.018)`} />
-        </g>
+      <g
+        className="feedback"
+        cursor="pointer"
+        style={{ fill: '#777' }}
+        transform={`translate(5, 0)`}
+      >
         <g
           className="yes"
-          transform={`translate(${this.ICON_GAP}, 0)`}
+          transform={`translate(${0 * this.ICON_GAP}, 0)`}
           onClick={() => toggleHideFunc(false)}
         >
           <rect width={this.ICON_GAP} height={this.ICON_GAP} fill="white" />
@@ -110,19 +106,11 @@ class PathMatrix extends React.Component<Props, State> {
         </g>
         <g
           className="no"
-          transform={`translate(${2 * this.ICON_GAP}, 0)`}
+          transform={`translate(${1 * this.ICON_GAP}, 0)`}
           onClick={() => toggleHideFunc(true)}
         >
           <rect width={this.ICON_GAP} height={this.ICON_GAP} fill="white" />
           <path d={NO_ICON} transform={`scale(0.03)`} />
-        </g>
-        <g
-          className="edit"
-          transform={`translate(${3 * this.ICON_GAP}, 0)`}
-          onClick={this.showModal}
-        >
-          <rect width={this.ICON_GAP} height={this.ICON_GAP} fill="white" />
-          <path d={EDIT_ICON} transform={`scale(0.03)`} />
         </g>
       </g>
     );
