@@ -8,7 +8,12 @@ import {
   LOADING_ICON,
 } from 'helpers';
 import { getNodeColor, SELECTED_COLOR } from 'helpers/color';
-import { ACTION_TYPES, changeDrug, queryAttentionPair } from 'stores/actions';
+import {
+  ACTION_TYPES,
+  changeDrug,
+  queryAttentionPair,
+  toggleMetaPathHide,
+} from 'stores/actions';
 import React from 'react';
 
 import { StateConsumer } from 'stores';
@@ -83,7 +88,7 @@ class PathMatrix extends React.Component<Props, State> {
       });
     }
   }
-  getMetaIconGroup() {
+  getMetaIconGroup(toggleHideFunc: (hide: boolean) => void) {
     return (
       <g className="feedback" cursor="pointer" style={{ fill: '#777' }}>
         <g className="search" transform={`translate(0, 0)`}>
@@ -95,13 +100,25 @@ class PathMatrix extends React.Component<Props, State> {
           />
           <path d={SEARCH_ICON} transform={`scale(0.018)`} />
         </g>
-        <g className="no" transform={`translate(${1 * this.ICON_GAP}, 0)`}>
+        <g
+          className="yes"
+          transform={`translate(${this.ICON_GAP}, 0)`}
+          onClick={() => toggleHideFunc(false)}
+        >
+          <rect width={this.ICON_GAP} height={this.ICON_GAP} fill="white" />
+          <path d={YES_ICON} transform={`scale(0.03)`} />
+        </g>
+        <g
+          className="no"
+          transform={`translate(${2 * this.ICON_GAP}, 0)`}
+          onClick={() => toggleHideFunc(true)}
+        >
           <rect width={this.ICON_GAP} height={this.ICON_GAP} fill="white" />
           <path d={NO_ICON} transform={`scale(0.03)`} />
         </g>
         <g
           className="edit"
-          transform={`translate(${2 * this.ICON_GAP}, 0)`}
+          transform={`translate(${3 * this.ICON_GAP}, 0)`}
           onClick={this.showModal}
         >
           <rect width={this.ICON_GAP} height={this.ICON_GAP} fill="white" />
@@ -128,13 +145,17 @@ class PathMatrix extends React.Component<Props, State> {
           />
           <path d={SEARCH_ICON} transform={`scale(0.018)`} />
         </g>
-        <g className="no" transform={`translate(${1 * this.ICON_GAP}, 0)`}>
+        <g className="yes" transform={`translate(${this.ICON_GAP}, 0)`}>
+          <rect width={this.ICON_GAP} height={this.ICON_GAP} fill="white" />
+          <path d={YES_ICON} transform={`scale(0.03)`} />
+        </g>
+        <g className="no" transform={`translate(${2 * this.ICON_GAP}, 0)`}>
           <rect width={this.ICON_GAP} height={this.ICON_GAP} fill="white" />
           <path d={NO_ICON} transform={`scale(0.03)`} />
         </g>
         <g
           className="edit"
-          transform={`translate(${2 * this.ICON_GAP}, 0)`}
+          transform={`translate(${3 * this.ICON_GAP}, 0)`}
           onClick={this.showModal}
         >
           <rect width={this.ICON_GAP} height={this.ICON_GAP} fill="white" />
@@ -201,101 +222,115 @@ class PathMatrix extends React.Component<Props, State> {
       .domain([0, maxCount]);
 
     let offsetY = 0;
-    const allRows = metaPathSummary.map((group, groupIdx) => {
-      let nodes = group.nodeTypes.map((node, nodeIdx) => {
-        let translate = `translate(${
-          (EDGE_LENGTH + NODE_WIDTH) * nodeIdx
-        }, ${0})`;
-        return (
-          <g key={`node_${nodeIdx}`} transform={translate}>
-            <rect
-              width={NODE_WIDTH}
-              height={NODE_HEIGHT}
-              fill="white"
-              strokeWidth="3"
-              stroke={getNodeColor(node)}
-              rx={this.NODE_HEIGHT / 2}
-            />
-            <text
-              textAnchor="middle"
-              y={NODE_HEIGHT / 2 + 6}
-              x={NODE_WIDTH / 2}
-              fill="black"
-            >
-              {node}
-            </text>
-          </g>
-        );
-      });
-      let edges = [...Array(nodes.length - 1)].map((_, edgeIdx) => {
-        let translate = `translate(${
-          NODE_WIDTH + (EDGE_LENGTH + NODE_WIDTH) * edgeIdx
-        }, ${+NODE_HEIGHT / 2})`;
-        return (
-          <g key={`edge_${edgeIdx}`} transform={translate}>
-            <line
-              stroke="lightgray"
-              // strokeWidth={1+Math.random() * 8}
-              strokeWidth={2}
-              x1={0}
-              y1={0}
-              x2={EDGE_LENGTH}
-              y2={0}
-            />
-          </g>
-        );
-      });
-      let currentY = offsetY;
-      offsetY += NODE_HEIGHT + VERTICAL_GAP;
-
-      let showChildren = this.state.expand[groupIdx];
-      const metaPaths =
-        metaPathGroups.filter(
-          (d) => d.nodeTypes.join('') === group.nodeTypes.join('')
-        )[0]?.metaPaths || [];
-
-      const children = this.drawChildrenPath(metaPaths);
-
-      if (showChildren) {
-        offsetY += (NODE_HEIGHT + VERTICAL_GAP) * metaPaths.length;
-      }
-
-      offsetY += this.GROUP_GAP;
-
-      return (
-        <g
-          key={`prototype_${groupIdx}`}
-          transform={`translate(${0}, ${currentY})`}
-        >
-          <g className="metaCount">{this.drawMetaCount(group, rScale)}</g>
-          <g className="icon">
-            <path
-              d={showChildren ? triangelBottom : triangleRight}
-              transform={`translate(${COUNT_WIDTH}, 0)`}
-              fill="gray"
-              onClick={() => this.toggleExpand(groupIdx)}
-              cursor="pointer"
-            />
-          </g>
-          <g
-            className="prototype"
-            transform={`translate(${COUNT_WIDTH + this.ICON_GAP}, 0)`}
-          >
-            {nodes}
-            {edges}
-            <g
-              className="iconGroup"
-              transform={`translate(${
-                NODE_WIDTH * nodes.length + EDGE_LENGTH * edges.length
-              }, 0)`}
-            >
-              {this.getMetaIconGroup()}
+    const allRows = [...metaPathSummary]
+      .sort((a, b) => (a.hide ? 1 : 0) - (b.hide ? 1 : 0))
+      .map((group, groupIdx) => {
+        let nodes = group.nodeTypes.map((node, nodeIdx) => {
+          let translate = `translate(${
+            (EDGE_LENGTH + NODE_WIDTH) * nodeIdx
+          }, ${0})`;
+          return (
+            <g key={`node_${nodeIdx}`} transform={translate}>
+              <rect
+                width={NODE_WIDTH}
+                height={NODE_HEIGHT}
+                fill="white"
+                strokeWidth="3"
+                stroke={getNodeColor(node)}
+                rx={this.NODE_HEIGHT / 2}
+              />
+              <text
+                textAnchor="middle"
+                y={NODE_HEIGHT / 2 + 6}
+                x={NODE_WIDTH / 2}
+                fill="black"
+              >
+                {node}
+              </text>
             </g>
+          );
+        });
+        let edges = [...Array(nodes.length - 1)].map((_, edgeIdx) => {
+          let translate = `translate(${
+            NODE_WIDTH + (EDGE_LENGTH + NODE_WIDTH) * edgeIdx
+          }, ${+NODE_HEIGHT / 2})`;
+          return (
+            <g key={`edge_${edgeIdx}`} transform={translate}>
+              <line
+                stroke="lightgray"
+                // strokeWidth={1+Math.random() * 8}
+                strokeWidth={2}
+                x1={0}
+                y1={0}
+                x2={EDGE_LENGTH}
+                y2={0}
+              />
+            </g>
+          );
+        });
+        let currentY = offsetY;
+        offsetY += NODE_HEIGHT + VERTICAL_GAP;
+
+        let showChildren = this.state.expand[groupIdx];
+        const metaPaths =
+          metaPathGroups.filter(
+            (d) => d.nodeTypes.join('') === group.nodeTypes.join('')
+          )[0]?.metaPaths || [];
+
+        const children = this.drawChildrenPath(metaPaths);
+
+        if (showChildren) {
+          offsetY += (NODE_HEIGHT + VERTICAL_GAP) * metaPaths.length;
+        }
+
+        offsetY += this.GROUP_GAP;
+
+        const toggleHideFunc = (hide: boolean) => {
+          toggleMetaPathHide(
+            metaPathSummary,
+            group.idx,
+            hide,
+            this.props.dispatch
+          );
+        };
+
+        return (
+          <g
+            key={`prototype_${groupIdx}`}
+            transform={`translate(${0}, ${currentY})`}
+            opacity={group.hide ? 0.4 : 1}
+          >
+            <g className="metaCount">{this.drawMetaCount(group, rScale)}</g>
+            <g className="icon">
+              <path
+                d={showChildren ? triangelBottom : triangleRight}
+                transform={`translate(${COUNT_WIDTH}, 0)`}
+                fill="gray"
+                onClick={() => {
+                  if (!group.hide) this.toggleExpand(groupIdx);
+                }}
+                cursor="pointer"
+              />
+            </g>
+            <g
+              className="prototype"
+              transform={`translate(${COUNT_WIDTH + this.ICON_GAP}, 0)`}
+            >
+              {nodes}
+              {edges}
+              <g
+                className="iconGroup"
+                transform={`translate(${
+                  NODE_WIDTH * nodes.length + EDGE_LENGTH * edges.length
+                }, 0)`}
+              >
+                {this.getMetaIconGroup(toggleHideFunc)}
+              </g>
+            </g>
+            <g className="metapaths">{showChildren ? children : <g />}</g>
           </g>
-          <g className="metapaths">{showChildren ? children : <g />}</g>
-        </g>
-      );
-    });
+        );
+      });
     const header = this.drawHeader();
     const content = (
       <g>
@@ -328,9 +363,7 @@ class PathMatrix extends React.Component<Props, State> {
   componentDidUpdate(prevProps: Props) {
     // update expended metapaths when selected drug changes
     if (
-      prevProps.globalState.selectedDrug !==
-        this.props.globalState.selectedDrug &&
-      prevProps.globalState.selectedDrug === undefined
+      prevProps.globalState.selectedDrug !== this.props.globalState.selectedDrug
     ) {
       const {
         selectedDrug,
@@ -342,12 +375,13 @@ class PathMatrix extends React.Component<Props, State> {
         .map((d) => d.id)
         .indexOf(selectedDrug || '');
 
-      const expandStatus = metaPathSummary.map(
-        (d) => d.count[selectedDrugIdx] > 0
-      );
+      const expandStatus = [...metaPathSummary]
+        .sort((a, b) => (a.hide ? 1 : 0) - (b.hide ? 1 : 0))
+        .map((d) => !(d.count[selectedDrugIdx] === 0 || d.hide));
       this.setState({ expand: expandStatus });
     }
 
+    // when disease changed, collapse all meta paths
     if (
       prevProps.globalState.selectedDisease !==
       this.props.globalState.selectedDisease
