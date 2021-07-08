@@ -1,4 +1,4 @@
-import { IDispatch, IMetaPath, IMetaPathGroup } from 'types';
+import { IDispatch, IMetaPath, IMetaPathGroup, IMetaPathSummary } from 'types';
 import {
   requestAttentionPair,
   requestDrugPredictions,
@@ -19,6 +19,8 @@ export const ACTION_TYPES = {
   Change_Drug: 'Change_Drug',
   Change_Disease: 'Change_Disease',
   Select_Path_Noes: 'Select_Path_Nodes',
+
+  Toggle_Meta_Path_Hide: 'Toggle_Meta_Path_Hide',
 };
 
 export const changeDrug = (selectedDrug: string, dispatch: IDispatch) => {
@@ -97,6 +99,7 @@ const groupMetaPaths = (metaPaths: IMetaPath[]): IMetaPathGroup[] => {
   let groups: IMetaPathGroup[] = [];
   let groupDict: string[] = [];
   metaPaths.forEach((metaPath) => {
+    metaPath.hide = false; // initi, show all metapaths
     const nodeTypeString = metaPath.nodes.map((d) => d.nodeType).join('_');
     const groupIdx = groupDict.indexOf(nodeTypeString);
     if (groupIdx > -1) {
@@ -110,4 +113,17 @@ const groupMetaPaths = (metaPaths: IMetaPath[]): IMetaPathGroup[] => {
     }
   });
   return groups;
+};
+
+export const toggleMetaPathHide = (
+  metaPathSummary: IMetaPathSummary[],
+  idx: number,
+  hide: boolean,
+  dispatch: IDispatch
+) => {
+  metaPathSummary[idx]['hide'] = hide;
+  dispatch({
+    type: ACTION_TYPES.Toggle_Meta_Path_Hide,
+    payload: { metaPathSummary },
+  });
 };
