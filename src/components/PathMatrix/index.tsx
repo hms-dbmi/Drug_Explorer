@@ -41,6 +41,7 @@ class PathMatrix extends React.Component<Props, State> {
   COUNT_GAP = 5; // horizontal gap between count circles
   RADIUS = this.NODE_HEIGHT / 2; // max radius of the count circle
   HEAD_HEIGHT = 70; // height of the header ()
+  ICON_GAP = 20; // width of the expand triangle icon
 
   constructor(prop: Props) {
     super(prop);
@@ -151,19 +152,19 @@ class PathMatrix extends React.Component<Props, State> {
     });
     return header;
   }
+  getCountWidth() {
+    const width =
+      (this.props.globalState.drugPredictions.length + 1) *
+        (this.RADIUS * 2 + this.COUNT_GAP) +
+      this.COUNT_GAP;
+    return width;
+  }
   drawSummary() {
     let { EDGE_LENGTH, NODE_WIDTH, NODE_HEIGHT, VERTICAL_GAP } = this;
 
-    let {
-      nodeNameDict,
-      metaPathSummary,
-      drugPredictions,
-      edgeTypes,
-    } = this.props.globalState;
+    let { nodeNameDict, metaPathSummary, edgeTypes } = this.props.globalState;
 
-    const ICON_WIDTH =
-      (drugPredictions.length + 1) * (this.RADIUS * 2 + this.COUNT_GAP) +
-      this.COUNT_GAP;
+    const COUNT_WIDTH = this.getCountWidth();
 
     let metaPathGroups = this.filterMetaPathGroups();
     const triangleRight =
@@ -303,7 +304,7 @@ class PathMatrix extends React.Component<Props, State> {
         return (
           <g
             key={childIdx}
-            transform={`translate(${ICON_WIDTH + 20}, ${
+            transform={`translate(${COUNT_WIDTH + this.ICON_GAP}, ${
               (NODE_HEIGHT + VERTICAL_GAP) * (1 + childIdx)
             })`}
           >
@@ -312,7 +313,7 @@ class PathMatrix extends React.Component<Props, State> {
             <g
               className="iconGroup"
               transform={`translate(${
-                NODE_WIDTH * nodes.length + EDGE_LENGTH * edges.length + 20
+                NODE_WIDTH * nodes.length + EDGE_LENGTH * edges.length
               }, 0)`}
             >
               {this.getIconGroup(path.nodes)}
@@ -336,7 +337,7 @@ class PathMatrix extends React.Component<Props, State> {
           <g className="icon">
             <path
               d={showChildren ? triangelBottom : triangleRight}
-              transform={`translate(${ICON_WIDTH}, 0)`}
+              transform={`translate(${COUNT_WIDTH}, 0)`}
               fill="gray"
               onClick={() => this.toggleExpand(groupIdx)}
               cursor="pointer"
@@ -344,7 +345,7 @@ class PathMatrix extends React.Component<Props, State> {
           </g>
           <g
             className="prototype"
-            transform={`translate(${ICON_WIDTH + 20}, 0)`}
+            transform={`translate(${COUNT_WIDTH + this.ICON_GAP}, 0)`}
           >
             {nodes}
             {edges}
@@ -521,8 +522,15 @@ class PathMatrix extends React.Component<Props, State> {
       .map((d) => d.metaPaths.length)
       .reduce((a, b) => a + b, 0);
 
-    const svgWidth = width - 2 * this.PADDING - 2 * this.MARGIN,
-      svgOuterHeight = height - 2 * this.PADDING - this.TITLE_HEIGHT,
+    const svgWidth = Math.max(
+      width - 2 * this.PADDING - 2 * this.MARGIN,
+      this.getCountWidth() +
+        this.ICON_GAP * 5 +
+        this.NODE_WIDTH +
+        (this.EDGE_LENGTH + this.NODE_WIDTH) * 4
+    );
+
+    const svgOuterHeight = height - 2 * this.PADDING - this.TITLE_HEIGHT,
       svgHeight = Math.max(
         (numberOfPath + metaPathSummary.length) *
           (this.NODE_HEIGHT + this.VERTICAL_GAP) +
