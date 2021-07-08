@@ -2,7 +2,7 @@ import React from 'react';
 import { IState, IAttentionTree } from 'types';
 import * as d3 from 'd3';
 import { Tooltip } from 'antd';
-import { getNodeColor } from 'helpers/color';
+import { getNodeColor, pruneEdge } from 'helpers';
 import {
   cropText,
   VIRUS_ICON,
@@ -33,21 +33,6 @@ export default class AttentionTree extends React.Component<Props, {}> {
       edgeTypes,
       selectedPathNodes,
     } = this.props.globalState;
-
-    let pruneEdge = (
-      node: IAttentionTree,
-      threshold: number
-    ): IAttentionTree => {
-      if (node.children.length > 0) {
-        node = {
-          ...node,
-          children: node.children
-            .filter((d) => d.score >= threshold)
-            .map((node) => pruneEdge(node, threshold)),
-        };
-      }
-      return node;
-    };
 
     let nodeAttentionFiltered = pruneEdge(nodeAttention, edgeThreshold);
 

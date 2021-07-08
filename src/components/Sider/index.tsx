@@ -139,7 +139,7 @@ class DrugSider extends React.Component<Props> {
               step={0.1}
               value={edgeThreshold}
               min={0}
-              max={1}
+              max={1.5}
               onChange={this.changeEdgeTHR}
             />
           </Col>

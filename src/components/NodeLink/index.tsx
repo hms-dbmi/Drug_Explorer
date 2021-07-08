@@ -5,6 +5,7 @@ import { IState, IDispatch } from 'types';
 
 import AttentionTree from './AttentionTree';
 import Scatter from './Scatter';
+import Graph from './Graph';
 
 import './index.css';
 
@@ -91,6 +92,19 @@ class NodeLink extends React.Component<Props, State> {
             }}
           >
             <AttentionTree {...props} />
+          </div>
+        </TabPane>
+
+        <TabPane style={{ padding: this.padding }} key="graph" tab="Sub-Graph">
+          <div
+            className="nodelink"
+            style={{
+              width: cardWidth,
+              height: cardHeight,
+              overflowY: 'scroll',
+            }}
+          >
+            <Graph {...props} />
           </div>
         </TabPane>
       </Tabs>
