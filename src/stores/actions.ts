@@ -24,7 +24,7 @@ export const ACTION_TYPES = {
 export const changeDrug = (selectedDrug: string, dispatch: IDispatch) => {
   dispatch({
     type: ACTION_TYPES.Change_Drug,
-    payload: { selectedDrug },
+    payload: { selectedDrugs: [selectedDrug] },
   });
 };
 
@@ -41,7 +41,7 @@ export const changeDisease = (selectedDisease: string, dispatch: IDispatch) => {
 
   dispatch({
     type: ACTION_TYPES.Change_Drug,
-    payload: { selectedDrug: undefined },
+    payload: { selectedDrugs: [] },
   });
 
   requestDrugPredictions(selectedDisease)

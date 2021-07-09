@@ -29,14 +29,14 @@ export default class ModelNodeForce extends React.Component<Props, State> {
   RADIUS = 8;
   drawGraph() {
     const {
-      selectedDrug,
+      selectedDrugs,
       attention,
       edgeThreshold,
       selectedDisease,
       nodeNameDict,
     } = this.props.globalState;
     const { width, height } = this.props;
-    if (selectedDrug === undefined)
+    if (selectedDrugs.length === 0)
       return (
         <g
           className="path no"
@@ -77,12 +77,13 @@ export default class ModelNodeForce extends React.Component<Props, State> {
 
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i];
-      if (node.nodeId === selectedDrug) {
-        node.fy = height / 2;
-        node.fx = width * 0.9;
-      } else if (node.nodeId === selectedDisease) {
+      const drugIdx = selectedDrugs.indexOf(node.nodeId);
+      if (node.nodeId === selectedDisease) {
         node.fy = height / 2;
         node.fx = width * 0.1;
+      } else if (drugIdx > -1) {
+        node.fy = (height / (selectedDrugs.length + 1)) * (drugIdx + 1);
+        node.fx = width * 0.9;
       }
     }
 
@@ -146,7 +147,7 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       d.fy = d3.event.y;
     }
     const isTargetNode = (d: INode) =>
-      d.nodeId === selectedDrug || d.nodeId === selectedDisease;
+      selectedDrugs.includes(d.nodeId) || selectedDisease === d.nodeId;
 
     let svgLinks: any = g
       .append('g')

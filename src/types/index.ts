@@ -71,8 +71,8 @@ export interface IState {
   diseaseOptions: string[];
   drugPredictions: DrugPrediction[];
   metaPathGroups: IMetaPathGroup[];
-  selectedDrug: string | undefined;
   selectedDisease: string | undefined;
+  selectedDrugs: string[];
   nodeNameDict: { [type: string]: { [id: string]: string } };
   isAttentionLoading: boolean;
   isDrugLoading: boolean;

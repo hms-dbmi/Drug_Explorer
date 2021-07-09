@@ -10,7 +10,7 @@ const initialState: IState = {
   metaPathGroups: [],
   attention: {},
   selectedDisease: undefined,
-  selectedDrug: undefined,
+  selectedDrugs: [],
   nodeNameDict: {},
   isDrugLoading: false,
   isAttentionLoading: false,

@@ -23,7 +23,13 @@ const rootReducer = (state: IState, action: IAction): IState => {
       return { ...state, selectedDisease: action.payload.selectedDisease };
 
     case ACTION_TYPES.Change_Drug:
-      return { ...state, selectedDrug: action.payload.selectedDrug };
+      return {
+        ...state,
+        selectedDrugs: [
+          ...state.selectedDrugs,
+          ...action.payload.selectedDrugs,
+        ],
+      };
 
     case ACTION_TYPES.Load_Node_Name_Dict:
       return { ...state, nodeNameDict: action.payload.nodeNameDict };

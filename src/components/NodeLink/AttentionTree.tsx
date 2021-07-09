@@ -227,7 +227,7 @@ export default class AttentionTree extends React.Component<Props, {}> {
   }
   render() {
     const { width, height, globalState } = this.props;
-    const { isAttentionLoading, selectedDisease, selectedDrug } = globalState;
+    const { isAttentionLoading, selectedDisease, selectedDrugs } = globalState;
 
     const { content, height: graphHeight } = this.drawSubgraph();
     return (
@@ -236,7 +236,7 @@ export default class AttentionTree extends React.Component<Props, {}> {
         height={Math.max(graphHeight, height)}
         className="nodeLink"
       >
-        {selectedDisease && selectedDrug ? (
+        {selectedDrugs.length > 0 && selectedDisease ? (
           content
         ) : (
           <text x={width / 2} y={height / 2} fill="gray">
