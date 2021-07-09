@@ -1,12 +1,7 @@
 import React from 'react';
 import { StateConsumer } from 'stores';
 import { IDispatch, IState } from 'types';
-import {
-  ACTION_TYPES,
-  changeDisease,
-  changeDrug,
-  queryAttentionPair,
-} from 'stores/actions';
+import { ACTION_TYPES, changeDisease, selectDrug } from 'stores/actions';
 
 import './Sider.css';
 
@@ -31,11 +26,14 @@ class DrugSider extends React.Component<Props> {
     this.onChangeDrug = this.onChangeDrug.bind(this);
   }
   onChangeDrug(selectedDrugs: string[]) {
+    const isAdd =
+      selectedDrugs.length > this.props.globalState.drugPredictions.length;
+
     const currentDrug = selectedDrugs[selectedDrugs.length - 1];
-    changeDrug(currentDrug, this.props.dispatch);
-    queryAttentionPair(
+    selectDrug(
       currentDrug,
       this.props.globalState.selectedDisease,
+      isAdd,
       this.props.dispatch
     );
   }

@@ -1,3 +1,5 @@
+import AttentionTree from 'components/NodeLink/AttentionTree';
+
 export interface INode extends d3.SimulationNodeDatum {
   id: string;
   fx?: number;
@@ -55,7 +57,13 @@ export type IAction = {
   payload: any;
 };
 
-type TDispatchPayload = Partial<IState & { selectedDrug: string | undefined }>;
+type TDispatchPayload = Partial<
+  IState & {
+    selectedDrug: string | undefined;
+    metaPathGroup: IMetaPathGroup[];
+    nodeAttention: AttentionTree;
+  }
+>;
 
 export type IDispatch = ({
   type,
@@ -76,13 +84,13 @@ export interface IState {
   edgeTypes: IEdgeTypes;
   diseaseOptions: string[];
   drugPredictions: DrugPrediction[];
-  metaPathGroups: IMetaPathGroup[];
   selectedDisease: string | undefined;
   nodeNameDict: { [type: string]: { [id: string]: string } };
   isAttentionLoading: boolean;
   isDrugLoading: boolean;
   isDiseaseLoading: boolean;
-  attention: { [nodeKey: string]: IAttentionTree };
+  attention: { [nodeKey: string]: IAttentionTree }; // node key = ${node_type}:${node_id}
+  metaPathGroups: { [drugID: string]: IMetaPathGroup[] };
   metaPathSummary: IMetaPathSummary[]; // summary of all drugs
   selectedPathNodes: IMetaPath['nodes'];
 }

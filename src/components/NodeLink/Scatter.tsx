@@ -4,7 +4,8 @@ import { IState, IDispatch } from 'types';
 import * as d3 from 'd3';
 import { HIGHLIGHT_COLOR, SELECTED_COLOR } from 'helpers/color';
 import { LOADING_ICON } from 'helpers';
-import { changeDrug, queryAttentionPair } from 'stores/actions';
+import { selectDrug } from 'stores/actions';
+import { isAddDrug } from 'stores/reducer';
 
 interface State {
   embedding: { [key: string]: [number, number] };
@@ -102,10 +103,14 @@ export default class Scatter extends React.Component<Props, State> {
     return nodes;
   }
   onChangeDrug(selectedDrug: string) {
-    changeDrug(selectedDrug, this.props.dispatch);
-    queryAttentionPair(
+    const isAdd = isAddDrug(
+      this.props.globalState.drugPredictions,
+      selectedDrug
+    );
+    selectDrug(
       selectedDrug,
       this.props.globalState.selectedDisease,
+      isAdd,
       this.props.dispatch
     );
   }

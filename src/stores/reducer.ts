@@ -1,5 +1,6 @@
 import { IState, IAction, IMetaPathSummary } from 'types';
 import { ACTION_TYPES } from 'stores/actions';
+import AttentionTree from 'components/NodeLink/AttentionTree';
 
 const rootReducer = (state: IState, action: IAction): IState => {
   switch (action.type) {
@@ -52,11 +53,14 @@ const rootReducer = (state: IState, action: IAction): IState => {
       return { ...state, metaPathSummary: action.payload.metaPathSummary };
     }
 
-    case ACTION_TYPES.Load_Attention_Pair: {
+    case ACTION_TYPES.Add_Attention_Paths: {
       return {
         ...state,
-        attention: action.payload.attention,
-        metaPathGroups: action.payload.metaPathGroups,
+        attention: { ...state.attention, ...action.payload.attention },
+        metaPathGroups: {
+          ...state.metaPathGroups,
+          ...action.payload.metaPathGroups,
+        },
       };
     }
 
@@ -77,4 +81,13 @@ const toggleDrugSelection = (
   });
 };
 
+export const isAddDrug = (
+  drugPredictions: IState['drugPredictions'],
+  drugID: string
+) => {
+  return !drugPredictions
+    .filter((d) => d.selected)
+    .map((d) => d.id)
+    .includes(drugID);
+};
 export default rootReducer;

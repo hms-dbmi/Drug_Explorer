@@ -8,12 +8,8 @@ import {
   LOADING_ICON,
 } from 'helpers';
 import { getNodeColor, SELECTED_COLOR } from 'helpers/color';
-import {
-  ACTION_TYPES,
-  changeDrug,
-  queryAttentionPair,
-  toggleMetaPathHide,
-} from 'stores/actions';
+import { ACTION_TYPES, selectDrug, toggleMetaPathHide } from 'stores/actions';
+import { isAddDrug } from 'stores/reducer';
 import React from 'react';
 
 import { StateConsumer } from 'stores';
@@ -342,10 +338,14 @@ class PathMatrix extends React.Component<Props, State> {
   }
 
   onChangeDrug(selectedDrug: string) {
-    changeDrug(selectedDrug, this.props.dispatch);
-    queryAttentionPair(
+    const isAdd = isAddDrug(
+      this.props.globalState.drugPredictions,
+      selectedDrug
+    );
+    selectDrug(
       selectedDrug,
       this.props.globalState.selectedDisease,
+      isAdd,
       this.props.dispatch
     );
   }
