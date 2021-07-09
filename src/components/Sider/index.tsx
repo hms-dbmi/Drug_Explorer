@@ -30,10 +30,11 @@ class DrugSider extends React.Component<Props> {
     this.onChangeDisease = this.onChangeDisease.bind(this);
     this.onChangeDrug = this.onChangeDrug.bind(this);
   }
-  onChangeDrug(selectedDrug: string) {
-    changeDrug(selectedDrug, this.props.dispatch);
+  onChangeDrug(selectedDrugs: string[]) {
+    const currentDrug = selectedDrugs[selectedDrugs.length - 1];
+    changeDrug(currentDrug, this.props.dispatch);
     queryAttentionPair(
-      selectedDrug,
+      currentDrug,
       this.props.globalState.selectedDisease,
       this.props.dispatch
     );
@@ -106,7 +107,7 @@ class DrugSider extends React.Component<Props> {
           listHeight={this.listHeight}
           onChange={this.onChangeDrug}
           placeholder={defaultDrugText}
-          value={selectedDrugIds as any}
+          value={selectedDrugIds}
         >
           {selectedDisease !== undefined ? (
             drugPredictions.length > 0 ? (
