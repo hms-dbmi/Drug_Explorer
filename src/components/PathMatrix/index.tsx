@@ -561,11 +561,14 @@ class PathMatrix extends React.Component<Props, State> {
   }
   filterMetaPathGroups() {
     let { metaPathGroups, edgeThreshold } = this.props.globalState;
-    let a = metaPathGroups.map((metaPathGroup) => {
-      const metaPaths = metaPathGroup.metaPaths.filter((metaPath) =>
-        metaPath.edges.every((e) => e.score > edgeThreshold)
-      );
-      return { ...metaPathGroup, metaPaths };
+    const filteredMetaGroups: IState['metaPathGroups'] = {};
+    Object.keys(metaPathGroups).forEach((k) => {
+      filteredMetaGroups[k] = metaPathGroups[k].map((metaPathGroup) => {
+        const metaPaths = metaPathGroup.metaPaths.filter((metaPath) =>
+          metaPath.edges.every((e) => e.score > edgeThreshold)
+        );
+        return { ...metaPathGroup, metaPaths };
+      });
     });
 
     let b = a.filter((metaPathGroup) => metaPathGroup.metaPaths.length > 0);
