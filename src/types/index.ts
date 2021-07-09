@@ -19,6 +19,7 @@ export interface IMetaPath {
     score: number;
   }[];
   nodes: { nodeId: string; nodeType: string }[];
+  hide: boolean;
 }
 
 export interface IMetaPathGroup {
@@ -30,6 +31,8 @@ export interface IMetaPathSummary {
   nodeTypes: string[];
   count: number[];
   sum: number;
+  hide: boolean;
+  idx: number;
 }
 
 export interface IAttentionTree {
@@ -78,6 +81,6 @@ export interface IState {
   isDrugLoading: boolean;
   isDiseaseLoading: boolean;
   attention: { [nodeKey: string]: IAttentionTree };
-  metaPathSummary: IMetaPathSummary[];
+  metaPathSummary: IMetaPathSummary[]; // summary of all drugs
   selectedPathNodes: IMetaPath['nodes'];
 }

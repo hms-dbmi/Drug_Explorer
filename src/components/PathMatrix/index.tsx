@@ -8,7 +8,12 @@ import {
   LOADING_ICON,
 } from 'helpers';
 import { getNodeColor, SELECTED_COLOR } from 'helpers/color';
-import { ACTION_TYPES, changeDrug, queryAttentionPair } from 'stores/actions';
+import {
+  ACTION_TYPES,
+  changeDrug,
+  queryAttentionPair,
+  toggleMetaPathHide,
+} from 'stores/actions';
 import React from 'react';
 
 import { StateConsumer } from 'stores';
@@ -83,8 +88,34 @@ class PathMatrix extends React.Component<Props, State> {
       });
     }
   }
+  getMetaIconGroup(toggleHideFunc: (hide: boolean) => void) {
+    return (
+      <g
+        className="feedback"
+        cursor="pointer"
+        style={{ fill: '#777' }}
+        transform={`translate(5, 0)`}
+      >
+        <g
+          className="yes"
+          transform={`translate(${0 * this.ICON_GAP}, 0)`}
+          onClick={() => toggleHideFunc(false)}
+        >
+          <rect width={this.ICON_GAP} height={this.ICON_GAP} fill="white" />
+          <path d={YES_ICON} transform={`scale(0.03)`} />
+        </g>
+        <g
+          className="no"
+          transform={`translate(${1 * this.ICON_GAP}, 0)`}
+          onClick={() => toggleHideFunc(true)}
+        >
+          <rect width={this.ICON_GAP} height={this.ICON_GAP} fill="white" />
+          <path d={NO_ICON} transform={`scale(0.03)`} />
+        </g>
+      </g>
+    );
+  }
   getIconGroup(nodes: IMetaPath['nodes']) {
-    const dimension = 20;
     const doesExist = this.isPathSelected(nodes);
     return (
       <g className="feedback" cursor="pointer" style={{ fill: '#777' }}>
@@ -95,27 +126,27 @@ class PathMatrix extends React.Component<Props, State> {
           onClick={() => this.togglePathNodes(nodes, doesExist)}
         >
           <rect
-            width={dimension}
-            height={dimension}
+            width={this.ICON_GAP}
+            height={this.ICON_GAP}
             fill="white"
             stroke="white"
           />
           <path d={SEARCH_ICON} transform={`scale(0.018)`} />
         </g>
-        <g className="yes" transform={`translate(${dimension}, 0)`}>
-          <rect width={dimension} height={dimension} fill="white" />
+        <g className="yes" transform={`translate(${this.ICON_GAP}, 0)`}>
+          <rect width={this.ICON_GAP} height={this.ICON_GAP} fill="white" />
           <path d={YES_ICON} transform={`scale(0.03)`} />
         </g>
-        <g className="no" transform={`translate(${2 * dimension}, 0)`}>
-          <rect width={dimension} height={dimension} fill="white" />
+        <g className="no" transform={`translate(${2 * this.ICON_GAP}, 0)`}>
+          <rect width={this.ICON_GAP} height={this.ICON_GAP} fill="white" />
           <path d={NO_ICON} transform={`scale(0.03)`} />
         </g>
         <g
           className="edit"
-          transform={`translate(${3 * dimension}, 0)`}
+          transform={`translate(${3 * this.ICON_GAP}, 0)`}
           onClick={this.showModal}
         >
-          <rect width={dimension} height={dimension} fill="white" />
+          <rect width={this.ICON_GAP} height={this.ICON_GAP} fill="white" />
           <path d={EDIT_ICON} transform={`scale(0.03)`} />
         </g>
       </g>
@@ -162,7 +193,7 @@ class PathMatrix extends React.Component<Props, State> {
   drawSummary() {
     let { EDGE_LENGTH, NODE_WIDTH, NODE_HEIGHT, VERTICAL_GAP } = this;
 
-    let { nodeNameDict, metaPathSummary, edgeTypes } = this.props.globalState;
+    let { metaPathSummary } = this.props.globalState;
 
     const COUNT_WIDTH = this.getCountWidth();
 
@@ -179,181 +210,115 @@ class PathMatrix extends React.Component<Props, State> {
       .domain([0, maxCount]);
 
     let offsetY = 0;
-    const allRows = metaPathSummary.map((group, groupIdx) => {
-      let nodes = group.nodeTypes.map((node, nodeIdx) => {
-        let translate = `translate(${
-          (EDGE_LENGTH + NODE_WIDTH) * nodeIdx
-        }, ${0})`;
-        return (
-          <g key={`node_${nodeIdx}`} transform={translate}>
-            <rect
-              width={NODE_WIDTH}
-              height={NODE_HEIGHT}
-              fill="white"
-              strokeWidth="3"
-              stroke={getNodeColor(node)}
-              rx={this.NODE_HEIGHT / 2}
-            />
-            <text
-              textAnchor="middle"
-              y={NODE_HEIGHT / 2 + 6}
-              x={NODE_WIDTH / 2}
-              fill="black"
-            >
-              {node}
-            </text>
-          </g>
-        );
-      });
-      let edges = [...Array(nodes.length - 1)].map((_, edgeIdx) => {
-        let translate = `translate(${
-          NODE_WIDTH + (EDGE_LENGTH + NODE_WIDTH) * edgeIdx
-        }, ${+NODE_HEIGHT / 2})`;
-        return (
-          <g key={`edge_${edgeIdx}`} transform={translate}>
-            <line
-              stroke="lightgray"
-              // strokeWidth={1+Math.random() * 8}
-              strokeWidth={2}
-              x1={0}
-              y1={0}
-              x2={EDGE_LENGTH}
-              y2={0}
-            />
-          </g>
-        );
-      });
-      let currentY = offsetY;
-      offsetY += NODE_HEIGHT + VERTICAL_GAP;
-
-      let showChildren = this.state.expand[groupIdx];
-      const metaPaths =
-        metaPathGroups.filter(
-          (d) => d.nodeTypes.join('') === group.nodeTypes.join('')
-        )[0]?.metaPaths || [];
-
-      const children = metaPaths.map((path, childIdx) => {
-        const nodes = path.nodes.map((node, nodeIdx) => {
-          const { nodeId, nodeType } = node;
-          const nodeName = nodeNameDict[nodeType][nodeId];
-
-          let prevNodeName = '';
-          if (childIdx > 0) {
-            const { nodeId: prevNodeId, nodeType: prevNodeType } = metaPaths[
-              childIdx - 1
-            ].nodes[nodeIdx];
-            prevNodeName = nodeNameDict[prevNodeType][prevNodeId];
-          }
-
-          let shortNodeName =
-            nodeName === prevNodeName
-              ? '---'
-              : cropText(nodeName, 14, NODE_WIDTH - 10) || 'undefined';
-
+    const allRows = [...metaPathSummary]
+      .sort((a, b) => (a.hide ? 1 : 0) - (b.hide ? 1 : 0))
+      .map((group, groupIdx) => {
+        let nodes = group.nodeTypes.map((node, nodeIdx) => {
           let translate = `translate(${
             (EDGE_LENGTH + NODE_WIDTH) * nodeIdx
           }, ${0})`;
-
           return (
-            <Tooltip
-              key={`node_${nodeIdx}`}
-              title={shortNodeName.includes('.') ? nodeName : ''}
-            >
-              <g transform={translate} className={`node_${nodeId}`}>
-                <rect
-                  width={NODE_WIDTH}
-                  height={NODE_HEIGHT}
-                  fill={getNodeColor(nodeType)}
-                />
-                <text
-                  textAnchor="middle"
-                  y={NODE_HEIGHT / 2 + 6}
-                  x={NODE_WIDTH / 2}
-                  fill="white"
-                >
-                  {shortNodeName}
-                </text>
-              </g>
-            </Tooltip>
-          );
-        });
-        let edges = path.edges.map((edge, edgeIdx) => {
-          const translate = `translate(${
-            NODE_WIDTH + (EDGE_LENGTH + NODE_WIDTH) * edgeIdx
-          }, ${+NODE_HEIGHT / 2})`;
-
-          let edgeName = edge.edgeInfo.replace('rev_', '');
-          edgeName = edgeTypes[edgeName]?.edgeInfo || edgeName;
-          edgeName = cropText(edgeName, 14, this.EDGE_LENGTH);
-          return (
-            <g key={`edge_${edgeIdx}`} transform={translate}>
-              <line
-                stroke="gray"
-                strokeWidth={1 + edge.score * 0.7}
-                x1={0}
-                y1={NODE_HEIGHT / 4}
-                x2={EDGE_LENGTH}
-                y2={NODE_HEIGHT / 4}
+            <g key={`node_${nodeIdx}`} transform={translate}>
+              <rect
+                width={NODE_WIDTH}
+                height={NODE_HEIGHT}
+                fill="white"
+                strokeWidth="3"
+                stroke={getNodeColor(node)}
+                rx={this.NODE_HEIGHT / 2}
               />
-              <text x={EDGE_LENGTH / 2} y={0} textAnchor="middle">
-                {edgeName}
+              <text
+                textAnchor="middle"
+                y={NODE_HEIGHT / 2 + 6}
+                x={NODE_WIDTH / 2}
+                fill="black"
+              >
+                {node}
               </text>
             </g>
           );
         });
+        let edges = [...Array(nodes.length - 1)].map((_, edgeIdx) => {
+          let translate = `translate(${
+            NODE_WIDTH + (EDGE_LENGTH + NODE_WIDTH) * edgeIdx
+          }, ${+NODE_HEIGHT / 2})`;
+          return (
+            <g key={`edge_${edgeIdx}`} transform={translate}>
+              <line
+                stroke="lightgray"
+                // strokeWidth={1+Math.random() * 8}
+                strokeWidth={2}
+                x1={0}
+                y1={0}
+                x2={EDGE_LENGTH}
+                y2={0}
+              />
+            </g>
+          );
+        });
+        let currentY = offsetY;
+        offsetY += NODE_HEIGHT + VERTICAL_GAP;
+
+        let showChildren = this.state.expand[groupIdx];
+        const metaPaths =
+          metaPathGroups.filter(
+            (d) => d.nodeTypes.join('') === group.nodeTypes.join('')
+          )[0]?.metaPaths || [];
+
+        const children = this.drawChildrenPath(metaPaths);
+
+        if (showChildren) {
+          offsetY += (NODE_HEIGHT + VERTICAL_GAP) * metaPaths.length;
+        }
+
+        offsetY += this.GROUP_GAP;
+
+        const toggleHideFunc = (hide: boolean) => {
+          toggleMetaPathHide(
+            metaPathSummary,
+            group.idx,
+            hide,
+            this.props.dispatch
+          );
+        };
+
         return (
           <g
-            key={childIdx}
-            transform={`translate(${COUNT_WIDTH + this.ICON_GAP}, ${
-              (NODE_HEIGHT + VERTICAL_GAP) * (1 + childIdx)
-            })`}
+            key={`prototype_${groupIdx}`}
+            transform={`translate(${0}, ${currentY})`}
+            opacity={group.hide ? 0.4 : 1}
           >
-            {nodes}
-            {edges}
-            <g
-              className="iconGroup"
-              transform={`translate(${
-                NODE_WIDTH * nodes.length + EDGE_LENGTH * edges.length
-              }, 0)`}
-            >
-              {this.getIconGroup(path.nodes)}
+            <g className="metaCount">{this.drawMetaCount(group, rScale)}</g>
+            <g className="icon">
+              <path
+                d={showChildren ? triangelBottom : triangleRight}
+                transform={`translate(${COUNT_WIDTH}, 0)`}
+                fill="gray"
+                onClick={() => {
+                  if (!group.hide) this.toggleExpand(groupIdx);
+                }}
+                cursor="pointer"
+              />
             </g>
+            <g
+              className="prototype"
+              transform={`translate(${COUNT_WIDTH + this.ICON_GAP}, 0)`}
+            >
+              {nodes}
+              {edges}
+              <g
+                className="iconGroup"
+                transform={`translate(${
+                  NODE_WIDTH * nodes.length + EDGE_LENGTH * edges.length
+                }, 0)`}
+              >
+                {this.getMetaIconGroup(toggleHideFunc)}
+              </g>
+            </g>
+            <g className="metapaths">{showChildren ? children : <g />}</g>
           </g>
         );
       });
-
-      if (showChildren) {
-        offsetY += (NODE_HEIGHT + VERTICAL_GAP) * metaPaths.length;
-      }
-
-      offsetY += this.GROUP_GAP;
-
-      return (
-        <g
-          key={`prototype_${groupIdx}`}
-          transform={`translate(${0}, ${currentY})`}
-        >
-          <g className="metaCount">{this.drawMetaCount(group, rScale)}</g>
-          <g className="icon">
-            <path
-              d={showChildren ? triangelBottom : triangleRight}
-              transform={`translate(${COUNT_WIDTH}, 0)`}
-              fill="gray"
-              onClick={() => this.toggleExpand(groupIdx)}
-              cursor="pointer"
-            />
-          </g>
-          <g
-            className="prototype"
-            transform={`translate(${COUNT_WIDTH + this.ICON_GAP}, 0)`}
-          >
-            {nodes}
-            {edges}
-          </g>
-          <g className="metapaths">{showChildren ? children : <g />}</g>
-        </g>
-      );
-    });
     const header = this.drawHeader();
     const content = (
       <g>
@@ -386,9 +351,7 @@ class PathMatrix extends React.Component<Props, State> {
   componentDidUpdate(prevProps: Props) {
     // update expended metapaths when selected drug changes
     if (
-      prevProps.globalState.selectedDrug !==
-        this.props.globalState.selectedDrug &&
-      prevProps.globalState.selectedDrug === undefined
+      prevProps.globalState.selectedDrug !== this.props.globalState.selectedDrug
     ) {
       const {
         selectedDrug,
@@ -400,12 +363,13 @@ class PathMatrix extends React.Component<Props, State> {
         .map((d) => d.id)
         .indexOf(selectedDrug || '');
 
-      const expandStatus = metaPathSummary.map(
-        (d) => d.count[selectedDrugIdx] > 0
-      );
+      const expandStatus = [...metaPathSummary]
+        .sort((a, b) => (a.hide ? 1 : 0) - (b.hide ? 1 : 0))
+        .map((d) => !(d.count[selectedDrugIdx] === 0 || d.hide));
       this.setState({ expand: expandStatus });
     }
 
+    // when disease changed, collapse all meta paths
     if (
       prevProps.globalState.selectedDisease !==
       this.props.globalState.selectedDisease
@@ -488,6 +452,101 @@ class PathMatrix extends React.Component<Props, State> {
         </g>
       </g>
     );
+  }
+
+  drawChildrenPath(metaPaths: IMetaPath[]) {
+    const { nodeNameDict, edgeTypes } = this.props.globalState;
+    const COUNT_WIDTH = this.getCountWidth();
+    const children = metaPaths.map((path, childIdx) => {
+      const nodes = path.nodes.map((node, nodeIdx) => {
+        const { nodeId, nodeType } = node;
+        const nodeName = nodeNameDict[nodeType][nodeId];
+
+        let prevNodeName = '';
+        if (childIdx > 0) {
+          const { nodeId: prevNodeId, nodeType: prevNodeType } = metaPaths[
+            childIdx - 1
+          ].nodes[nodeIdx];
+          prevNodeName = nodeNameDict[prevNodeType][prevNodeId];
+        }
+
+        let shortNodeName =
+          nodeName === prevNodeName
+            ? '---'
+            : cropText(nodeName, 14, this.NODE_WIDTH - 10) || 'undefined';
+
+        let translate = `translate(${
+          (this.EDGE_LENGTH + this.NODE_WIDTH) * nodeIdx
+        }, ${0})`;
+
+        return (
+          <Tooltip
+            key={`node_${nodeIdx}`}
+            title={shortNodeName.includes('.') ? nodeName : ''}
+          >
+            <g transform={translate} className={`node_${nodeId}`}>
+              <rect
+                width={this.NODE_WIDTH}
+                height={this.NODE_HEIGHT}
+                fill={getNodeColor(nodeType)}
+              />
+              <text
+                textAnchor="middle"
+                y={this.NODE_HEIGHT / 2 + 6}
+                x={this.NODE_WIDTH / 2}
+                fill="white"
+              >
+                {shortNodeName}
+              </text>
+            </g>
+          </Tooltip>
+        );
+      });
+      let edges = path.edges.map((edge, edgeIdx) => {
+        const translate = `translate(${
+          this.NODE_WIDTH + (this.EDGE_LENGTH + this.NODE_WIDTH) * edgeIdx
+        }, ${+this.NODE_HEIGHT / 2})`;
+
+        let edgeName = edge.edgeInfo.replace('rev_', '');
+        edgeName = edgeTypes[edgeName]?.edgeInfo || edgeName;
+        edgeName = cropText(edgeName, 14, this.EDGE_LENGTH);
+        return (
+          <g key={`edge_${edgeIdx}`} transform={translate}>
+            <line
+              stroke="gray"
+              strokeWidth={1 + edge.score * 0.7}
+              x1={0}
+              y1={this.NODE_HEIGHT / 4}
+              x2={this.EDGE_LENGTH}
+              y2={this.NODE_HEIGHT / 4}
+            />
+            <text x={this.EDGE_LENGTH / 2} y={0} textAnchor="middle">
+              {edgeName}
+            </text>
+          </g>
+        );
+      });
+      return (
+        <g
+          key={childIdx}
+          transform={`translate(${COUNT_WIDTH + this.ICON_GAP}, ${
+            (this.NODE_HEIGHT + this.VERTICAL_GAP) * (1 + childIdx)
+          })`}
+        >
+          {nodes}
+          {edges}
+          <g
+            className="iconGroup"
+            transform={`translate(${
+              this.NODE_WIDTH * nodes.length + this.EDGE_LENGTH * edges.length
+            }, 0)`}
+          >
+            {this.getIconGroup(path.nodes)}
+          </g>
+        </g>
+      );
+    });
+    return children;
   }
   showModal() {
     this.setState({ isModalVisible: true });

@@ -1,4 +1,4 @@
-import { IState, IAction } from 'types';
+import { IState, IAction, IMetaPathSummary } from 'types';
 import { ACTION_TYPES } from 'stores/actions';
 
 const rootReducer = (state: IState, action: IAction): IState => {
@@ -7,7 +7,11 @@ const rootReducer = (state: IState, action: IAction): IState => {
       return {
         ...state,
         drugPredictions: action.payload.drugPredictions,
-        metaPathSummary: action.payload.metaPathSummary,
+        metaPathSummary: action.payload.metaPathSummary.map(
+          (d: IMetaPathSummary, idx: number) => {
+            return { ...d, hide: false, idx };
+          }
+        ),
       };
 
     case ACTION_TYPES.Load_Disease_Options:
@@ -42,6 +46,10 @@ const rootReducer = (state: IState, action: IAction): IState => {
 
     case ACTION_TYPES.Change_Edge_THR: {
       return { ...state, edgeThreshold: action.payload.edgeThreshold };
+    }
+
+    case ACTION_TYPES.Toggle_Meta_Path_Hide: {
+      return { ...state, metaPathSummary: action.payload.metaPathSummary };
     }
 
     case ACTION_TYPES.Load_Attention_Pair: {
