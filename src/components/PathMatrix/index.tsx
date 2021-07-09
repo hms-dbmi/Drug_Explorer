@@ -153,20 +153,17 @@ class PathMatrix extends React.Component<Props, State> {
     );
   }
   drawHeader() {
-    const {
-      drugPredictions,
-      nodeNameDict,
-      selectedDrug,
-    } = this.props.globalState;
+    const { drugPredictions, nodeNameDict } = this.props.globalState;
     const headerNames = drugPredictions.map(
       (drug) => nodeNameDict['drug'][drug.id]
     );
     headerNames.push('SUM');
-    const selectedDrugIdx = drugPredictions
-      .map((d) => d.id)
-      .indexOf(selectedDrug || '');
+
     const header = headerNames.map((name, idx) => {
-      const isSelected = idx === selectedDrugIdx;
+      const isSelected =
+        idx > drugPredictions.length - 1
+          ? false
+          : drugPredictions[idx].selected;
       return (
         <text
           key={name}
@@ -349,34 +346,32 @@ class PathMatrix extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    // update expended metapaths when selected drug changes
     if (
-      prevProps.globalState.selectedDrug !== this.props.globalState.selectedDrug
-    ) {
-      const {
-        selectedDrug,
-        metaPathSummary,
-        drugPredictions,
-      } = this.props.globalState;
-
-      const selectedDrugIdx = drugPredictions
-        .map((d) => d.id)
-        .indexOf(selectedDrug || '');
-
-      const expandStatus = [...metaPathSummary]
-        .sort((a, b) => (a.hide ? 1 : 0) - (b.hide ? 1 : 0))
-        .map((d) => !(d.count[selectedDrugIdx] === 0 || d.hide));
-      this.setState({ expand: expandStatus });
-    }
-
-    // when disease changed, collapse all meta paths
-    if (
+      // when disease changed, collapse all meta paths
       prevProps.globalState.selectedDisease !==
       this.props.globalState.selectedDisease
     ) {
       this.setState({
         expand: this.props.globalState.metaPathSummary.map((d) => false),
       });
+    } else if (
+      prevProps.globalState.drugPredictions.filter((d) => d.selected).length >
+      this.props.globalState.drugPredictions.filter((d) => d.selected).length
+    ) {
+      // update expended metapaths when selected drug changes
+      const { metaPathSummary, drugPredictions } = this.props.globalState;
+
+      const expandStatus = [...metaPathSummary]
+        .sort((a, b) => (a.hide ? 1 : 0) - (b.hide ? 1 : 0))
+        .map(
+          (d) =>
+            d.count.reduce(
+              (acc, cur, i) =>
+                acc + cur * (drugPredictions[i].selected ? 1 : 0),
+              0
+            ) > 0
+        );
+      this.setState({ expand: expandStatus });
     }
   }
 
@@ -384,13 +379,10 @@ class PathMatrix extends React.Component<Props, State> {
     summary: IMetaPathSummary,
     rScale: d3.ScaleLinear<number, number>
   ) {
-    const { drugPredictions, selectedDrug } = this.props.globalState;
+    const { drugPredictions } = this.props.globalState;
     const { count, sum } = summary;
-    const selectedDrugIdx = drugPredictions
-      .map((d) => d.id)
-      .indexOf(selectedDrug || '');
     const vis = count.map((num, idx) => {
-      const isSelected = idx === selectedDrugIdx;
+      const isSelected = drugPredictions[idx].selected;
       const content =
         num === 0 ? (
           <line

@@ -29,13 +29,16 @@ export default class ModelNodeForce extends React.Component<Props, State> {
   RADIUS = 8;
   drawGraph() {
     const {
-      selectedDrugs,
+      drugPredictions,
       attention,
       edgeThreshold,
       selectedDisease,
       nodeNameDict,
     } = this.props.globalState;
     const { width, height } = this.props;
+    const selectedDrugs = drugPredictions
+      .filter((d) => d.selected)
+      .map((d) => d.id);
     if (selectedDrugs.length === 0)
       return (
         <g

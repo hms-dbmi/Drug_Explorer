@@ -29,10 +29,10 @@ const rootReducer = (state: IState, action: IAction): IState => {
     case ACTION_TYPES.Change_Drug:
       return {
         ...state,
-        selectedDrugs: [
-          ...state.selectedDrugs,
-          ...action.payload.selectedDrugs,
-        ],
+        drugPredictions: toggleDrugSelection(
+          state.drugPredictions,
+          action.payload.selectedDrug
+        ),
       };
 
     case ACTION_TYPES.Load_Node_Name_Dict:
@@ -63,6 +63,18 @@ const rootReducer = (state: IState, action: IAction): IState => {
     default:
       return state;
   }
+};
+
+const toggleDrugSelection = (
+  drugPredictions: IState['drugPredictions'],
+  selectedDrug: string
+) => {
+  return drugPredictions.map((d) => {
+    return {
+      ...d,
+      selected: selectedDrug === d.id ? !d.selected : d.selected,
+    };
+  });
 };
 
 export default rootReducer;

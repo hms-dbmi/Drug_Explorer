@@ -227,7 +227,12 @@ export default class AttentionTree extends React.Component<Props, {}> {
   }
   render() {
     const { width, height, globalState } = this.props;
-    const { isAttentionLoading, selectedDisease, selectedDrugs } = globalState;
+    const {
+      isAttentionLoading,
+      selectedDisease,
+      drugPredictions,
+    } = globalState;
+    const selectedDrugs = drugPredictions.filter((d) => d.selected);
 
     const { content, height: graphHeight } = this.drawSubgraph();
     return (

@@ -55,16 +55,19 @@ export type IAction = {
   payload: any;
 };
 
+type TDispatchPayload = Partial<IState & { selectedDrug: string | undefined }>;
+
 export type IDispatch = ({
   type,
 }: {
   type: string;
-  payload?: Partial<IState>;
+  payload?: TDispatchPayload;
 }) => void;
 
 export type DrugPrediction = {
   score: number;
   id: string;
+  selected: boolean;
 };
 
 export interface IState {
@@ -75,7 +78,6 @@ export interface IState {
   drugPredictions: DrugPrediction[];
   metaPathGroups: IMetaPathGroup[];
   selectedDisease: string | undefined;
-  selectedDrugs: string[];
   nodeNameDict: { [type: string]: { [id: string]: string } };
   isAttentionLoading: boolean;
   isDrugLoading: boolean;

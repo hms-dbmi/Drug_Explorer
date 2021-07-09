@@ -41,7 +41,7 @@ export default class Scatter extends React.Component<Props, State> {
     this.loadEmbedding();
   }
   drawScatter() {
-    const { drugPredictions, selectedDrug } = this.props.globalState;
+    const { drugPredictions } = this.props.globalState;
     const { width, height } = this.props;
     const { embedding } = this.state;
     const xDomain = d3.extent(Object.values(embedding).map((d) => d[0])) as [
@@ -63,6 +63,9 @@ export default class Scatter extends React.Component<Props, State> {
       .range([0, height - this.circleRadius * 2]);
 
     const drugIds = drugPredictions.map((d) => d.id);
+    const selectedDrugIds = drugPredictions
+      .filter((d) => d.selected)
+      .map((d) => d.id);
 
     const nodes = Object.keys(embedding)
       .sort((a, b) => drugIds.indexOf(a) - drugIds.indexOf(b))
@@ -70,7 +73,7 @@ export default class Scatter extends React.Component<Props, State> {
         const [x, y] = embedding[drugId];
         const drugRank = drugIds.indexOf(drugId);
         const isHighlighted = drugRank > -1; // the top n predicted drugs
-        const isSelected = selectedDrug === drugId; // the drug selected by users
+        const isSelected = selectedDrugIds.includes(drugId); // the drug selected by users
         return (
           <g key={drugId}>
             <circle

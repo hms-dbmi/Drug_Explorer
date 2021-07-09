@@ -59,10 +59,12 @@ class DrugSider extends React.Component<Props> {
       drugPredictions,
       nodeNameDict,
       selectedDisease,
-      selectedDrug,
     } = this.props.globalState;
     const defaultDiseaseText = 'Select a disease';
     const defaultDrugText = 'Select a drug from the prediction';
+    const selectedDrugIds = drugPredictions
+      .filter((d) => d.selected)
+      .map((d) => d.id);
 
     let sider = (
       <Sider
@@ -96,13 +98,15 @@ class DrugSider extends React.Component<Props> {
         <br />
         Drug:
         <Select
+          mode="multiple"
           style={{ width: siderWidth - 2 * this.padding }}
           open
           showSearch
           optionFilterProp="label"
           listHeight={this.listHeight}
           onChange={this.onChangeDrug}
-          value={selectedDrug || defaultDrugText}
+          placeholder={defaultDrugText}
+          value={selectedDrugIds as any}
         >
           {selectedDisease !== undefined ? (
             drugPredictions.length > 0 ? (
