@@ -169,10 +169,15 @@ class PathMatrix extends React.Component<Props, State> {
           key={name}
           className={name}
           fill={isSelected ? SELECTED_COLOR : 'gray'}
+          cursor="pointer"
           transform={`translate(
             ${idx * (this.RADIUS * 2 + this.COUNT_GAP) + this.RADIUS}, 
             ${this.HEAD_HEIGHT}) 
             rotate(-45)`}
+          onClick={() => {
+            if (idx < drugPredictions.length)
+              this.onChangeDrug(drugPredictions[idx].id);
+          }}
         >
           {name}
         </text>
@@ -262,7 +267,7 @@ class PathMatrix extends React.Component<Props, State> {
             (d) => d.nodeTypes.join('') === group.nodeTypes.join('')
           )[0]?.metaPaths || [];
 
-        const children = this.drawChildrenPath(metaPaths);
+        const children = this.drawChildrenPath(metaPaths, 1);
 
         if (showChildren) {
           offsetY += (NODE_HEIGHT + VERTICAL_GAP) * metaPaths.length;
@@ -355,7 +360,7 @@ class PathMatrix extends React.Component<Props, State> {
         expand: this.props.globalState.metaPathSummary.map((d) => false),
       });
     } else if (
-      prevProps.globalState.drugPredictions.filter((d) => d.selected).length >
+      prevProps.globalState.drugPredictions.filter((d) => d.selected).length !==
       this.props.globalState.drugPredictions.filter((d) => d.selected).length
     ) {
       // update expended metapaths when selected drug changes
@@ -446,7 +451,7 @@ class PathMatrix extends React.Component<Props, State> {
     );
   }
 
-  drawChildrenPath(metaPaths: IMetaPath[]) {
+  drawChildrenPath(metaPaths: IMetaPath[], drugRank: number) {
     const { nodeNameDict, edgeTypes } = this.props.globalState;
     const COUNT_WIDTH = this.getCountWidth();
     const children = metaPaths.map((path, childIdx) => {
@@ -494,7 +499,7 @@ class PathMatrix extends React.Component<Props, State> {
           </Tooltip>
         );
       });
-      let edges = path.edges.map((edge, edgeIdx) => {
+      const edges = path.edges.map((edge, edgeIdx) => {
         const translate = `translate(${
           this.NODE_WIDTH + (this.EDGE_LENGTH + this.NODE_WIDTH) * edgeIdx
         }, ${+this.NODE_HEIGHT / 2})`;
@@ -521,19 +526,27 @@ class PathMatrix extends React.Component<Props, State> {
       return (
         <g
           key={childIdx}
-          transform={`translate(${COUNT_WIDTH + this.ICON_GAP}, ${
+          transform={`translate(0, ${
             (this.NODE_HEIGHT + this.VERTICAL_GAP) * (1 + childIdx)
           })`}
         >
-          {nodes}
-          {edges}
-          <g
-            className="iconGroup"
-            transform={`translate(${
-              this.NODE_WIDTH * nodes.length + this.EDGE_LENGTH * edges.length
-            }, 0)`}
-          >
-            {this.getIconGroup(path.nodes)}
+          <circle
+            cx={drugRank * (2 * this.RADIUS + this.COUNT_GAP)}
+            cy={this.NODE_HEIGHT / 2}
+            fill={SELECTED_COLOR}
+            r={this.RADIUS / 3}
+          />
+          <g transform={`translate(${COUNT_WIDTH + this.ICON_GAP}, 0)`}>
+            {nodes}
+            {edges}
+            <g
+              className="iconGroup"
+              transform={`translate(${
+                this.NODE_WIDTH * nodes.length + this.EDGE_LENGTH * edges.length
+              }, 0)`}
+            >
+              {this.getIconGroup(path.nodes)}
+            </g>
           </g>
         </g>
       );
