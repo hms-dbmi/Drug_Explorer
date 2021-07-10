@@ -24,10 +24,21 @@ const rootReducer = (state: IState, action: IAction): IState => {
       return { ...state, edgeTypes: action.payload.edgeTypes };
 
     case ACTION_TYPES.Change_Disease:
-      return { ...state, selectedDisease: action.payload.selectedDisease };
+      return {
+        ...state,
+        selectedDisease: action.payload.selectedDisease,
+        attention: {},
+        metaPathGroups: {},
+      };
 
     case ACTION_TYPES.Change_Drug:
-      return { ...state, selectedDrug: action.payload.selectedDrug };
+      return {
+        ...state,
+        drugPredictions: toggleDrugSelection(
+          state.drugPredictions,
+          action.payload.selectedDrug
+        ),
+      };
 
     case ACTION_TYPES.Load_Node_Name_Dict:
       return { ...state, nodeNameDict: action.payload.nodeNameDict };
@@ -46,11 +57,28 @@ const rootReducer = (state: IState, action: IAction): IState => {
       return { ...state, metaPathSummary: action.payload.metaPathSummary };
     }
 
-    case ACTION_TYPES.Load_Attention_Pair: {
+    case ACTION_TYPES.Add_Attention_Paths: {
       return {
         ...state,
-        attention: action.payload.attention,
-        metaPathGroups: action.payload.metaPathGroups,
+        attention: { ...state.attention, ...action.payload.attention },
+        metaPathGroups: {
+          ...state.metaPathGroups,
+          ...action.payload.metaPathGroups,
+        },
+      };
+    }
+
+    case ACTION_TYPES.Del_Attention_Paths: {
+      // deep copy
+      let attention = JSON.parse(JSON.stringify(state.attention)),
+        metaPathGroups = JSON.parse(JSON.stringify(state.metaPathGroups));
+
+      delete attention[`drug:${action.payload.selectedDrug}`];
+      delete metaPathGroups[action.payload.selectedDrug];
+      return {
+        ...state,
+        attention,
+        metaPathGroups,
       };
     }
 
@@ -59,4 +87,25 @@ const rootReducer = (state: IState, action: IAction): IState => {
   }
 };
 
+const toggleDrugSelection = (
+  drugPredictions: IState['drugPredictions'],
+  selectedDrug: string
+) => {
+  return drugPredictions.map((d) => {
+    return {
+      ...d,
+      selected: selectedDrug === d.id ? !d.selected : d.selected,
+    };
+  });
+};
+
+export const isAddDrug = (
+  drugPredictions: IState['drugPredictions'],
+  drugID: string
+) => {
+  return !drugPredictions
+    .filter((d) => d.selected)
+    .map((d) => d.id)
+    .includes(drugID);
+};
 export default rootReducer;

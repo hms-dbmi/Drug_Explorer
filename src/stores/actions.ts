@@ -8,7 +8,8 @@ export const ACTION_TYPES = {
   Load_Node_Types: 'Load_Node_Types',
   Load_Edge_Types: 'Load_Edge_Types',
   Load_Meta_Paths: 'Load_Meta_Paths',
-  Load_Attention_Pair: 'Load_Attention_Pair',
+  Add_Attention_Paths: 'Add_Attention_Paths',
+  Del_Attention_Paths: 'Del_Attention_Paths',
   Load_Node_Name_Dict: 'Load_Node_Name_Dict',
   Load_Drug_Options: 'Load_Drug_Options',
   Load_Disease_Options: 'Load_Disease_Options',
@@ -23,14 +24,19 @@ export const ACTION_TYPES = {
   Toggle_Meta_Path_Hide: 'Toggle_Meta_Path_Hide',
 };
 
-export const changeDrug = (selectedDrug: string, dispatch: IDispatch) => {
-  dispatch({
-    type: ACTION_TYPES.Change_Drug,
-    payload: { selectedDrug },
-  });
+export const selectDrug = (
+  selectedDrug: string,
+  selectedDisease: string | undefined,
+  isAdd: boolean,
+  dispatch: IDispatch
+) => {
+  if (selectedDisease) {
+    changeDrug(selectedDrug, dispatch);
+    modifyAttentionPaths(selectedDrug, selectedDisease, isAdd, dispatch);
+  }
 };
 
-export const changeDisease = (selectedDisease: string, dispatch: IDispatch) => {
+export const selectDisease = (selectedDisease: string, dispatch: IDispatch) => {
   dispatch({
     type: ACTION_TYPES.Set_Loading_Status,
     payload: { isDrugLoading: true },
@@ -65,34 +71,51 @@ export const changeDisease = (selectedDisease: string, dispatch: IDispatch) => {
     });
 };
 
-export const queryAttentionPair = (
+const modifyAttentionPaths = (
   selectedDrug: string | undefined,
   selectedDisease: string | undefined,
+  isAdd: boolean,
   dispatch: IDispatch
 ) => {
   if (selectedDrug !== undefined && selectedDisease !== undefined) {
-    dispatch({
-      type: ACTION_TYPES.Set_Loading_Status,
-      payload: { isAttentionLoading: true },
-    });
-
-    requestAttentionPair(selectedDisease, selectedDrug)
-      .then((res) => {
-        dispatch({
-          type: ACTION_TYPES.Load_Attention_Pair,
-          payload: {
-            attention: res.attention,
-            metaPathGroups: groupMetaPaths(res.metapaths),
-          },
-        });
-      })
-      .then(() => {
-        dispatch({
-          type: ACTION_TYPES.Set_Loading_Status,
-          payload: { isAttentionLoading: false },
-        });
+    if (isAdd) {
+      dispatch({
+        type: ACTION_TYPES.Set_Loading_Status,
+        payload: { isAttentionLoading: true },
       });
+
+      requestAttentionPair(selectedDisease, selectedDrug)
+        .then((res) => {
+          dispatch({
+            type: ACTION_TYPES.Add_Attention_Paths,
+            payload: {
+              attention: res.attention,
+              metaPathGroups: { [selectedDrug]: groupMetaPaths(res.metapaths) },
+            },
+          });
+        })
+        .then(() => {
+          dispatch({
+            type: ACTION_TYPES.Set_Loading_Status,
+            payload: { isAttentionLoading: false },
+          });
+        });
+    } else {
+      dispatch({
+        type: ACTION_TYPES.Del_Attention_Paths,
+        payload: {
+          selectedDrug,
+        },
+      });
+    }
   }
+};
+
+const changeDrug = (selectedDrug: string, dispatch: IDispatch) => {
+  dispatch({
+    type: ACTION_TYPES.Change_Drug,
+    payload: { selectedDrug },
+  });
 };
 
 const groupMetaPaths = (metaPaths: IMetaPath[]): IMetaPathGroup[] => {

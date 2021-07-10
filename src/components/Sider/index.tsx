@@ -1,12 +1,7 @@
 import React from 'react';
 import { StateConsumer } from 'stores';
 import { IDispatch, IState } from 'types';
-import {
-  ACTION_TYPES,
-  changeDisease,
-  changeDrug,
-  queryAttentionPair,
-} from 'stores/actions';
+import { ACTION_TYPES, selectDisease, selectDrug } from 'stores/actions';
 
 import './Sider.css';
 
@@ -30,11 +25,15 @@ class DrugSider extends React.Component<Props> {
     this.onChangeDisease = this.onChangeDisease.bind(this);
     this.onChangeDrug = this.onChangeDrug.bind(this);
   }
-  onChangeDrug(selectedDrug: string) {
-    changeDrug(selectedDrug, this.props.dispatch);
-    queryAttentionPair(
-      selectedDrug,
+  onChangeDrug(selectedDrugs: string[]) {
+    const isAdd =
+      selectedDrugs.length > this.props.globalState.drugPredictions.length;
+
+    const currentDrug = selectedDrugs[selectedDrugs.length - 1];
+    selectDrug(
+      currentDrug,
       this.props.globalState.selectedDisease,
+      isAdd,
       this.props.dispatch
     );
   }
@@ -48,7 +47,7 @@ class DrugSider extends React.Component<Props> {
   }
 
   onChangeDisease(selectedDisease: string) {
-    changeDisease(selectedDisease, this.props.dispatch);
+    selectDisease(selectedDisease, this.props.dispatch);
   }
   render() {
     let { siderWidth } = this.props;
@@ -59,10 +58,12 @@ class DrugSider extends React.Component<Props> {
       drugPredictions,
       nodeNameDict,
       selectedDisease,
-      selectedDrug,
     } = this.props.globalState;
     const defaultDiseaseText = 'Select a disease';
     const defaultDrugText = 'Select a drug from the prediction';
+    const selectedDrugIds = drugPredictions
+      .filter((d) => d.selected)
+      .map((d) => d.id);
 
     let sider = (
       <Sider
@@ -96,13 +97,15 @@ class DrugSider extends React.Component<Props> {
         <br />
         Drug:
         <Select
+          mode="multiple"
           style={{ width: siderWidth - 2 * this.padding }}
           open
           showSearch
           optionFilterProp="label"
           listHeight={this.listHeight}
           onChange={this.onChangeDrug}
-          value={selectedDrug || defaultDrugText}
+          placeholder={defaultDrugText}
+          value={selectedDrugIds}
         >
           {selectedDisease !== undefined ? (
             drugPredictions.length > 0 ? (

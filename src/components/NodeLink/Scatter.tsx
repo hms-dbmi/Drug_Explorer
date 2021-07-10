@@ -4,7 +4,8 @@ import { IState, IDispatch } from 'types';
 import * as d3 from 'd3';
 import { HIGHLIGHT_COLOR, SELECTED_COLOR } from 'helpers/color';
 import { LOADING_ICON } from 'helpers';
-import { changeDrug, queryAttentionPair } from 'stores/actions';
+import { selectDrug } from 'stores/actions';
+import { isAddDrug } from 'stores/reducer';
 
 interface State {
   embedding: { [key: string]: [number, number] };
@@ -41,7 +42,7 @@ export default class Scatter extends React.Component<Props, State> {
     this.loadEmbedding();
   }
   drawScatter() {
-    const { drugPredictions, selectedDrug } = this.props.globalState;
+    const { drugPredictions } = this.props.globalState;
     const { width, height } = this.props;
     const { embedding } = this.state;
     const xDomain = d3.extent(Object.values(embedding).map((d) => d[0])) as [
@@ -63,6 +64,9 @@ export default class Scatter extends React.Component<Props, State> {
       .range([0, height - this.circleRadius * 2]);
 
     const drugIds = drugPredictions.map((d) => d.id);
+    const selectedDrugIds = drugPredictions
+      .filter((d) => d.selected)
+      .map((d) => d.id);
 
     const nodes = Object.keys(embedding)
       .sort((a, b) => drugIds.indexOf(a) - drugIds.indexOf(b))
@@ -70,7 +74,7 @@ export default class Scatter extends React.Component<Props, State> {
         const [x, y] = embedding[drugId];
         const drugRank = drugIds.indexOf(drugId);
         const isHighlighted = drugRank > -1; // the top n predicted drugs
-        const isSelected = selectedDrug === drugId; // the drug selected by users
+        const isSelected = selectedDrugIds.includes(drugId); // the drug selected by users
         return (
           <g key={drugId}>
             <circle
@@ -99,10 +103,14 @@ export default class Scatter extends React.Component<Props, State> {
     return nodes;
   }
   onChangeDrug(selectedDrug: string) {
-    changeDrug(selectedDrug, this.props.dispatch);
-    queryAttentionPair(
+    const isAdd = isAddDrug(
+      this.props.globalState.drugPredictions,
+      selectedDrug
+    );
+    selectDrug(
       selectedDrug,
       this.props.globalState.selectedDisease,
+      isAdd,
       this.props.dispatch
     );
   }
