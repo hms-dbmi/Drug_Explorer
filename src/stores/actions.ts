@@ -9,6 +9,7 @@ export const ACTION_TYPES = {
   Load_Edge_Types: 'Load_Edge_Types',
   Load_Meta_Paths: 'Load_Meta_Paths',
   Add_Attention_Paths: 'Add_Attention_Paths',
+  Del_Attention_Paths: 'Del_Attention_Paths',
   Load_Node_Name_Dict: 'Load_Node_Name_Dict',
   Load_Drug_Options: 'Load_Drug_Options',
   Load_Disease_Options: 'Load_Disease_Options',
@@ -31,11 +32,11 @@ export const selectDrug = (
 ) => {
   if (selectedDisease) {
     changeDrug(selectedDrug, dispatch);
-    modifyAttentionPaths(selectedDrug, selectedDisease, dispatch);
+    modifyAttentionPaths(selectedDrug, selectedDisease, isAdd, dispatch);
   }
 };
 
-export const changeDisease = (selectedDisease: string, dispatch: IDispatch) => {
+export const selectDisease = (selectedDisease: string, dispatch: IDispatch) => {
   dispatch({
     type: ACTION_TYPES.Set_Loading_Status,
     payload: { isDrugLoading: true },
@@ -73,30 +74,40 @@ export const changeDisease = (selectedDisease: string, dispatch: IDispatch) => {
 const modifyAttentionPaths = (
   selectedDrug: string | undefined,
   selectedDisease: string | undefined,
+  isAdd: boolean,
   dispatch: IDispatch
 ) => {
   if (selectedDrug !== undefined && selectedDisease !== undefined) {
-    dispatch({
-      type: ACTION_TYPES.Set_Loading_Status,
-      payload: { isAttentionLoading: true },
-    });
-
-    requestAttentionPair(selectedDisease, selectedDrug)
-      .then((res) => {
-        dispatch({
-          type: ACTION_TYPES.Add_Attention_Paths,
-          payload: {
-            attention: res.attention,
-            metaPathGroups: { selectedDrug: groupMetaPaths(res.metapaths) },
-          },
-        });
-      })
-      .then(() => {
-        dispatch({
-          type: ACTION_TYPES.Set_Loading_Status,
-          payload: { isAttentionLoading: false },
-        });
+    if (isAdd) {
+      dispatch({
+        type: ACTION_TYPES.Set_Loading_Status,
+        payload: { isAttentionLoading: true },
       });
+
+      requestAttentionPair(selectedDisease, selectedDrug)
+        .then((res) => {
+          dispatch({
+            type: ACTION_TYPES.Add_Attention_Paths,
+            payload: {
+              attention: res.attention,
+              metaPathGroups: { [selectedDrug]: groupMetaPaths(res.metapaths) },
+            },
+          });
+        })
+        .then(() => {
+          dispatch({
+            type: ACTION_TYPES.Set_Loading_Status,
+            payload: { isAttentionLoading: false },
+          });
+        });
+    } else {
+      dispatch({
+        type: ACTION_TYPES.Del_Attention_Paths,
+        payload: {
+          selectedDrug,
+        },
+      });
+    }
   }
 };
 

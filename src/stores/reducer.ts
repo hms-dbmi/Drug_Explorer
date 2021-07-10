@@ -1,6 +1,5 @@
 import { IState, IAction, IMetaPathSummary } from 'types';
 import { ACTION_TYPES } from 'stores/actions';
-import AttentionTree from 'components/NodeLink/AttentionTree';
 
 const rootReducer = (state: IState, action: IAction): IState => {
   switch (action.type) {
@@ -25,7 +24,12 @@ const rootReducer = (state: IState, action: IAction): IState => {
       return { ...state, edgeTypes: action.payload.edgeTypes };
 
     case ACTION_TYPES.Change_Disease:
-      return { ...state, selectedDisease: action.payload.selectedDisease };
+      return {
+        ...state,
+        selectedDisease: action.payload.selectedDisease,
+        attention: {},
+        metaPathGroups: {},
+      };
 
     case ACTION_TYPES.Change_Drug:
       return {
@@ -61,6 +65,20 @@ const rootReducer = (state: IState, action: IAction): IState => {
           ...state.metaPathGroups,
           ...action.payload.metaPathGroups,
         },
+      };
+    }
+
+    case ACTION_TYPES.Del_Attention_Paths: {
+      // deep copy
+      let attention = JSON.parse(JSON.stringify(state.attention)),
+        metaPathGroups = JSON.parse(JSON.stringify(state.metaPathGroups));
+
+      delete attention[`drug:${action.payload.selectedDrug}`];
+      delete metaPathGroups[action.payload.selectedDrug];
+      return {
+        ...state,
+        attention,
+        metaPathGroups,
       };
     }
 

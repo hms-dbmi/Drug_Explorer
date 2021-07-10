@@ -1,7 +1,7 @@
 import React from 'react';
 import { StateConsumer } from 'stores';
 import { IDispatch, IState } from 'types';
-import { ACTION_TYPES, changeDisease, selectDrug } from 'stores/actions';
+import { ACTION_TYPES, selectDisease, selectDrug } from 'stores/actions';
 
 import './Sider.css';
 
@@ -47,7 +47,7 @@ class DrugSider extends React.Component<Props> {
   }
 
   onChangeDisease(selectedDisease: string) {
-    changeDisease(selectedDisease, this.props.dispatch);
+    selectDisease(selectedDisease, this.props.dispatch);
   }
   render() {
     let { siderWidth } = this.props;

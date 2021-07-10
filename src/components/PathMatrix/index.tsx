@@ -17,6 +17,7 @@ import { IMetaPath, IMetaPathSummary, IState, IDispatch } from 'types';
 import * as d3 from 'd3';
 
 import './index.css';
+import { HighlightSpanKind } from 'typescript';
 
 interface Props {
   width: number;
@@ -43,6 +44,7 @@ class PathMatrix extends React.Component<Props, State> {
   RADIUS = this.NODE_HEIGHT / 2; // max radius of the count circle
   HEAD_HEIGHT = 70; // height of the header ()
   ICON_GAP = 20; // width of the expand triangle icon
+  offsetY = 0; // record the height of the expanded meta paths
 
   constructor(prop: Props) {
     super(prop);
@@ -129,7 +131,7 @@ class PathMatrix extends React.Component<Props, State> {
           />
           <path d={SEARCH_ICON} transform={`scale(0.018)`} />
         </g>
-        <g className="yes" transform={`translate(${this.ICON_GAP}, 0)`}>
+        {/* <g className="yes" transform={`translate(${this.ICON_GAP}, 0)`}>
           <rect width={this.ICON_GAP} height={this.ICON_GAP} fill="white" />
           <path d={YES_ICON} transform={`scale(0.03)`} />
         </g>
@@ -144,7 +146,7 @@ class PathMatrix extends React.Component<Props, State> {
         >
           <rect width={this.ICON_GAP} height={this.ICON_GAP} fill="white" />
           <path d={EDIT_ICON} transform={`scale(0.03)`} />
-        </g>
+        </g> */}
       </g>
     );
   }
@@ -191,7 +193,7 @@ class PathMatrix extends React.Component<Props, State> {
   drawSummary() {
     let { EDGE_LENGTH, NODE_WIDTH, NODE_HEIGHT, VERTICAL_GAP } = this;
 
-    let { metaPathSummary } = this.props.globalState;
+    let { metaPathSummary, drugPredictions } = this.props.globalState;
 
     const COUNT_WIDTH = this.getCountWidth();
 
@@ -207,11 +209,11 @@ class PathMatrix extends React.Component<Props, State> {
       .range([this.RADIUS / 3, this.RADIUS])
       .domain([0, maxCount]);
 
-    let offsetY = 0;
+    this.offsetY = 0;
     const allRows = [...metaPathSummary]
       .sort((a, b) => (a.hide ? 1 : 0) - (b.hide ? 1 : 0))
-      .map((group, groupIdx) => {
-        let nodes = group.nodeTypes.map((node, nodeIdx) => {
+      .map((summary) => {
+        let nodes = summary.nodeTypes.map((node, nodeIdx) => {
           let translate = `translate(${
             (EDGE_LENGTH + NODE_WIDTH) * nodeIdx
           }, ${0})`;
@@ -254,27 +256,46 @@ class PathMatrix extends React.Component<Props, State> {
             </g>
           );
         });
-        let currentY = offsetY;
-        offsetY += NODE_HEIGHT + VERTICAL_GAP;
+        let currentY = this.offsetY;
+        this.offsetY += NODE_HEIGHT + VERTICAL_GAP;
 
-        let showChildren = this.state.expand[groupIdx];
-        const metaPaths =
-          metaPathGroups.filter(
-            (d) => d.nodeTypes.join('') === group.nodeTypes.join('')
-          )[0]?.metaPaths || [];
+        let differentChildren: JSX.Element[] = [];
+        let childrenOffsetY = 0;
+        const showChildren = this.state.expand[summary.idx];
 
-        const children = this.drawChildrenPath(metaPaths, 1);
+        Object.keys(metaPathGroups).forEach((drugId) => {
+          const metaPathGroup = metaPathGroups[drugId];
+          const metaPaths =
+            metaPathGroup.filter(
+              (d) => d.nodeTypes.join('') === summary.nodeTypes.join('')
+            )[0]?.metaPaths || [];
 
-        if (showChildren) {
-          offsetY += (NODE_HEIGHT + VERTICAL_GAP) * metaPaths.length;
-        }
+          const drugRank = drugPredictions.map((d) => d.id).indexOf(drugId);
+          const children = this.drawChildrenPaths(metaPaths, drugRank);
+          const childrenHeight =
+            (NODE_HEIGHT + VERTICAL_GAP) * metaPaths.length;
+          differentChildren.push(
+            <g
+              key={`drugRank: ${drugRank}`}
+              className={`drugRank_${drugRank}`}
+              transform={`translate(0, ${childrenOffsetY})`}
+            >
+              {children}
+            </g>
+          );
 
-        offsetY += this.GROUP_GAP;
+          childrenOffsetY += childrenHeight;
+          if (showChildren) {
+            this.offsetY += childrenHeight;
+          }
+
+          this.offsetY += this.GROUP_GAP;
+        });
 
         const toggleHideFunc = (hide: boolean) => {
           toggleMetaPathHide(
             metaPathSummary,
-            group.idx,
+            summary.idx,
             hide,
             this.props.dispatch
           );
@@ -282,18 +303,18 @@ class PathMatrix extends React.Component<Props, State> {
 
         return (
           <g
-            key={`prototype_${groupIdx}`}
+            key={`prototype_${summary.idx}`}
             transform={`translate(${0}, ${currentY})`}
-            opacity={group.hide ? 0.4 : 1}
+            opacity={summary.hide ? 0.4 : 1}
           >
-            <g className="metaCount">{this.drawMetaCount(group, rScale)}</g>
+            <g className="metaCount">{this.drawMetaCount(summary, rScale)}</g>
             <g className="icon">
               <path
                 d={showChildren ? triangelBottom : triangleRight}
                 transform={`translate(${COUNT_WIDTH}, 0)`}
                 fill="gray"
                 onClick={() => {
-                  if (!group.hide) this.toggleExpand(groupIdx);
+                  if (!summary.hide) this.toggleExpand(summary.idx);
                 }}
                 cursor="pointer"
               />
@@ -313,7 +334,9 @@ class PathMatrix extends React.Component<Props, State> {
                 {this.getMetaIconGroup(toggleHideFunc)}
               </g>
             </g>
-            <g className="metapaths">{showChildren ? children : <g />}</g>
+            <g className="metapaths">
+              {showChildren ? differentChildren : <g />}
+            </g>
           </g>
         );
       });
@@ -366,16 +389,13 @@ class PathMatrix extends React.Component<Props, State> {
       // update expended metapaths when selected drug changes
       const { metaPathSummary, drugPredictions } = this.props.globalState;
 
-      const expandStatus = [...metaPathSummary]
-        .sort((a, b) => (a.hide ? 1 : 0) - (b.hide ? 1 : 0))
-        .map(
-          (d) =>
-            d.count.reduce(
-              (acc, cur, i) =>
-                acc + cur * (drugPredictions[i].selected ? 1 : 0),
-              0
-            ) > 0
-        );
+      const expandStatus = metaPathSummary.map(
+        (d) =>
+          d.count.reduce(
+            (acc, cur, i) => acc + cur * (drugPredictions[i].selected ? 1 : 0),
+            0
+          ) > 0
+      );
       this.setState({ expand: expandStatus });
     }
   }
@@ -451,7 +471,7 @@ class PathMatrix extends React.Component<Props, State> {
     );
   }
 
-  drawChildrenPath(metaPaths: IMetaPath[], drugRank: number) {
+  drawChildrenPaths(metaPaths: IMetaPath[], drugRank: number) {
     const { nodeNameDict, edgeTypes } = this.props.globalState;
     const COUNT_WIDTH = this.getCountWidth();
     const children = metaPaths.map((path, childIdx) => {
@@ -531,7 +551,11 @@ class PathMatrix extends React.Component<Props, State> {
           })`}
         >
           <circle
-            cx={drugRank * (2 * this.RADIUS + this.COUNT_GAP)}
+            cx={
+              drugRank * (2 * this.RADIUS + this.COUNT_GAP) +
+              this.RADIUS +
+              this.PADDING
+            }
             cy={this.NODE_HEIGHT / 2}
             fill={SELECTED_COLOR}
             r={this.RADIUS / 3}
@@ -561,7 +585,7 @@ class PathMatrix extends React.Component<Props, State> {
   }
   filterMetaPathGroups() {
     let { metaPathGroups, edgeThreshold } = this.props.globalState;
-    const filteredMetaGroups: IState['metaPathGroups'] = {};
+    let filteredMetaGroups: IState['metaPathGroups'] = {};
     Object.keys(metaPathGroups).forEach((k) => {
       filteredMetaGroups[k] = metaPathGroups[k].map((metaPathGroup) => {
         const metaPaths = metaPathGroup.metaPaths.filter((metaPath) =>
@@ -571,9 +595,13 @@ class PathMatrix extends React.Component<Props, State> {
       });
     });
 
-    let b = a.filter((metaPathGroup) => metaPathGroup.metaPaths.length > 0);
+    Object.keys(filteredMetaGroups).forEach((k) => {
+      filteredMetaGroups[k] = filteredMetaGroups[k].filter(
+        (metaPathGroup) => metaPathGroup.metaPaths.length > 0
+      );
+    });
 
-    return b;
+    return filteredMetaGroups;
   }
   render() {
     const { width, height } = this.props,
@@ -584,10 +612,6 @@ class PathMatrix extends React.Component<Props, State> {
       metaPathSummary,
       selectedDisease,
     } = this.props.globalState;
-    const metaPathGroups = this.filterMetaPathGroups();
-    const numberOfPath = metaPathGroups
-      .map((d) => d.metaPaths.length)
-      .reduce((a, b) => a + b, 0);
 
     const svgWidth = Math.max(
       width - 2 * this.PADDING - 2 * this.MARGIN,
@@ -599,16 +623,12 @@ class PathMatrix extends React.Component<Props, State> {
 
     const svgOuterHeight = height - 2 * this.PADDING - this.TITLE_HEIGHT,
       svgHeight = Math.max(
-        (numberOfPath + metaPathSummary.length) *
-          (this.NODE_HEIGHT + this.VERTICAL_GAP) +
-          this.GROUP_GAP * metaPathSummary.length +
-          2 * this.PADDING +
-          this.HEAD_HEIGHT,
+        this.offsetY + this.NODE_HEIGHT + this.VERTICAL_GAP + this.PADDING,
         svgOuterHeight
       );
 
     const reminderText = (
-      <text x={svgWidth / 2} y={svgOuterHeight / 2} fill="gray">
+      <text x={width / 2} y={height / 2} fill="gray">
         {isDrugLoading || isAttentionLoading
           ? ''
           : selectedDisease
@@ -616,8 +636,9 @@ class PathMatrix extends React.Component<Props, State> {
           : 'Please select a disease first'}
       </text>
     );
-    const content =
-      metaPathSummary.length === 0 ? reminderText : this.drawSummary();
+
+    const metaPaths = this.drawSummary();
+    const content = metaPathSummary.length === 0 ? reminderText : metaPaths;
     return (
       <>
         <Card
