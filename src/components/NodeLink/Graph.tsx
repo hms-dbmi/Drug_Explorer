@@ -27,6 +27,7 @@ interface ILink {
 export default class ModelNodeForce extends React.Component<Props, State> {
   public padding = 20;
   RADIUS = 8;
+
   drawGraph() {
     const {
       drugPredictions,
@@ -160,7 +161,7 @@ export default class ModelNodeForce extends React.Component<Props, State> {
           enter
             .append('g')
             .attr('class', 'nodeGroup')
-            .attr('transform', (d) => `translate(${d.x}, ${d.y})`)
+            .attr('transform', (d) => `translate(${d.x || 0}, ${d.y || 0})`)
             .attr('cursor', 'pointer')
             .call(
               d3
@@ -171,7 +172,10 @@ export default class ModelNodeForce extends React.Component<Props, State> {
             ),
 
         (update) =>
-          update.attr('transform', (d) => `translate(${d.x}, ${d.y})`),
+          update.attr(
+            'transform',
+            (d) => `translate(${d.x || 0}, ${d.y || 0})`
+          ),
 
         (exit) => exit.remove()
       );
@@ -199,7 +203,7 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       .attr('id', (d) => d.id)
       .attr('fill', (d: INode) => getNodeColor(d.nodeType))
       .attr('opacity', (d) =>
-        isTargetNode(d) ? 1 : isHighlighted(d) ? 0.6 : 0.3
+        isTargetNode(d) ? 1 : isHighlighted(d) ? 0.8 : 0.3
       )
       .attr('stroke', 'none');
 
@@ -208,11 +212,19 @@ export default class ModelNodeForce extends React.Component<Props, State> {
     simulation.on('tick', ticked);
   }
 
+  componentDidMount() {
+    this.drawGraph();
+  }
+  shouldComponentUpdate() {
+    this.drawGraph();
+    return false;
+  }
+
   render() {
     const { width, height } = this.props;
     return (
       <svg className="graph" width={width} height={height}>
-        <g className="model">{this.drawGraph()}</g>
+        <g className="model" />
       </svg>
     );
   }
