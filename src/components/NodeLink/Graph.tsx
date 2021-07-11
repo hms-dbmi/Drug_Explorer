@@ -27,29 +27,84 @@ interface ILink {
 export default class ModelNodeForce extends React.Component<Props, State> {
   public padding = 20;
   RADIUS = 8;
+  prevNodes: INode[] = [];
+  prevLinks: ILink[] = [];
+  simulation = d3
+    .forceSimulation<INode, ILink>()
+    .force('charge', d3.forceManyBody<INode>().strength(-170))
+    .force(
+      'link',
+      d3
+        .forceLink<INode, ILink>()
+        .id((d) => d.id)
+        .distance(10)
+        .strength(0.3)
+    )
+    .force('collision', d3.forceCollide().radius(this.RADIUS + 2))
+    .alphaMin(0.05); // force quick simulation
 
-  drawGraph() {
+  ticked(
+    svgNodes: d3.Selection<
+      SVGGElement | d3.BaseType,
+      INode,
+      d3.BaseType,
+      unknown
+    >,
+    svgLinks: any
+  ) {
+    svgNodes.attr('transform', (d) => `translate(${d.x}, ${d.y})`);
+
+    svgLinks
+      .attr('x1', (d: any) => d.source.x)
+      .attr('y1', (d: any) => d.source.y)
+      .attr('x2', (d: any) => d.target.x)
+      .attr('y2', (d: any) => d.target.y);
+  }
+
+  dragstarted(d: INode) {
+    if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+  }
+
+  dragged(d: INode) {
+    d.fx = d3.event.x;
+    d.fy = d3.event.y;
+  }
+
+  dragended(d: INode) {
+    if (!d3.event.active) this.simulation.alphaTarget(0);
+    d.fx = d3.event.x;
+    d.fy = d3.event.y;
+  }
+
+  isTargetNode(d: INode) {
+    const { drugPredictions, selectedDisease } = this.props.globalState;
+    const selectedDrugs = drugPredictions
+      .filter((d) => d.selected)
+      .map((d) => d.id);
+    return selectedDrugs.includes(d.nodeId) || selectedDisease === d.nodeId;
+  }
+
+  isHighlighted(d: INode) {
+    const { selectedPathNodes } = this.props.globalState;
+    return (
+      selectedPathNodes.map((i) => i.nodeType).includes(d.nodeType) &&
+      selectedPathNodes.map((i) => i.nodeId).includes(d.nodeId)
+    );
+  }
+
+  getNodeLinks() {
     const {
       drugPredictions,
       attention,
       edgeThreshold,
       selectedDisease,
-      nodeNameDict,
-      selectedPathNodes,
     } = this.props.globalState;
     const { width, height } = this.props;
     const selectedDrugs = drugPredictions
       .filter((d) => d.selected)
       .map((d) => d.id);
-    if (selectedDrugs.length === 0)
-      return (
-        <g
-          className="path no"
-          transform={`translate(${width / 2}, ${height / 2})`}
-        >
-          <text color="gray">Please select a drug first</text>
-        </g>
-      );
 
     let nodes: INode[] = [],
       links: ILink[] = [];
@@ -57,12 +112,15 @@ export default class ModelNodeForce extends React.Component<Props, State> {
     Object.values(attention).forEach((nodeAttention: IAttentionTree) => {
       let nodeAttentionFiltered = pruneEdge(nodeAttention, edgeThreshold);
       const rootNode = d3.hierarchy(nodeAttentionFiltered);
-      const desNodes = rootNode.descendants().map((d) => {
-        return {
+      let desNodes: INode[] = [];
+      rootNode.descendants().forEach((d) => {
+        const node = {
           id: `${d.data.nodeType}:${d.data.nodeId}`,
           nodeId: d.data.nodeId,
           nodeType: d.data.nodeType,
         };
+        const prevNode = this.prevNodes.find((d) => d.id === node.id);
+        desNodes.push({ ...node, ...prevNode });
       });
       nodes = nodes.concat(desNodes);
       const desLinks = rootNode.links().map((d) => {
@@ -92,68 +150,32 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       }
     }
 
-    d3.select('g.drugGraph').remove();
-    let g = d3.select('g.model').append('g').attr('class', 'drugGraph');
+    this.prevNodes = nodes;
+    this.prevLinks = links;
 
-    let simulation = d3
-      .forceSimulation<INode, ILink>()
-      .force('charge', d3.forceManyBody<INode>().strength(-170))
-      .force(
-        'link',
-        d3
-          .forceLink<INode, ILink>()
-          .id((d) => d.id)
-          .distance(10)
-          .strength(0.3)
-      )
-      .force('collision', d3.forceCollide().radius(this.RADIUS + 2));
+    return { nodes, links };
+  }
 
-    function dragstarted(d: INode) {
-      if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-      d.fx = d.x;
-      d.fy = d.y;
-    }
+  drawGraph() {
+    const { nodeNameDict } = this.props.globalState;
+    const { nodes, links } = this.getNodeLinks();
+    const { width, height } = this.props;
 
-    function dragged(d: INode) {
-      d.fx = d3.event.x;
-      d.fy = d3.event.y;
-    }
+    // d3.selectAll('g.nodeGroup').remove();
+    // d3.selectAll('line.link').remove();
 
-    function dragended(d: INode) {
-      if (!d3.event.active) simulation.alphaTarget(0);
-      d.fx = d3.event.x;
-      d.fy = d3.event.y;
-    }
-    const isTargetNode = (d: INode) =>
-      selectedDrugs.includes(d.nodeId) || selectedDisease === d.nodeId;
-
-    const isHighlighted = (d: INode) =>
-      selectedPathNodes.map((i) => i.nodeType).includes(d.nodeType) &&
-      selectedPathNodes.map((i) => i.nodeId).includes(d.nodeId);
-
-    let svgLinks: any = g
-      .append('g')
+    let svgLinks: any = d3
+      .select('g.links')
+      .selectAll('.link')
+      .data(links)
+      .join('line')
+      .attr('class', 'link')
       .attr('stroke', '#333')
-      .style('opacity', 0.2)
-      .selectAll('.link');
-    svgLinks = svgLinks
-      .data(links, (d: ILink) => [d.source, d.target])
-      .join('line');
+      .attr('id', (d) => `${d.source}-${d.target}`)
+      .style('opacity', 0.2);
 
-    // simulation.on("tick", ticked);
-    function ticked() {
-      svgNodes.attr('transform', (d) => `translate(${d.x}, ${d.y})`);
-
-      svgLinks
-        .attr('x1', (d: any) => d.source.x)
-        .attr('y1', (d: any) => d.source.y)
-        .attr('x2', (d: any) => d.target.x)
-        .attr('y2', (d: any) => d.target.y);
-    }
-
-    let svgNodes = g
-      .append('g')
-      .attr('class', 'nodes')
+    let svgNodes = d3
+      .select('g.nodes')
       .selectAll('g.nodeGroup')
       .data(nodes, (d: any) => d.id)
       .join(
@@ -161,21 +183,23 @@ export default class ModelNodeForce extends React.Component<Props, State> {
           enter
             .append('g')
             .attr('class', 'nodeGroup')
-            .attr('transform', (d) => `translate(${d.x || 0}, ${d.y || 0})`)
+            .attr('transform', (d) => {
+              return `translate(${d.x || width / 2}, ${d.y || height / 2})`;
+            }) // ensure d.x is not undefined when first entering
             .attr('cursor', 'pointer')
             .call(
               d3
                 .drag<SVGGElement, INode>()
-                .on('start', dragstarted)
-                .on('drag', dragged)
-                .on('end', dragended)
+                .on('start', this.dragstarted.bind(this))
+                .on('drag', this.dragged.bind(this))
+                .on('end', this.dragended.bind(this))
             ),
 
         (update) =>
-          update.attr(
-            'transform',
-            (d) => `translate(${d.x || 0}, ${d.y || 0})`
-          ),
+          update.attr('transform', (d) => {
+            if (this.isTargetNode(d)) console.info(d);
+            return `translate(${d.x}, ${d.y})`;
+          }),
 
         (exit) => exit.remove()
       );
@@ -187,8 +211,10 @@ export default class ModelNodeForce extends React.Component<Props, State> {
           `${d.nodeType}: ${nodeNameDict[d.nodeType][d.nodeId] || d.nodeId}`
       );
 
+    d3.selectAll('text.targetLabel').remove();
+
     svgNodes
-      .filter((d) => isTargetNode(d) || isHighlighted(d))
+      .filter((d) => this.isTargetNode(d) || this.isHighlighted(d))
       .append('text')
       .attr('class', 'targetLabel')
       .attr('transform', `translate(${-1 * this.RADIUS}, ${-2 * this.RADIUS} )`)
@@ -203,28 +229,44 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       .attr('id', (d) => d.id)
       .attr('fill', (d: INode) => getNodeColor(d.nodeType))
       .attr('opacity', (d) =>
-        isTargetNode(d) ? 1 : isHighlighted(d) ? 0.8 : 0.3
+        this.isTargetNode(d) ? 1 : this.isHighlighted(d) ? 0.8 : 0.3
       )
       .attr('stroke', 'none');
 
-    simulation.nodes(nodes);
-    simulation.force<d3.ForceLink<INode, ILink>>('link')!.links(links);
-    simulation.on('tick', ticked);
+    this.simulation.nodes(nodes);
+    this.simulation.force<d3.ForceLink<INode, ILink>>('link')!.links(links);
+    this.simulation.on('tick', () => this.ticked(svgNodes, svgLinks));
   }
 
   componentDidMount() {
     this.drawGraph();
   }
-  shouldComponentUpdate() {
-    this.drawGraph();
+
+  componentDidUpdate(prevProps: Props) {
+    const { metaPathGroups: prevGroups } = prevProps.globalState;
+    const { metaPathGroups: currGroups } = this.props.globalState;
+    if (Object.keys(prevGroups).length !== Object.keys(currGroups).length) {
+      this.drawGraph();
+      this.simulation.alphaTarget(0.1).restart();
+    }
     return false;
   }
 
   render() {
     const { width, height } = this.props;
+
+    const selectedDrugs = Object.keys(this.props.globalState.metaPathGroups);
+    const reminderText = (
+      <text transform={`translate(${width / 2}, ${height / 2})`} fill="gray">
+        Please select a drug first
+      </text>
+    );
+
     return (
       <svg className="graph" width={width} height={height}>
-        <g className="model" />
+        <g className="nodes" />
+        <g className="links" />
+        {selectedDrugs.length === 0 ? reminderText : <></>}
       </svg>
     );
   }
