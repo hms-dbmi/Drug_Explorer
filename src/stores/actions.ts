@@ -1,4 +1,10 @@
-import { IDispatch, IMetaPath, IMetaPathGroup, IMetaPathSummary } from 'types';
+import {
+  DrugPrediction,
+  IDispatch,
+  IMetaPath,
+  IMetaPathGroup,
+  IMetaPathSummary,
+} from 'types';
 import {
   requestAttentionPair,
   requestDrugPredictions,
@@ -54,10 +60,10 @@ export const selectDisease = (selectedDisease: string, dispatch: IDispatch) => {
 
   requestDrugPredictions(selectedDisease)
     .then((res) => {
-      const {
-        predictions: drugPredictions,
-        metapathSummary: metaPathSummary,
-      } = res;
+      const { predictions, metapathSummary: metaPathSummary } = res;
+      const drugPredictions = predictions.map((d: DrugPrediction) => {
+        return { ...d, selected: false };
+      });
       dispatch({
         type: ACTION_TYPES.Load_Drug_Options,
         payload: { drugPredictions, metaPathSummary },
