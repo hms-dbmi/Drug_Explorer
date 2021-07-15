@@ -3,7 +3,6 @@ import {
   cropText,
   YES_ICON,
   NO_ICON,
-  EDIT_ICON,
   SEARCH_ICON,
   LOADING_ICON,
 } from 'helpers';
@@ -17,7 +16,6 @@ import { IMetaPath, IMetaPathSummary, IState, IDispatch } from 'types';
 import * as d3 from 'd3';
 
 import './index.css';
-import { HighlightSpanKind } from 'typescript';
 
 interface Props {
   width: number;
@@ -57,9 +55,13 @@ class PathMatrix extends React.Component<Props, State> {
     this.hideModal = this.hideModal.bind(this);
     this.filterMetaPathGroups = this.filterMetaPathGroups.bind(this);
   }
-  toggleExpand(idx: number) {
+  toggleExpand(idx: number, flag: undefined | boolean) {
     let { expand } = this.state;
-    expand[idx] = !expand[idx];
+    if (flag === undefined) {
+      expand[idx] = !expand[idx];
+    } else {
+      expand[idx] = flag;
+    }
     this.setState({ expand });
   }
 
@@ -299,6 +301,9 @@ class PathMatrix extends React.Component<Props, State> {
             hide,
             this.props.dispatch
           );
+          if (hide) {
+            this.toggleExpand(summary.idx, false);
+          }
         };
 
         return (
@@ -314,7 +319,7 @@ class PathMatrix extends React.Component<Props, State> {
                 transform={`translate(${COUNT_WIDTH}, 0)`}
                 fill="gray"
                 onClick={() => {
-                  if (!summary.hide) this.toggleExpand(summary.idx);
+                  if (!summary.hide) this.toggleExpand(summary.idx, undefined);
                 }}
                 cursor="pointer"
               />
@@ -394,7 +399,7 @@ class PathMatrix extends React.Component<Props, State> {
           d.count.reduce(
             (acc, cur, i) => acc + cur * (drugPredictions[i].selected ? 1 : 0),
             0
-          ) > 0
+          ) > 0 && !d.hide
       );
       this.setState({ expand: expandStatus });
     }
