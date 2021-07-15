@@ -62,7 +62,7 @@ export default class ModelNodeForce extends React.Component<Props, State> {
   }
 
   dragstarted(d: INode) {
-    if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
+    if (!d3.event.active) this.simulation.alpha(0.3).restart();
     d.fx = d.x;
     d.fy = d.y;
   }
@@ -73,7 +73,7 @@ export default class ModelNodeForce extends React.Component<Props, State> {
   }
 
   dragended(d: INode) {
-    if (!d3.event.active) this.simulation.alphaTarget(0);
+    if (!d3.event.active) this.simulation.alpha(0);
     d.fx = d3.event.x;
     d.fy = d3.event.y;
   }
@@ -165,6 +165,7 @@ export default class ModelNodeForce extends React.Component<Props, State> {
     // d3.selectAll('line.link').remove();
 
     let svgLinks: any = d3
+      .select('svg.graph')
       .select('g.links')
       .selectAll('.link')
       .data(links)
@@ -175,6 +176,7 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       .style('opacity', 0.2);
 
     let svgNodes = d3
+      .select('svg.graph')
       .select('g.nodes')
       .selectAll('g.nodeGroup')
       .data(nodes, (d: any) => d.id)
@@ -196,10 +198,7 @@ export default class ModelNodeForce extends React.Component<Props, State> {
             ),
 
         (update) =>
-          update.attr('transform', (d) => {
-            if (this.isTargetNode(d)) console.info(d);
-            return `translate(${d.x}, ${d.y})`;
-          }),
+          update.attr('transform', (d) => `translate(${d.x}, ${d.y})`),
 
         (exit) => exit.remove()
       );
@@ -225,7 +224,7 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       // .filter(d=>!drugTargets.includes(d.id))
       .attr('r', this.RADIUS)
       // .attr("r", 5)
-      .attr('class', 'virus_host')
+      .attr('class', 'node')
       .attr('id', (d) => d.id)
       .attr('fill', (d: INode) => getNodeColor(d.nodeType))
       .attr('opacity', (d) =>
@@ -238,16 +237,53 @@ export default class ModelNodeForce extends React.Component<Props, State> {
     this.simulation.on('tick', () => this.ticked(svgNodes, svgLinks));
   }
 
+  updateNodeLabel() {
+    const { nodeNameDict } = this.props.globalState;
+    let svgNodes: d3.Selection<
+      SVGGElement,
+      INode,
+      d3.BaseType,
+      any
+    > = d3.select('svg.graph').select('g.nodes').selectAll('g.nodeGroup');
+
+    svgNodes
+      .select('circle')
+      .attr('opacity', (d) =>
+        this.isTargetNode(d) ? 1 : this.isHighlighted(d) ? 0.8 : 0.3
+      );
+
+    d3.selectAll('text.targetLabel').remove();
+
+    svgNodes
+      .filter((d) => this.isTargetNode(d) || this.isHighlighted(d))
+      .append('text')
+      .attr('class', 'targetLabel')
+      .attr('transform', `translate(${-1 * this.RADIUS}, ${-2 * this.RADIUS} )`)
+      .text((d: INode) => nodeNameDict[d.nodeType][d.nodeId]);
+  }
+
   componentDidMount() {
     this.drawGraph();
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { metaPathGroups: prevGroups } = prevProps.globalState;
-    const { metaPathGroups: currGroups } = this.props.globalState;
+    const {
+      metaPathGroups: prevGroups,
+      selectedPathNodes: prevNodes,
+    } = prevProps.globalState;
+    const {
+      metaPathGroups: currGroups,
+      selectedPathNodes: currNodes,
+    } = this.props.globalState;
     if (Object.keys(prevGroups).length !== Object.keys(currGroups).length) {
       this.drawGraph();
       this.simulation.alpha(0.5).restart();
+    }
+    if (
+      prevNodes.map((d) => d.nodeId).join() !==
+      currNodes.map((d) => d.nodeId).join()
+    ) {
+      this.updateNodeLabel();
     }
     return false;
   }
