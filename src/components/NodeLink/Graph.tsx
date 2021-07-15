@@ -247,7 +247,7 @@ export default class ModelNodeForce extends React.Component<Props, State> {
     const { metaPathGroups: currGroups } = this.props.globalState;
     if (Object.keys(prevGroups).length !== Object.keys(currGroups).length) {
       this.drawGraph();
-      this.simulation.alphaTarget(0.1).restart();
+      this.simulation.alpha(0.5).restart();
     }
     return false;
   }
