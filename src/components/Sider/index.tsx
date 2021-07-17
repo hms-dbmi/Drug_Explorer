@@ -26,10 +26,14 @@ class DrugSider extends React.Component<Props> {
     this.onChangeDrug = this.onChangeDrug.bind(this);
   }
   onChangeDrug(selectedDrugs: string[]) {
-    const isAdd =
-      selectedDrugs.length > this.props.globalState.drugPredictions.length;
+    const prevSelectedDrugs = this.props.globalState.drugPredictions
+      .filter((d) => d.selected)
+      .map((d) => d.id);
+    const isAdd = selectedDrugs.length > prevSelectedDrugs.length;
 
-    const currentDrug = selectedDrugs[selectedDrugs.length - 1];
+    const currentDrug = isAdd
+      ? selectedDrugs[selectedDrugs.length - 1]
+      : prevSelectedDrugs.filter((d) => !selectedDrugs.includes(d))[0];
     selectDrug(
       currentDrug,
       this.props.globalState.selectedDisease,
