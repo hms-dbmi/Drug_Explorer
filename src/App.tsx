@@ -1,9 +1,6 @@
 import React from 'react';
-import PathMatrix from 'components/PathMatrix';
-import NodeLink from 'components/NodeLink';
-import DrugSider from 'components/Sider';
 
-import { Layout } from 'antd';
+import { Layout, Form, Input } from 'antd';
 import './App.css';
 import { StateConsumer } from 'stores';
 import { IState, IDispatch } from 'types';
@@ -16,7 +13,9 @@ import {
 } from 'stores/DataService';
 import { setNodeColor } from 'helpers/color';
 
-const { Header, Footer, Content } = Layout;
+import MyForm from 'components/MyForm';
+
+const { Header, Footer } = Layout;
 
 interface Props {
   globalState: IState;
@@ -84,33 +83,14 @@ class App extends React.Component<Props, State> {
   }
 
   render() {
-    let siderWidth = 300,
-      mainViewWidth = window.innerWidth - siderWidth,
-      headerHeight = 64,
-      footHeight = 40,
-      mainViewHeight = window.innerHeight - headerHeight - footHeight,
-      NodeLinkHeight = mainViewHeight * 0.55,
-      MatrixHeight = mainViewHeight - NodeLinkHeight;
-
-    let header = (
-      <Header className="header" style={{ height: headerHeight }}>
-        DrugExplorer
-      </Header>
-    );
+    const footHeight = 40,
+      mainViewHeight = window.innerHeight - footHeight;
 
     return (
       <Layout>
-        {header}
-
-        <Layout>
-          <DrugSider siderWidth={siderWidth} />
-          <Content className="main" style={{ height: mainViewHeight }}>
-            <PathMatrix width={mainViewWidth} height={MatrixHeight} />
-            <NodeLink width={mainViewWidth} height={NodeLinkHeight} />
-          </Content>
-        </Layout>
-        <Footer className="footer" style={{ height: footHeight }}>
-          @2020
+        <MyForm height={mainViewHeight} />
+        <Footer style={{ height: footHeight, padding: '5px' }}>
+          copyright@2021 Harvard
         </Footer>
       </Layout>
     );
