@@ -31,7 +31,7 @@ const StepPanel = (props: Props) => {
           }`}
           icon={<QuestionCircleOutlined />}
         />
-        <Step title="Done" icon={<SmileOutlined />} />
+        <Step title="Almost Done" icon={<SmileOutlined />} />
       </Steps>
       <Divider />
 

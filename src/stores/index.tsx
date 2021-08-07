@@ -20,7 +20,10 @@ const initialState: IState = {
   // userStudy: {
   step: 0,
   userInfo: {},
-  questions: [],
+  questions: [
+    { disease: '5263.0', drug: 'DB06700', condition: 0 },
+    { disease: '19148.0', drug: 'DB11595', condition: 2 },
+  ],
   answers: [],
 };
 

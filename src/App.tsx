@@ -15,7 +15,7 @@ import { setNodeColor } from 'helpers/color';
 
 import MyForm from 'components/MyForm';
 
-const { Header, Footer } = Layout;
+const { Footer } = Layout;
 
 interface Props {
   globalState: IState;
@@ -85,12 +85,51 @@ class App extends React.Component<Props, State> {
   render() {
     const footHeight = 40,
       mainViewHeight = window.innerHeight - footHeight;
-
+    const { nodeNameDict } = this.props.globalState;
+    const InitialPage = (
+      <div
+        style={{
+          width: '100%',
+          height: mainViewHeight,
+          backgroundColor: 'white',
+        }}
+      >
+        <div
+          style={{
+            display: 'table-cell',
+            verticalAlign: 'middle',
+            height: 'inherit',
+            width: window.innerWidth,
+            textAlign: 'center',
+          }}
+        >
+          Initializing...
+        </div>
+      </div>
+    );
     return (
       <Layout>
-        <MyForm height={mainViewHeight} />
-        <Footer style={{ height: footHeight, padding: '5px' }}>
-          copyright@2021 Harvard
+        {nodeNameDict['drug'] ? (
+          <MyForm height={mainViewHeight} />
+        ) : (
+          InitialPage
+        )}
+        <Footer
+          style={{
+            height: footHeight,
+            paddingTop: '0px',
+            paddingBottom: '0px',
+          }}
+        >
+          <span
+            style={{
+              display: 'table-cell',
+              verticalAlign: 'middle',
+              height: 'inherit',
+            }}
+          >
+            copyright@2021 Harvard
+          </span>
         </Footer>
       </Layout>
     );

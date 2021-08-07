@@ -83,7 +83,7 @@ type TUserInfo = {
 };
 
 type TAnswers = any;
-type TQuestion = { drug: string; disease: string };
+type TQuestion = { drug: string; disease: string; condition: number };
 
 export interface IState {
   edgeThreshold: number;

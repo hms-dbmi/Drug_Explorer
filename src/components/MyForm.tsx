@@ -6,6 +6,7 @@ import { StateConsumer } from 'stores';
 import WelcomePage from 'components/Welcome';
 import TaskPage from './TaskPage';
 import { goPrev, goNext } from 'stores/actions';
+import TutorialPage from './TutorialPage';
 
 interface Props {
   globalState: IState;
@@ -55,17 +56,17 @@ function MyForm(props: Props) {
     {
       step: 1,
       stage: 'tutorial',
-      content: <Step1Form />,
+      content: <TutorialPage />,
     },
     {
       step: 2,
       stage: 'task',
-      content: <TaskPage />,
+      content: <TaskPage step={2} />,
     },
     {
       step: 3,
       stage: 'task',
-      content: <Step1Form />,
+      content: <TaskPage step={3} />,
     },
     {
       step: 4,
