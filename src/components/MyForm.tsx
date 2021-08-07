@@ -4,6 +4,7 @@ import { StepPanel } from './StepPanel';
 import { IDispatch, IState } from 'types';
 import { StateConsumer } from 'stores';
 import WelcomePage from 'components/Welcome';
+import TaskPage from './TaskPage';
 
 interface Props {
   globalState: IState;
@@ -55,7 +56,7 @@ function MyForm(props: Props) {
     {
       step: 2,
       stage: 'task',
-      content: <Step2Form />,
+      content: <TaskPage />,
     },
     {
       step: 3,
@@ -70,7 +71,7 @@ function MyForm(props: Props) {
   ];
   return (
     <div style={{ background: 'white', padding: '10px', height: props.height }}>
-      <div style={{ width: '800px', margin: 'auto' }}>
+      <div style={{ width: '1200px', margin: 'auto' }}>
         <PageHeader
           title={<h1>AI-based Drug Repurposing</h1>}
           // subTitle="Multi-Step form"
