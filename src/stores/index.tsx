@@ -17,11 +17,11 @@ const initialState: IState = {
   edgeThreshold: 0,
   metaPathSummary: [],
   selectedPathNodes: [],
-  userStudy: {
-    step: 0,
-    userInfo: {},
-    answers: [],
-  },
+  // userStudy: {
+  step: 0,
+  userInfo: {},
+  questions: [],
+  answers: [],
 };
 
 interface IStateContext {

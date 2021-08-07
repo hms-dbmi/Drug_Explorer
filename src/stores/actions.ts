@@ -28,6 +28,9 @@ export const ACTION_TYPES = {
   Select_Path_Noes: 'Select_Path_Nodes',
 
   Toggle_Meta_Path_Hide: 'Toggle_Meta_Path_Hide',
+
+  Go_Next: 'Go_Next',
+  Go_Prev: 'Go_Prev',
 };
 
 export const selectDrug = (
@@ -40,6 +43,18 @@ export const selectDrug = (
     changeDrug(selectedDrug, dispatch);
     modifyAttentionPaths(selectedDrug, selectedDisease, isAdd, dispatch);
   }
+};
+
+export const goNext = (dispatch: IDispatch) => {
+  dispatch({
+    type: ACTION_TYPES.Go_Next,
+  });
+};
+
+export const goPrev = (dispatch: IDispatch) => {
+  dispatch({
+    type: ACTION_TYPES.Go_Prev,
+  });
 };
 
 export const selectDisease = (selectedDisease: string, dispatch: IDispatch) => {

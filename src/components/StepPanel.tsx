@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement } from 'react';
 import { Button, Steps, Divider } from 'antd';
 import {
   UserOutlined,
@@ -11,30 +11,22 @@ const { Step } = Steps;
 
 interface Props {
   steps: { step: number; stage: string; content: ReactElement }[];
+  currentStep: number;
+  toNext: () => void;
+  toPrev: () => void;
 }
 
 const StepPanel = (props: Props) => {
-  const [activeStep, setActiveStep] = useState(0);
-
-  function next() {
-    const nextStep = activeStep + 1;
-    setActiveStep(nextStep);
-  }
-
-  function prev() {
-    const prevStep = activeStep - 1;
-    setActiveStep(prevStep);
-  }
-
-  const stages = ['info', 'tutorial', 'task', 'post']
-
+  const stages = ['user_info', 'tutorial', 'task', 'post'];
+  const { currentStep, toNext, toPrev, steps } = props;
   return (
     <>
-      <Steps current={stages.indexOf(props.steps[activeStep].stage)}>
+      {/* step nav */}
+      <Steps current={stages.indexOf(steps[currentStep].stage)}>
         <Step title="User Info" icon={<UserOutlined />} />
         <Step title="Tutorial" icon={<SolutionOutlined />} />
         <Step
-          title={`Tasks: ${Math.max(0, activeStep - 1)}/${
+          title={`Tasks: ${Math.max(0, currentStep - 1)}/${
             props.steps.length - 2
           }`}
           icon={<QuestionCircleOutlined />}
@@ -43,26 +35,29 @@ const StepPanel = (props: Props) => {
       </Steps>
       <Divider />
 
+      {/* page content */}
       {props.steps.map((item) => (
         <div
-          className={`steps-content ${item.step !== activeStep && 'hidden'}`}
+          className={`steps-content ${item.step !== currentStep && 'hidden'}`}
         >
           {item.content}
         </div>
       ))}
+
+      {/* button group */}
       <div className="steps-action" style={{ textAlign: 'center' }}>
-        {activeStep < props.steps.length - 1 && (
-          <Button type="primary" onClick={() => next()}>
+        {currentStep < props.steps.length - 1 && (
+          <Button type="primary" onClick={toNext}>
             Next
           </Button>
         )}
-        {activeStep === props.steps.length - 1 && (
+        {currentStep === props.steps.length - 1 && (
           <Button type="primary" htmlType="submit">
             Submit
           </Button>
         )}
-        {activeStep > 0 && (
-          <Button style={{ margin: '0 8px' }} onClick={() => prev()}>
+        {currentStep > 0 && (
+          <Button style={{ margin: '0 8px' }} onClick={toPrev}>
             Previous
           </Button>
         )}

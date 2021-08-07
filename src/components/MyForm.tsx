@@ -5,6 +5,7 @@ import { IDispatch, IState } from 'types';
 import { StateConsumer } from 'stores';
 import WelcomePage from 'components/Welcome';
 import TaskPage from './TaskPage';
+import { goPrev, goNext } from 'stores/actions';
 
 interface Props {
   globalState: IState;
@@ -42,6 +43,9 @@ function MyForm(props: Props) {
     console.log(formData);
   };
 
+  const toNext = () => goNext(props.dispatch);
+  const toPrev = () => goPrev(props.dispatch);
+
   const steps = [
     {
       step: 0,
@@ -73,7 +77,7 @@ function MyForm(props: Props) {
     <div style={{ background: 'white', padding: '10px', height: props.height }}>
       <div style={{ width: '1200px', margin: 'auto' }}>
         <PageHeader
-          title={<h1>AI-based Drug Repurposing</h1>}
+          title={<h1>AI-powered Drug Repurposing</h1>}
           // subTitle="Multi-Step form"
         />
         <Form
@@ -82,7 +86,12 @@ function MyForm(props: Props) {
           labelCol={{ span: 6 }}
           wrapperCol={{ span: 18 }}
         >
-          <StepPanel steps={steps} />
+          <StepPanel
+            steps={steps}
+            currentStep={props.globalState.step}
+            toNext={toNext}
+            toPrev={toPrev}
+          />
         </Form>
       </div>
     </div>

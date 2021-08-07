@@ -3,6 +3,11 @@ import { ACTION_TYPES } from 'stores/actions';
 
 const rootReducer = (state: IState, action: IAction): IState => {
   switch (action.type) {
+    case ACTION_TYPES.Go_Next:
+      return { ...state, step: state.step + 1 };
+    case ACTION_TYPES.Go_Prev:
+      return { ...state, step: state.step - 1 };
+
     case ACTION_TYPES.Load_Drug_Options:
       return {
         ...state,
