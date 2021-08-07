@@ -26,9 +26,10 @@ const StepPanel = (props: Props) => {
         <Step title="User Info" icon={<UserOutlined />} />
         <Step title="Tutorial" icon={<SolutionOutlined />} />
         <Step
-          title={`Tasks: ${Math.max(0, currentStep - 1)}/${
-            props.steps.length - 2
-          }`}
+          title={`Tasks: ${Math.min(
+            Math.max(0, currentStep - 1),
+            steps.length - 3
+          )}/${steps.length - 3}`}
           icon={<QuestionCircleOutlined />}
         />
         <Step title="Almost Done" icon={<SmileOutlined />} />
@@ -36,7 +37,7 @@ const StepPanel = (props: Props) => {
       <Divider />
 
       {/* page content */}
-      {props.steps.map((item) => (
+      {steps.map((item) => (
         <div
           className={`steps-content ${item.step !== currentStep && 'hidden'}`}
         >
@@ -51,16 +52,16 @@ const StepPanel = (props: Props) => {
             Next
           </Button>
         )}
-        {currentStep === props.steps.length - 1 && (
+        {currentStep === steps.length - 1 && (
           <Button type="primary" htmlType="submit">
             Submit
           </Button>
         )}
-        {currentStep > 0 && (
+        {/* {currentStep > 0 && (
           <Button style={{ margin: '0 8px' }} onClick={toPrev}>
             Previous
           </Button>
-        )}
+        )} */}
       </div>
     </>
   );

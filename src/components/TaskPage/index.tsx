@@ -6,17 +6,18 @@ import { Form, Radio, Row, Col } from 'antd';
 interface Props {
   globalState: IState;
   dispatch: IDispatch;
-  step: number;
+  questionIdx: number;
 }
 
 const TaskPage = (props: Props) => {
   const { questions, nodeNameDict } = props.globalState;
-  const { step } = props;
+  const { questionIdx } = props;
   const drugName =
-      nodeNameDict['drug'] && nodeNameDict['drug'][questions[step - 2]['drug']],
+      nodeNameDict['drug'] &&
+      nodeNameDict['drug'][questions[questionIdx]['drug']],
     diseaseName =
       nodeNameDict['disease'] &&
-      nodeNameDict['disease'][questions[step - 2]['disease']];
+      nodeNameDict['disease'][questions[questionIdx]['disease']];
   return (
     <>
       <h3 style={{ margin: '5px' }}>
@@ -27,7 +28,7 @@ const TaskPage = (props: Props) => {
         please select the most possible relation you think
       </h3>
 
-      <Form.Item name={`question_${step}`}>
+      <Form.Item name={`question_${questionIdx}`}>
         <Radio.Group>
           <Radio value="indicatable">Indicatable</Radio>
           <Radio value="note indicatable">Not indicatable</Radio>
@@ -41,13 +42,13 @@ const TaskPage = (props: Props) => {
       <Row>
         <Col span={8}>I am confident about my selection above</Col>
         <Col span={16}>
-          <Form.Item name={`confidence_${step}`}>
+          <Form.Item name={`confidence_${questionIdx}`}>
             <Radio.Group>
-              <Radio value="indicatable">Strongly Disagree</Radio>
-              <Radio value="note indicatable">Disagree</Radio>
-              <Radio value="indicatable">Neutral</Radio>
-              <Radio value="note indicatable">Agree</Radio>
-              <Radio value="indicatable">Strongly Agree</Radio>
+              <Radio value="-2">Strongly Disagree</Radio>
+              <Radio value="-1">Disagree</Radio>
+              <Radio value="0">Neutral</Radio>
+              <Radio value="1">Agree</Radio>
+              <Radio value="2">Strongly Agree</Radio>
             </Radio.Group>
           </Form.Item>
         </Col>
@@ -56,13 +57,13 @@ const TaskPage = (props: Props) => {
       <Row>
         <Col span={8}>I understand why AI makes this prediction</Col>
         <Col span={16}>
-          <Form.Item name={`understandable_${step}`}>
+          <Form.Item name={`understand_${questionIdx}`}>
             <Radio.Group>
-              <Radio value="indicatable">Strongly Disagree</Radio>
-              <Radio value="note indicatable">Disagree</Radio>
-              <Radio value="indicatable">Neutral</Radio>
-              <Radio value="note indicatable">Agree</Radio>
-              <Radio value="indicatable">Strongly Agree</Radio>
+              <Radio value="-2">Strongly Disagree</Radio>
+              <Radio value="-1">Disagree</Radio>
+              <Radio value="0">Neutral</Radio>
+              <Radio value="1">Agree</Radio>
+              <Radio value="2">Strongly Agree</Radio>
             </Radio.Group>
           </Form.Item>
         </Col>
@@ -73,13 +74,13 @@ const TaskPage = (props: Props) => {
           The AI explanation helps me assess the drug indication
         </Col>
         <Col span={16}>
-          <Form.Item name={`helpful_${step}`}>
+          <Form.Item name={`helpful_${questionIdx}`}>
             <Radio.Group>
-              <Radio value="indicatable">Strongly Disagree</Radio>
-              <Radio value="note indicatable">Disagree</Radio>
-              <Radio value="indicatable">Neutral</Radio>
-              <Radio value="note indicatable">Agree</Radio>
-              <Radio value="indicatable">Strongly Agree</Radio>
+              <Radio value="-2">Strongly Disagree</Radio>
+              <Radio value="-1">Disagree</Radio>
+              <Radio value="0">Neutral</Radio>
+              <Radio value="1">Agree</Radio>
+              <Radio value="2">Strongly Agree</Radio>
             </Radio.Group>
           </Form.Item>
         </Col>
@@ -90,13 +91,13 @@ const TaskPage = (props: Props) => {
           I trust this AI to make predictions for drug repurposing
         </Col>
         <Col span={16}>
-          <Form.Item name={`trust_${step}`}>
+          <Form.Item name={`trust_${questionIdx}`}>
             <Radio.Group>
-              <Radio value="indicatable">Strongly Disagree</Radio>
-              <Radio value="note indicatable">Disagree</Radio>
-              <Radio value="indicatable">Neutral</Radio>
-              <Radio value="note indicatable">Agree</Radio>
-              <Radio value="indicatable">Strongly Agree</Radio>
+              <Radio value="-2">Strongly Disagree</Radio>
+              <Radio value="-1">Disagree</Radio>
+              <Radio value="0">Neutral</Radio>
+              <Radio value="1">Agree</Radio>
+              <Radio value="2">Strongly Agree</Radio>
             </Radio.Group>
           </Form.Item>
         </Col>

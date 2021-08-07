@@ -107,6 +107,26 @@ class App extends React.Component<Props, State> {
         </div>
       </div>
     );
+
+    const footer = (
+      <Footer
+        style={{
+          height: footHeight,
+          paddingTop: '0px',
+          paddingBottom: '0px',
+        }}
+      >
+        <span
+          style={{
+            display: 'table-cell',
+            verticalAlign: 'middle',
+            height: 'inherit',
+          }}
+        >
+          copyright@2021 Harvard
+        </span>
+      </Footer>
+    );
     return (
       <Layout>
         {nodeNameDict['drug'] ? (
@@ -114,23 +134,7 @@ class App extends React.Component<Props, State> {
         ) : (
           InitialPage
         )}
-        <Footer
-          style={{
-            height: footHeight,
-            paddingTop: '0px',
-            paddingBottom: '0px',
-          }}
-        >
-          <span
-            style={{
-              display: 'table-cell',
-              verticalAlign: 'middle',
-              height: 'inherit',
-            }}
-          >
-            copyright@2021 Harvard
-          </span>
-        </Footer>
+        {footer}
       </Layout>
     );
   }
