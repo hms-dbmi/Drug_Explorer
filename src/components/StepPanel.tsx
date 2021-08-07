@@ -1,8 +1,16 @@
 import React, { ReactElement, useState } from 'react';
-import { Button, Steps } from 'antd';
+import { Button, Steps, Divider } from 'antd';
+import {
+  UserOutlined,
+  SolutionOutlined,
+  QuestionCircleOutlined,
+  SmileOutlined,
+} from '@ant-design/icons';
+
+const { Step } = Steps;
 
 interface Props {
-  steps: { step: number; title: string; content: ReactElement }[];
+  steps: { step: number; stage: string; content: ReactElement }[];
 }
 
 const StepPanel = (props: Props) => {
@@ -18,13 +26,23 @@ const StepPanel = (props: Props) => {
     setActiveStep(prevStep);
   }
 
+  const stages = ['info', 'tutorial', 'task', 'post']
+
   return (
     <>
-      <Steps current={activeStep} style={{ width: 400 }}>
-        {props.steps.map((item) => (
-          <Steps.Step key={item.title} title={item.title} />
-        ))}
+      <Steps current={stages.indexOf(props.steps[activeStep].stage)}>
+        <Step title="User Info" icon={<UserOutlined />} />
+        <Step title="Tutorial" icon={<SolutionOutlined />} />
+        <Step
+          title={`Tasks: ${Math.max(0, activeStep - 1)}/${
+            props.steps.length - 2
+          }`}
+          icon={<QuestionCircleOutlined />}
+        />
+        <Step title="Done" icon={<SmileOutlined />} />
       </Steps>
+      <Divider />
+
       {props.steps.map((item) => (
         <div
           className={`steps-content ${item.step !== activeStep && 'hidden'}`}

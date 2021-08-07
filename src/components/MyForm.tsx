@@ -44,27 +44,36 @@ function MyForm(props: Props) {
   const steps = [
     {
       step: 0,
-      title: 'Welcome',
+      stage: 'user_info',
       content: <WelcomePage />,
     },
     {
       step: 1,
-      title: 'Step1',
+      stage: 'tutorial',
       content: <Step1Form />,
     },
     {
       step: 2,
-      title: 'Step2',
+      stage: 'task',
+      content: <Step2Form />,
+    },
+    {
+      step: 3,
+      stage: 'task',
+      content: <Step1Form />,
+    },
+    {
+      step: 4,
+      stage: 'post',
       content: <Step2Form />,
     },
   ];
-  console.info(props);
   return (
     <div style={{ background: 'white', padding: '10px', height: props.height }}>
       <div style={{ width: '800px', margin: 'auto' }}>
         <PageHeader
-          title="AI-based Drug Repurposing"
-          subTitle="Multi-Step form"
+          title={<h1>AI-based Drug Repurposing</h1>}
+          // subTitle="Multi-Step form"
         />
         <Form
           form={stepForm}
