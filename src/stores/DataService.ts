@@ -12,62 +12,63 @@ const axiosInstance = axios.create({
   },
 });
 
-const requestNodeTypes = async (): Promise<string[]> => {
+export const requestNodeTypes = async (): Promise<string[]> => {
   const url = './data/node_types.json';
   let response = await axiosInstance.get(url);
   return response.data;
 };
 
-const requestEdgeTypes = async (): Promise<IEdgeTypes> => {
+export const requestEdgeTypes = async (): Promise<IEdgeTypes> => {
   const url = './data/edge_types.json';
   let response = await axiosInstance.get(url);
   return response.data;
 };
 
-const requestNodeNameDict = async () => {
+export const requestLinkPrediction = async (
+  diseaseID: string,
+  drugID: string
+) => {
+  const url = `./api/link_pred?disease_id=${diseaseID}&drug_id=${drugID}`;
+  let response = await axiosInstance.get(url);
+  return response.data;
+};
+
+export const requestNodeNameDict = async () => {
   const url = './data/node_name_dict.json';
   let response = await axiosInstance.get(url);
   return response.data;
 };
 
-const requestAttention = async (diseaseID: string, drugID: string) => {
+export const requestAttention = async (diseaseID: string, drugID: string) => {
   const url = `./api/attention?disease=${diseaseID}&drug=${drugID}`;
   let response = await axiosInstance.get(url);
   return response.data;
 };
 
-const requestAttentionPair = async (diseaseID: string, drugID: string) => {
+export const requestAttentionPair = async (
+  diseaseID: string,
+  drugID: string
+) => {
   const url = `./api/attention_pair?disease=${diseaseID}&drug=${drugID}`;
   let response = await axiosInstance.get(url);
   return response.data;
 };
 
-const requestDiseaseOptions = async () => {
+export const requestDiseaseOptions = async () => {
   const url = './api/diseases';
   let response = await axiosInstance.get(url);
   return response.data;
 };
 
-const requestDrugPredictions = async (diseaseID: string) => {
+export const requestDrugPredictions = async (diseaseID: string) => {
   const url = `./api/drug_predictions?disease_id=${diseaseID}`;
   const response = await axiosInstance.get(url);
   const { predictions, metapath_summary: metapathSummary } = response.data;
   return { predictions, metapathSummary };
 };
 
-const requestEmbedding = async () => {
+export const requestEmbedding = async () => {
   const url = './data/drug_tsne.json';
   const response = await axiosInstance.get(url);
   return response.data;
-};
-
-export {
-  requestNodeTypes,
-  requestEdgeTypes,
-  requestAttention,
-  requestNodeNameDict,
-  requestDrugPredictions,
-  requestDiseaseOptions,
-  requestEmbedding,
-  requestAttentionPair,
 };

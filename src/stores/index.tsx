@@ -18,12 +18,16 @@ const initialState: IState = {
   metaPathSummary: [],
   selectedPathNodes: [],
   // userStudy: {
-  step: 0,
+  isPageLoading: true,
+  step: 2,
   userInfo: {},
   questions: [
-    { disease: '5263.0', drug: 'DB06700', condition: 0 },
-    { disease: '19148.0', drug: 'DB11595', condition: 2 },
+    { disease: '5263.0', drug: 'DB06700', condition: 'baseline' },
+    { disease: '19148.0', drug: 'DB11595', condition: 'model' },
+    { disease: '5618.0', drug: 'DB00472', condition: 'domain' },
+    { disease: '5575.0', drug: 'DB08885', condition: 'domain' },
   ],
+  conditions: ['baseline', 'model', 'domain'],
   answers: [],
 };
 

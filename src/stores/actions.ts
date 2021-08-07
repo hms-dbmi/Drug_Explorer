@@ -8,6 +8,7 @@ import {
 import {
   requestAttentionPair,
   requestDrugPredictions,
+  requestLinkPrediction,
 } from 'stores/DataService';
 
 export const ACTION_TYPES = {
@@ -54,6 +55,76 @@ export const goNext = (dispatch: IDispatch) => {
 export const goPrev = (dispatch: IDispatch) => {
   dispatch({
     type: ACTION_TYPES.Go_Prev,
+  });
+};
+
+export const initTaskPage = (
+  drug_id: string,
+  disease_id: string,
+  dispatch: IDispatch
+) => {
+  dispatch({
+    type: ACTION_TYPES.Change_Disease,
+    payload: { selectedDisease: disease_id },
+  });
+
+  dispatch({
+    type: ACTION_TYPES.Set_Loading_Status,
+    payload: { isPageLoading: true },
+  });
+
+  requestAttentionPair(disease_id, drug_id)
+    .then((res) => {
+      dispatch({
+        type: ACTION_TYPES.Add_Attention_Paths,
+        payload: {
+          attention: res.attention,
+          metaPathGroups: { [drug_id]: groupMetaPaths(res.metapaths) },
+        },
+      });
+      return groupMetaPaths(res.metapaths);
+    })
+    .then((res) => {
+      const metaPathSummary = res.map((d, idx) => {
+        const count = d.metaPaths.length;
+        return {
+          nodeTypes: d.nodeTypes,
+          count: [count],
+          sum: count,
+          hide: false,
+          idx,
+        };
+      });
+      requestLinkPrediction(disease_id, drug_id).then((res) => {
+        const drugPredictions = [
+          {
+            score: res.score,
+            id: drug_id,
+            selected: true,
+          },
+        ];
+
+        dispatch({
+          type: ACTION_TYPES.Load_Drug_Options,
+          payload: {
+            drugPredictions,
+            metaPathSummary,
+          },
+        });
+      });
+    })
+    .then(() => {
+      dispatch({
+        type: ACTION_TYPES.Set_Loading_Status,
+        payload: { isPageLoading: false },
+      });
+    });
+};
+
+export const setPageLoadingStatus = (status: boolean, dispatch: IDispatch) => {
+  dispatch({
+    type: ACTION_TYPES.Set_Loading_Status,
+    payload: { isPageLoading: status },
   });
 };
 

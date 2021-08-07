@@ -12,13 +12,14 @@ const { Step } = Steps;
 interface Props {
   steps: { step: number; stage: string; content: ReactElement }[];
   currentStep: number;
+  numberOfQuestions: number;
   toNext: () => void;
   toPrev: () => void;
 }
 
 const StepPanel = (props: Props) => {
   const stages = ['user_info', 'tutorial', 'task', 'post'];
-  const { currentStep, toNext, toPrev, steps } = props;
+  const { currentStep, toNext, toPrev, steps, numberOfQuestions } = props;
   return (
     <>
       {/* step nav */}
@@ -28,8 +29,8 @@ const StepPanel = (props: Props) => {
         <Step
           title={`Tasks: ${Math.min(
             Math.max(0, currentStep - 1),
-            steps.length - 3
-          )}/${steps.length - 3}`}
+            numberOfQuestions
+          )}/${numberOfQuestions}`}
           icon={<QuestionCircleOutlined />}
         />
         <Step title="Almost Done" icon={<SmileOutlined />} />
@@ -39,6 +40,7 @@ const StepPanel = (props: Props) => {
       {/* page content */}
       {steps.map((item) => (
         <div
+          key={item.step}
           className={`steps-content ${item.step !== currentStep && 'hidden'}`}
         >
           {item.content}

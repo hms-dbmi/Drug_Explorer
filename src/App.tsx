@@ -68,13 +68,6 @@ class App extends React.Component<Props, State> {
           type: ACTION_TYPES.Load_Node_Name_Dict,
           payload: { nodeNameDict },
         });
-      })
-      .then(() => requestDiseaseOptions())
-      .then((diseaseOptions) => {
-        this.props.dispatch({
-          type: ACTION_TYPES.Load_Disease_Options,
-          payload: { diseaseOptions },
-        });
       });
   }
 

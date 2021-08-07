@@ -5,9 +5,10 @@ import { IDispatch, IState } from 'types';
 import { StateConsumer } from 'stores';
 import WelcomePage from 'components/Welcome';
 import TaskPage from './TaskPage';
-import { goPrev, goNext } from 'stores/actions';
+import { goPrev, goNext, initTaskPage } from 'stores/actions';
 import TutorialPage from './TutorialPage';
 import PostPage from './PostPage';
+import { message } from 'antd';
 
 interface Props {
   globalState: IState;
@@ -17,16 +18,29 @@ interface Props {
 
 function MyForm(props: Props) {
   const [stepForm] = Form.useForm();
-  const { questions } = props.globalState;
+  const { questions, conditions, step } = props.globalState;
 
   const onFinish = () => {
     const formData = stepForm.getFieldsValue();
 
     // POST the data to backend and show Notification
     console.log(formData);
+    message.success(
+      <span>
+        Your answers have been successfully submitted. <br /> Thank you!
+      </span>,
+      15
+    );
   };
 
-  const toNext = () => goNext(props.dispatch);
+  const toNext = () => {
+    goNext(props.dispatch);
+    if (step > 0) {
+      // the next page is task page
+      const { drug, disease } = questions[step - 1];
+      initTaskPage(drug, disease, props.dispatch);
+    }
+  };
   const toPrev = () => goPrev(props.dispatch);
 
   const steps = [
@@ -47,11 +61,13 @@ function MyForm(props: Props) {
         content: <TaskPage questionIdx={i} />,
       };
     }),
-    {
-      step: questions.length + 2,
-      stage: 'post',
-      content: <PostPage />,
-    },
+    ...conditions.map((condition, i) => {
+      return {
+        step: questions.length + 2 + i,
+        stage: 'post',
+        content: <PostPage condition={condition} />,
+      };
+    }),
   ];
   return (
     <div
@@ -75,6 +91,7 @@ function MyForm(props: Props) {
         >
           <StepPanel
             steps={steps}
+            numberOfQuestions={questions.length}
             currentStep={props.globalState.step}
             toNext={toNext}
             toPrev={toPrev}

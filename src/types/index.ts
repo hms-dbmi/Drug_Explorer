@@ -83,7 +83,7 @@ type TUserInfo = {
 };
 
 type TAnswers = any;
-type TQuestion = { drug: string; disease: string; condition: number };
+type TQuestion = { drug: string; disease: string; condition: string };
 
 export interface IState {
   edgeThreshold: number;
@@ -101,8 +101,10 @@ export interface IState {
   metaPathSummary: IMetaPathSummary[]; // summary of all drugs
   selectedPathNodes: IMetaPath['nodes'];
   // userStudy:
+  isPageLoading: boolean;
   step: number;
   userInfo: TUserInfo;
   questions: TQuestion[];
+  conditions: string[];
   answers: TAnswers;
 }

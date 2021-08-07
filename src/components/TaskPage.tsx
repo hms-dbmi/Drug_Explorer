@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import { StateConsumer } from 'stores';
 import { IDispatch, IState } from 'types';
 import { Form, Radio, Row, Col } from 'antd';
@@ -8,6 +8,18 @@ interface Props {
   dispatch: IDispatch;
   questionIdx: number;
 }
+
+const stateStyle = {
+  textAlign: 'right',
+  padding: '5px 8px',
+  borderRight: 'gray 1px solid',
+} as CSSProperties;
+
+const nameStyle = {
+  border: 'black solid 1px',
+  padding: '0px 3px',
+  margin: '3px',
+} as CSSProperties;
 
 const TaskPage = (props: Props) => {
   const { questions, nodeNameDict } = props.globalState;
@@ -21,13 +33,17 @@ const TaskPage = (props: Props) => {
   return (
     <>
       <h3 style={{ margin: '5px' }}>
-        For the <b>disease: {diseaseName}</b> and the <b>drug: {drugName}</b>,
+        {questionIdx + 1}. For the disease
+        <span style={nameStyle}>{diseaseName}</span>
+        and the drug <span style={nameStyle}>{drugName}</span>,
       </h3>
-      <h3 style={{ margin: '5px' }}>Here is the AI prediction</h3>
       <h3 style={{ margin: '5px' }}>
-        please select the most possible relation you think
+        {'\u00A0'} {'\u00A0'} Here is the AI prediction
       </h3>
 
+      <h3 style={{ margin: '5px' }}>
+        <b>a)</b> Please select the most possible relation you think
+      </h3>
       <Form.Item name={`question_${questionIdx}`}>
         <Radio.Group>
           <Radio value="indicatable">Indicatable</Radio>
@@ -35,12 +51,14 @@ const TaskPage = (props: Props) => {
         </Radio.Group>
       </Form.Item>
 
-      <h4 style={{ margin: '5px' }}>
-        Please rate your confidence level for your selection above
-      </h4>
+      <h3 style={{ margin: '5px' }}>
+        <b>b)</b> Please rate your agreement level for the following statements
+      </h3>
       {/* aggreement level */}
-      <Row>
-        <Col span={8}>I am confident about my selection above</Col>
+      <Row gutter={16}>
+        <Col span={8} style={stateStyle}>
+          I am confident about my selection above
+        </Col>
         <Col span={16}>
           <Form.Item name={`confidence_${questionIdx}`}>
             <Radio.Group>
@@ -54,8 +72,11 @@ const TaskPage = (props: Props) => {
         </Col>
       </Row>
 
-      <Row>
-        <Col span={8}>I understand why AI makes this prediction</Col>
+      <Row gutter={16}>
+        <Col span={8} style={stateStyle}>
+          {' '}
+          I understand why AI makes this prediction
+        </Col>
         <Col span={16}>
           <Form.Item name={`understand_${questionIdx}`}>
             <Radio.Group>
@@ -69,8 +90,8 @@ const TaskPage = (props: Props) => {
         </Col>
       </Row>
 
-      <Row>
-        <Col span={8}>
+      <Row gutter={16}>
+        <Col span={8} style={stateStyle}>
           The AI explanation helps me assess the drug indication
         </Col>
         <Col span={16}>
@@ -86,8 +107,8 @@ const TaskPage = (props: Props) => {
         </Col>
       </Row>
 
-      <Row>
-        <Col span={8}>
+      <Row gutter={16}>
+        <Col span={8} style={stateStyle}>
           I trust this AI to make predictions for drug repurposing
         </Col>
         <Col span={16}>
