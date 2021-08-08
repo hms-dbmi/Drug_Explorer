@@ -19,7 +19,7 @@ const initialState: IState = {
   selectedPathNodes: [],
   // userStudy: {
   isPageLoading: true,
-  step: 2,
+  step: 1,
   userInfo: {},
   questions: [
     { disease: '5263.0', drug: 'DB06700', condition: 'baseline' },

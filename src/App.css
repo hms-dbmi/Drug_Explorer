@@ -29,3 +29,7 @@ g.wholeGraph {
 .hidden {
   display: none;
 }
+
+.indent {
+  margin-left: 30px !important;
+}

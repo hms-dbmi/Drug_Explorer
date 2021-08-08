@@ -30,7 +30,7 @@ interface State {
 }
 
 class PathMatrix extends React.Component<Props, State> {
-  TITLE_HEIGHT = 36;
+  TITLE_HEIGHT = 0;
   MARGIN = 10;
   PADDING = 10;
   EDGE_LENGTH = 120;
@@ -40,14 +40,14 @@ class PathMatrix extends React.Component<Props, State> {
   GROUP_GAP = 10; // vertical gap between path groups
   COUNT_GAP = 5; // horizontal gap between count circles
   RADIUS = this.NODE_HEIGHT / 2; // max radius of the count circle
-  HEAD_HEIGHT = 70; // height of the header ()
+  HEAD_HEIGHT = 0; // height of the header ()
   ICON_GAP = 20; // width of the expand triangle icon
   offsetY = 0; // record the height of the expanded meta paths
 
   constructor(prop: Props) {
     super(prop);
     this.state = {
-      expand: this.props.globalState.metaPathSummary.map((d) => false),
+      expand: this.props.globalState.metaPathSummary.map((d) => true),
       isModalVisible: false,
     };
 
@@ -186,10 +186,7 @@ class PathMatrix extends React.Component<Props, State> {
     return header;
   }
   getCountWidth() {
-    const width =
-      (this.props.globalState.drugPredictions.length + 1) *
-        (this.RADIUS * 2 + this.COUNT_GAP) +
-      this.COUNT_GAP;
+    const width = this.RADIUS * 2 + this.COUNT_GAP + this.COUNT_GAP;
     return width;
   }
   drawSummary() {
@@ -316,7 +313,7 @@ class PathMatrix extends React.Component<Props, State> {
             <g className="icon">
               <path
                 d={showChildren ? triangelBottom : triangleRight}
-                transform={`translate(${COUNT_WIDTH}, 0)`}
+                transform={`translate(${COUNT_WIDTH - 5}, 0)`}
                 fill="gray"
                 onClick={() => {
                   if (!summary.hide) this.toggleExpand(summary.idx, undefined);
@@ -345,15 +342,8 @@ class PathMatrix extends React.Component<Props, State> {
           </g>
         );
       });
-    const header = this.drawHeader();
     const content = (
       <g>
-        <g
-          className="header"
-          transform={`translate(${this.PADDING}, ${this.PADDING})`}
-        >
-          {header}
-        </g>
         <g
           className="rows"
           transform={`translate(${0}, ${this.PADDING + this.HEAD_HEIGHT})`}
@@ -385,7 +375,7 @@ class PathMatrix extends React.Component<Props, State> {
       this.props.globalState.selectedDisease
     ) {
       this.setState({
-        expand: this.props.globalState.metaPathSummary.map((d) => false),
+        expand: this.props.globalState.metaPathSummary.map((d) => true),
       });
     } else if (
       prevProps.globalState.drugPredictions.filter((d) => d.selected).length !==
@@ -462,16 +452,7 @@ class PathMatrix extends React.Component<Props, State> {
           transform={`translate(${
             count.length * (2 * this.RADIUS + this.COUNT_GAP)
           }, 0)`}
-        >
-          <text
-            x={this.RADIUS}
-            y={this.NODE_HEIGHT / 2 + 6}
-            textAnchor="middle"
-          >
-            {' '}
-            {`| ${sum}`}{' '}
-          </text>
-        </g>
+        ></g>
       </g>
     );
   }
@@ -562,8 +543,8 @@ class PathMatrix extends React.Component<Props, State> {
               this.PADDING
             }
             cy={this.NODE_HEIGHT / 2}
-            fill={SELECTED_COLOR}
-            r={this.RADIUS / 3}
+            fill="gray"
+            r={3}
           />
           <g transform={`translate(${COUNT_WIDTH + this.ICON_GAP}, 0)`}>
             {nodes}
@@ -648,7 +629,6 @@ class PathMatrix extends React.Component<Props, State> {
       <>
         <Card
           size="small"
-          title="Meta Paths"
           style={{
             width: width - 2 * this.MARGIN,
             height: height,
@@ -659,7 +639,6 @@ class PathMatrix extends React.Component<Props, State> {
             height: svgOuterHeight,
             overflowY: 'auto',
           }}
-          headStyle={{ height: this.TITLE_HEIGHT }}
         >
           <svg width={svgWidth} height={svgHeight}>
             {content}

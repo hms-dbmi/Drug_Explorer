@@ -73,44 +73,47 @@ export const initTaskPage = (
     payload: { isPageLoading: true },
   });
 
-  requestAttentionPair(disease_id, drug_id)
-    .then((res) => {
-      dispatch({
-        type: ACTION_TYPES.Add_Attention_Paths,
-        payload: {
-          attention: res.attention,
-          metaPathGroups: { [drug_id]: groupMetaPaths(res.metapaths) },
-        },
-      });
-      return groupMetaPaths(res.metapaths);
-    })
-    .then((res) => {
-      const metaPathSummary = res.map((d, idx) => {
-        const count = d.metaPaths.length;
-        return {
-          nodeTypes: d.nodeTypes,
-          count: [count],
-          sum: count,
-          hide: false,
-          idx,
-        };
-      });
-      requestLinkPrediction(disease_id, drug_id).then((res) => {
-        const drugPredictions = [
-          {
-            score: res.score,
-            id: drug_id,
-            selected: true,
-          },
-        ];
+  const promise1 = requestAttentionPair(disease_id, drug_id).then((res) => {
+    dispatch({
+      type: ACTION_TYPES.Add_Attention_Paths,
+      payload: {
+        attention: res.attention,
+        metaPathGroups: { [drug_id]: groupMetaPaths(res.metapaths) },
+      },
+    });
+    const metaPathSummary = groupMetaPaths(res.metapaths).map((d, idx) => {
+      const count = d.metaPaths.length;
+      return {
+        nodeTypes: d.nodeTypes,
+        count: [count],
+        sum: count,
+        hide: false,
+        idx,
+      };
+    });
+    return metaPathSummary;
+  });
 
-        dispatch({
-          type: ACTION_TYPES.Load_Drug_Options,
-          payload: {
-            drugPredictions,
-            metaPathSummary,
-          },
-        });
+  const promise2 = requestLinkPrediction(disease_id, drug_id);
+
+  Promise.all([promise1, promise2])
+    .then((res) => {
+      const [metaPathSummary, linkPred] = res;
+
+      const drugPredictions = [
+        {
+          score: linkPred.score,
+          id: drug_id,
+          selected: true,
+        },
+      ];
+
+      dispatch({
+        type: ACTION_TYPES.Load_Drug_Options,
+        payload: {
+          drugPredictions,
+          metaPathSummary,
+        },
       });
     })
     .then(() => {

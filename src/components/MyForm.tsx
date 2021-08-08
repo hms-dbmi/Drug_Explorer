@@ -17,6 +17,7 @@ interface Props {
 }
 
 function MyForm(props: Props) {
+  const WIDTH = 1200;
   const [stepForm] = Form.useForm();
   const { questions, conditions, step } = props.globalState;
 
@@ -58,7 +59,7 @@ function MyForm(props: Props) {
       return {
         step: i + 2,
         stage: 'task',
-        content: <TaskPage questionIdx={i} />,
+        content: <TaskPage questionIdx={i} width={WIDTH} />,
       };
     }),
     ...conditions.map((condition, i) => {
@@ -78,7 +79,7 @@ function MyForm(props: Props) {
         overflowY: 'scroll',
       }}
     >
-      <div style={{ width: '1200px', margin: 'auto' }}>
+      <div style={{ width: WIDTH, margin: 'auto' }}>
         <PageHeader
           title={<h1>AI-powered Drug Repurposing</h1>}
           // subTitle="Multi-Step form"

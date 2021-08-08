@@ -1,12 +1,15 @@
 import React, { CSSProperties } from 'react';
 import { StateConsumer } from 'stores';
-import { IDispatch, IState } from 'types';
+import { IState } from 'types';
 import { Form, Radio, Row, Col } from 'antd';
+import LoadingPage from './LoadingPage';
+import AttentionTree from './NodeLink/AttentionTree';
+import PathMatrix from './PathMatrix';
 
 interface Props {
   globalState: IState;
-  dispatch: IDispatch;
   questionIdx: number;
+  width: number;
 }
 
 const stateStyle = {
@@ -22,7 +25,15 @@ const nameStyle = {
 } as CSSProperties;
 
 const TaskPage = (props: Props) => {
-  const { questions, nodeNameDict } = props.globalState;
+  const {
+    questions,
+    nodeNameDict,
+    drugPredictions,
+    isPageLoading,
+  } = props.globalState;
+  if (isPageLoading)
+    return <LoadingPage width={props.width} height={window.innerHeight / 2} />;
+
   const { questionIdx } = props;
   const drugName =
       nodeNameDict['drug'] &&
@@ -30,6 +41,29 @@ const TaskPage = (props: Props) => {
     diseaseName =
       nodeNameDict['disease'] &&
       nodeNameDict['disease'][questions[questionIdx]['disease']];
+
+  const predScore = drugPredictions[0].score;
+
+  let explanation = <></>;
+  if (questions[questionIdx].condition === 'model') {
+    explanation = (
+      <div style={{ height: '300px', overflowY: 'scroll' }}>
+        <AttentionTree
+          width={props.width}
+          height={300}
+          globalState={props.globalState}
+        />
+      </div>
+    );
+  } else if (questions[questionIdx].condition === 'domain') {
+    explanation = (
+      <PathMatrix
+        width={props.width}
+        height={300}
+        globalState={props.globalState}
+      />
+    );
+  }
   return (
     <>
       <h3 style={{ margin: '5px' }}>
@@ -37,14 +71,18 @@ const TaskPage = (props: Props) => {
         <span style={nameStyle}>{diseaseName}</span>
         and the drug <span style={nameStyle}>{drugName}</span>,
       </h3>
-      <h3 style={{ margin: '5px' }}>
-        {'\u00A0'} {'\u00A0'} Here is the AI prediction
-      </h3>
+      <h3 className="indent">Here is the AI prediction:</h3>
+      <span className="indent">
+        this drug can potentially be used for this disease and my
+        confidence_score is {predScore.toFixed(3)}
+      </span>
+
+      {explanation}
 
       <h3 style={{ margin: '5px' }}>
         <b>a)</b> Please select the most possible relation you think
       </h3>
-      <Form.Item name={`question_${questionIdx}`}>
+      <Form.Item name={`question_${questionIdx}`} className="indent">
         <Radio.Group>
           <Radio value="indicatable">Indicatable</Radio>
           <Radio value="note indicatable">Not indicatable</Radio>
