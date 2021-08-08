@@ -8,6 +8,12 @@ const rootReducer = (state: IState, action: IAction): IState => {
     case ACTION_TYPES.Go_Prev:
       return { ...state, step: state.step - 1 };
 
+    case ACTION_TYPES.Save_Page_Answer:
+      return {
+        ...state,
+        answers: [...state.answers, ...action.payload.answers],
+      };
+
     case ACTION_TYPES.Load_Drug_Options:
       return {
         ...state,

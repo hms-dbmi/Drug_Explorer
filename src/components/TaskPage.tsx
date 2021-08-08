@@ -92,7 +92,7 @@ const TaskPage = (props: Props) => {
       <Form.Item name={`question_${questionIdx}`} className="indent">
         <Radio.Group>
           <Radio value="indicatable">Indicatable</Radio>
-          <Radio value="note indicatable">Not indicatable</Radio>
+          <Radio value="not indicatable">Not indicatable</Radio>
         </Radio.Group>
       </Form.Item>
 

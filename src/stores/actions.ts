@@ -29,6 +29,7 @@ export const ACTION_TYPES = {
   Select_Path_Noes: 'Select_Path_Nodes',
 
   Toggle_Meta_Path_Hide: 'Toggle_Meta_Path_Hide',
+  Save_Page_Answer: 'Save_Page_Answer',
 
   Go_Next: 'Go_Next',
   Go_Prev: 'Go_Prev',
@@ -55,6 +56,13 @@ export const goNext = (dispatch: IDispatch) => {
 export const goPrev = (dispatch: IDispatch) => {
   dispatch({
     type: ACTION_TYPES.Go_Prev,
+  });
+};
+
+export const savePageAnswer = (answer: any, dispatch: IDispatch) => {
+  dispatch({
+    type: ACTION_TYPES.Save_Page_Answer,
+    payload: { answers: [answer] },
   });
 };
 

@@ -3,7 +3,7 @@ import { PageHeader, Form } from 'antd';
 import { StepPanel } from './StepPanel';
 import { IDispatch, IState } from 'types';
 import { StateConsumer } from 'stores';
-import { goPrev, goNext, initTaskPage } from 'stores/actions';
+import { goPrev, goNext, initTaskPage, savePageAnswer } from 'stores/actions';
 
 import { message } from 'antd';
 
@@ -17,29 +17,6 @@ function MyForm(props: Props) {
   const WIDTH = 1200;
   const [stepForm] = Form.useForm();
   const { questions, step } = props.globalState;
-
-  const onFinish = () => {
-    const formData = stepForm.getFieldsValue();
-
-    // POST the data to backend and show Notification
-    console.log(formData);
-    message.success(
-      <span>
-        Your answers have been successfully submitted. <br /> Thank you!
-      </span>,
-      15
-    );
-  };
-
-  const toNext = () => {
-    goNext(props.dispatch);
-    if (step > 0 && step < questions.length + 1) {
-      // the next page is task page
-      const { drug, disease } = questions[step - 1];
-      initTaskPage(drug, disease, props.dispatch);
-    }
-  };
-  const toPrev = () => goPrev(props.dispatch);
 
   const steps = [
     {
@@ -61,6 +38,37 @@ function MyForm(props: Props) {
       stage: 'post',
     },
   ];
+
+  const onFinish = () => {
+    // save current answers
+    let formData = stepForm.getFieldsValue();
+    formData['step'] = props.globalState.step;
+    savePageAnswer(formData, props.dispatch);
+
+    message.success(
+      <span>
+        Your answers have been successfully submitted. <br /> Thank you!
+      </span>,
+      15
+    );
+  };
+
+  const toNext = () => {
+    goNext(props.dispatch);
+
+    // if the next page is task page, query needed data
+    if (step > 0 && step < questions.length + 1) {
+      const { drug, disease } = questions[step - 1];
+      initTaskPage(drug, disease, props.dispatch);
+    }
+
+    // save current answers
+    let formData = stepForm.getFieldsValue();
+    formData['step'] = props.globalState.step;
+    savePageAnswer(formData, props.dispatch);
+  };
+  const toPrev = () => goPrev(props.dispatch);
+
   return (
     <div
       style={{
