@@ -12,6 +12,18 @@ const axiosInstance = axios.create({
   },
 });
 
+export const postJSON = async (data: any) => {
+  const url = './api/post_json';
+  axiosInstance
+    .post(url, data)
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+};
+
 export const requestNodeTypes = async (): Promise<string[]> => {
   const url = './data/node_types.json';
   let response = await axiosInstance.get(url);

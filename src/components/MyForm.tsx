@@ -6,6 +6,7 @@ import { StateConsumer } from 'stores';
 import { goPrev, goNext, initTaskPage, savePageAnswer } from 'stores/actions';
 
 import { message } from 'antd';
+import { postJSON } from 'stores/DataService';
 
 interface Props {
   globalState: IState;
@@ -43,29 +44,48 @@ function MyForm(props: Props) {
     // save current answers
     let formData = stepForm.getFieldsValue();
     formData['step'] = props.globalState.step;
-    savePageAnswer(formData, props.dispatch);
+    // savePageAnswer(formData, props.dispatch);
+    let { questions, answers } = props.globalState;
+    answers.push(formData);
 
-    message.success(
-      <span>
-        Your answers have been successfully submitted. <br /> Thank you!
-      </span>,
-      15
-    );
+    postJSON({ questions, answers })
+      .then(() => {
+        message.success(
+          <span>
+            Your answers have been successfully submitted. <br /> Thank you!
+          </span>,
+          15
+        );
+      })
+      .catch((error) => {
+        message.error(
+          <span>
+            Oops, something went wrong :( <br /> Please contact us for
+            assistence
+          </span>
+        );
+      });
   };
 
-  const toNext = () => {
-    goNext(props.dispatch);
+  const toNext = async () => {
+    try {
+      const values = await stepForm.validateFields();
+      console.log('Success:', values);
+      goNext(props.dispatch);
 
-    // if the next page is task page, query needed data
-    if (step > 0 && step < questions.length + 1) {
-      const { drug, disease } = questions[step - 1];
-      initTaskPage(drug, disease, props.dispatch);
+      // if the next page is task page, query needed data
+      if (step > 0 && step < questions.length + 1) {
+        const { drug, disease } = questions[step - 1];
+        initTaskPage(drug, disease, props.dispatch);
+      }
+
+      // save current answers
+      let formData = stepForm.getFieldsValue();
+      formData['step'] = props.globalState.step;
+      savePageAnswer(formData, props.dispatch);
+    } catch (errorInfo) {
+      console.log('Failed:', errorInfo);
     }
-
-    // save current answers
-    let formData = stepForm.getFieldsValue();
-    formData['step'] = props.globalState.step;
-    savePageAnswer(formData, props.dispatch);
   };
   const toPrev = () => goPrev(props.dispatch);
 
