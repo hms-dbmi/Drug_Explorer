@@ -89,7 +89,11 @@ const TaskPage = (props: Props) => {
       <h3 style={{ margin: '5px' }}>
         <b>a)</b> Please select the most possible relation you think
       </h3>
-      <Form.Item name={`question_${questionIdx}`} className="indent">
+      <Form.Item
+        name={`question_${questionIdx}`}
+        className="indent"
+        rules={[{ required: true, message: 'required' }]}
+      >
         <Radio.Group>
           <Radio value="indicatable">Indicatable</Radio>
           <Radio value="not indicatable">Not indicatable</Radio>
@@ -105,7 +109,10 @@ const TaskPage = (props: Props) => {
           I am confident about my selection above
         </Col>
         <Col span={16}>
-          <Form.Item name={`confidence_${questionIdx}`}>
+          <Form.Item
+            name={`confidence_${questionIdx}`}
+            rules={[{ required: true, message: 'required' }]}
+          >
             <Radio.Group>
               <Radio value="-2">Strongly Disagree</Radio>
               <Radio value="-1">Disagree</Radio>
@@ -123,7 +130,10 @@ const TaskPage = (props: Props) => {
           I understand why AI makes this prediction
         </Col>
         <Col span={16}>
-          <Form.Item name={`understand_${questionIdx}`}>
+          <Form.Item
+            name={`understand_${questionIdx}`}
+            rules={[{ required: true, message: 'required' }]}
+          >
             <Radio.Group>
               <Radio value="-2">Strongly Disagree</Radio>
               <Radio value="-1">Disagree</Radio>
@@ -140,7 +150,10 @@ const TaskPage = (props: Props) => {
           The AI explanation helps me assess the drug indication
         </Col>
         <Col span={16}>
-          <Form.Item name={`helpful_${questionIdx}`}>
+          <Form.Item
+            name={`helpful_${questionIdx}`}
+            rules={[{ required: true, message: 'required' }]}
+          >
             <Radio.Group>
               <Radio value="-2">Strongly Disagree</Radio>
               <Radio value="-1">Disagree</Radio>
@@ -157,7 +170,10 @@ const TaskPage = (props: Props) => {
           I trust this AI to make predictions for drug repurposing
         </Col>
         <Col span={16}>
-          <Form.Item name={`trust_${questionIdx}`}>
+          <Form.Item
+            name={`trust_${questionIdx}`}
+            rules={[{ required: true, message: 'required' }]}
+          >
             <Radio.Group>
               <Radio value="-2">Strongly Disagree</Radio>
               <Radio value="-1">Disagree</Radio>
