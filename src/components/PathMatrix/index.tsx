@@ -33,8 +33,8 @@ class PathMatrix extends React.Component<Props, State> {
   TITLE_HEIGHT = 0;
   MARGIN = 10;
   PADDING = 10;
-  EDGE_LENGTH = 120;
-  NODE_WIDTH = 130;
+  EDGE_LENGTH = 110;
+  NODE_WIDTH = 125;
   NODE_HEIGHT = 25;
   VERTICAL_GAP = 5; // vertical gap between path
   GROUP_GAP = 10; // vertical gap between path groups
@@ -205,7 +205,7 @@ class PathMatrix extends React.Component<Props, State> {
     const maxCount = Math.max(...metaPathSummary.map((d) => d.count).flat());
     const rScale = d3
       .scaleLinear()
-      .range([this.RADIUS / 3, this.RADIUS])
+      .range([this.RADIUS, this.RADIUS])
       .domain([0, maxCount]);
 
     this.offsetY = 0;
@@ -604,10 +604,12 @@ class PathMatrix extends React.Component<Props, State> {
       this.getCountWidth() +
         this.ICON_GAP * 5 +
         this.NODE_WIDTH +
-        (this.EDGE_LENGTH + this.NODE_WIDTH) * 4
+        (this.EDGE_LENGTH + this.NODE_WIDTH) * 2
     );
 
-    const svgOuterHeight = height - 2 * this.PADDING - this.TITLE_HEIGHT,
+    const metaPaths = this.drawSummary();
+
+    const svgOuterHeight = height - 2 * this.PADDING,
       svgHeight = Math.max(
         this.offsetY + this.NODE_HEIGHT + this.VERTICAL_GAP + this.PADDING,
         svgOuterHeight
@@ -622,9 +624,8 @@ class PathMatrix extends React.Component<Props, State> {
           : 'Please select a disease first'}
       </text>
     );
-
-    const metaPaths = this.drawSummary();
     const content = metaPathSummary.length === 0 ? reminderText : metaPaths;
+
     return (
       <>
         <Card
@@ -635,7 +636,7 @@ class PathMatrix extends React.Component<Props, State> {
             margin: `0px ${this.MARGIN}px`,
           }}
           bodyStyle={{
-            padding: this.PADDING,
+            // padding: this.PADDING,
             height: svgOuterHeight,
             overflowY: 'auto',
           }}
