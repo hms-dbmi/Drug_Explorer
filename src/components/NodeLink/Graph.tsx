@@ -24,7 +24,7 @@ interface ILink {
   target: string;
 }
 
-export default class ModelNodeForce extends React.Component<Props, State> {
+export default class NodeForceGraph extends React.Component<Props, State> {
   public padding = 20;
   RADIUS = 8;
   prevNodes: INode[] = [];
@@ -161,8 +161,10 @@ export default class ModelNodeForce extends React.Component<Props, State> {
     const { nodes, links } = this.getNodeLinks();
     const { width, height } = this.props;
 
-    // d3.selectAll('g.nodeGroup').remove();
-    // d3.selectAll('line.link').remove();
+    // // d3.selectAll('line.link').remove();
+    // d3.select('svg.graph').select('g.links').selectAll('.link').remove();
+
+    // d3.select('svg.graph').select('g.nodes').selectAll('g.nodeGroup').remove();
 
     let svgLinks: any = d3
       .select('svg.graph')
@@ -266,27 +268,33 @@ export default class ModelNodeForce extends React.Component<Props, State> {
     this.drawGraph();
   }
 
-  componentDidUpdate(prevProps: Props) {
-    const {
-      metaPathGroups: prevGroups,
-      selectedPathNodes: prevNodes,
-    } = prevProps.globalState;
-    const {
-      metaPathGroups: currGroups,
-      selectedPathNodes: currNodes,
-    } = this.props.globalState;
-    if (Object.keys(prevGroups).length !== Object.keys(currGroups).length) {
-      this.drawGraph();
-      this.simulation.alpha(0.5).restart();
-    }
-    if (
-      prevNodes.map((d) => d.nodeId).join() !==
-      currNodes.map((d) => d.nodeId).join()
-    ) {
-      this.updateNodeLabel();
-    }
+  shouldComponentUpdate() {
+    this.drawGraph();
+    this.simulation.alpha(0.5).restart();
     return false;
   }
+
+  // componentDidUpdate(prevProps: Props) {
+  //   const {
+  //     metaPathGroups: prevGroups,
+  //     selectedPathNodes: prevNodes,
+  //   } = prevProps.globalState;
+  //   const {
+  //     metaPathGroups: currGroups,
+  //     selectedPathNodes: currNodes,
+  //   } = this.props.globalState;
+  //   if (Object.keys(prevGroups).length !== Object.keys(currGroups).length) {
+  //     this.drawGraph();
+  //     this.simulation.alpha(0.5).restart();
+  //   }
+  //   if (
+  //     prevNodes.map((d) => d.nodeId).join() !==
+  //     currNodes.map((d) => d.nodeId).join()
+  //   ) {
+  //     this.updateNodeLabel();
+  //   }
+  //   return false;
+  // }
 
   render() {
     const { width, height } = this.props;

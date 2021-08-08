@@ -105,6 +105,6 @@ export interface IState {
   step: number;
   userInfo: TUserInfo;
   questions: TQuestion[];
-  conditions: string[];
+  // conditions: string[];
   answers: TAnswers;
 }

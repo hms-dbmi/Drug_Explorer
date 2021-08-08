@@ -22,12 +22,14 @@ const initialState: IState = {
   step: 1,
   userInfo: {},
   questions: [
-    { disease: '5263.0', drug: 'DB06700', condition: 'baseline' },
+    { disease: '21113.0', drug: 'DB01356', condition: 'graph' },
+    { disease: '5575.0', drug: 'DB08885', condition: 'graph' },
     { disease: '19148.0', drug: 'DB11595', condition: 'model' },
     { disease: '5618.0', drug: 'DB00472', condition: 'domain' },
-    { disease: '5575.0', drug: 'DB08885', condition: 'domain' },
+
+    { disease: '5263.0', drug: 'DB06700', condition: 'baseline' },
   ],
-  conditions: ['baseline', 'model', 'domain'],
+  // conditions: ['baseline', 'model', 'domain'],
   answers: [],
 };
 

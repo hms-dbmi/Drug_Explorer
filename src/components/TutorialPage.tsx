@@ -9,6 +9,7 @@ const WelcomePage = (props: Props) => {
       <h2 style={{ margin: '5px' }}>
         A Short Tutorial Before Starting the Tasks
       </h2>
+      <h2>This page is still under development...</h2>
     </>
   );
 };

@@ -115,7 +115,7 @@ export default class AttentionTree extends React.Component<Props, {}> {
     const minY = Math.min(...allY);
     const maxY = Math.max(...allY);
 
-    const height = maxY - minY + this.nodeHeight + 4; // default seperation in d3 tree is 2
+    const height = maxY - minY + this.nodeHeight * 3; // default seperation in d3 tree is 2
 
     const nodes = root.descendants().map((node, i) => {
       let { nodeId, nodeType } = node.data;

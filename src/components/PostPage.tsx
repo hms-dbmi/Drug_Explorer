@@ -10,7 +10,8 @@ const PostPage = (props: Props) => {
   const { condition } = props;
   return (
     <>
-      <h2>About the condiction {condition}</h2>
+      <h2>This page is still under development...</h2>
+      {/* <h2>About the condiction {condition}</h2> */}
       <Row>
         <Col span={8}>I understand how this AI predicts drug repurposing </Col>
         <Col span={16}>

@@ -3,11 +3,8 @@ import { PageHeader, Form } from 'antd';
 import { StepPanel } from './StepPanel';
 import { IDispatch, IState } from 'types';
 import { StateConsumer } from 'stores';
-import WelcomePage from 'components/Welcome';
-import TaskPage from './TaskPage';
 import { goPrev, goNext, initTaskPage } from 'stores/actions';
-import TutorialPage from './TutorialPage';
-import PostPage from './PostPage';
+
 import { message } from 'antd';
 
 interface Props {
@@ -19,7 +16,7 @@ interface Props {
 function MyForm(props: Props) {
   const WIDTH = 1200;
   const [stepForm] = Form.useForm();
-  const { questions, conditions, step } = props.globalState;
+  const { questions, step } = props.globalState;
 
   const onFinish = () => {
     const formData = stepForm.getFieldsValue();
@@ -36,7 +33,7 @@ function MyForm(props: Props) {
 
   const toNext = () => {
     goNext(props.dispatch);
-    if (step > 0) {
+    if (step > 0 && step < questions.length + 1) {
       // the next page is task page
       const { drug, disease } = questions[step - 1];
       initTaskPage(drug, disease, props.dispatch);
@@ -48,27 +45,21 @@ function MyForm(props: Props) {
     {
       step: 0,
       stage: 'user_info',
-      content: <WelcomePage />,
     },
     {
       step: 1,
       stage: 'tutorial',
-      content: <TutorialPage />,
     },
     ...questions.map((_, i) => {
       return {
         step: i + 2,
         stage: 'task',
-        content: <TaskPage questionIdx={i} width={WIDTH} />,
       };
     }),
-    ...conditions.map((condition, i) => {
-      return {
-        step: questions.length + 2 + i,
-        stage: 'post',
-        content: <PostPage condition={condition} />,
-      };
-    }),
+    {
+      step: questions.length + 2,
+      stage: 'post',
+    },
   ];
   return (
     <div
@@ -92,6 +83,7 @@ function MyForm(props: Props) {
         >
           <StepPanel
             steps={steps}
+            width={WIDTH}
             numberOfQuestions={questions.length}
             currentStep={props.globalState.step}
             toNext={toNext}

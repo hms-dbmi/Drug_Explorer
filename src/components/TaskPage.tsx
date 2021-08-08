@@ -4,6 +4,7 @@ import { IState } from 'types';
 import { Form, Radio, Row, Col } from 'antd';
 import LoadingPage from './LoadingPage';
 import AttentionTree from './NodeLink/AttentionTree';
+import Graph from './NodeLink/Graph';
 import PathMatrix from './PathMatrix';
 
 interface Props {
@@ -35,6 +36,7 @@ const TaskPage = (props: Props) => {
     return <LoadingPage width={props.width} height={window.innerHeight / 2} />;
 
   const { questionIdx } = props;
+
   const drugName =
       nodeNameDict['drug'] &&
       nodeNameDict['drug'][questions[questionIdx]['drug']],
@@ -63,7 +65,12 @@ const TaskPage = (props: Props) => {
         globalState={props.globalState}
       />
     );
+  } else if (questions[questionIdx].condition === 'graph') {
+    explanation = (
+      <Graph width={props.width} height={300} globalState={props.globalState} />
+    );
   }
+
   return (
     <>
       <h3 style={{ margin: '5px' }}>
