@@ -87,8 +87,7 @@ class App extends React.Component<Props, State> {
     let siderWidth = 300,
       mainViewWidth = window.innerWidth - siderWidth,
       headerHeight = 64,
-      footHeight = 40,
-      mainViewHeight = window.innerHeight - headerHeight - footHeight,
+      mainViewHeight = window.innerHeight - headerHeight,
       NodeLinkHeight = mainViewHeight * 0.55,
       MatrixHeight = mainViewHeight - NodeLinkHeight;
 
@@ -109,9 +108,6 @@ class App extends React.Component<Props, State> {
             <NodeLink width={mainViewWidth} height={NodeLinkHeight} />
           </Content>
         </Layout>
-        <Footer className="footer" style={{ height: footHeight }}>
-          @2020
-        </Footer>
       </Layout>
     );
   }
