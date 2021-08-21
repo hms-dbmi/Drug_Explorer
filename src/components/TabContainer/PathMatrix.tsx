@@ -88,7 +88,7 @@ class PathMatrix extends React.Component<Props, State> {
       });
     }
   }
-  getMetaIconGroup(toggleHideFunc: (hide: boolean) => void) {
+  getMetaIconGroup(toggleHideFunc: (hide: boolean) => void, isHide: boolean) {
     return (
       <g
         className="feedback"
@@ -99,18 +99,10 @@ class PathMatrix extends React.Component<Props, State> {
         <g
           className="yes"
           transform={`translate(${0 * this.ICON_GAP}, 0)`}
-          onClick={() => toggleHideFunc(false)}
+          onClick={() => toggleHideFunc(!isHide)}
         >
           <rect width={this.ICON_GAP} height={this.ICON_GAP} fill="white" />
-          <path d={YES_ICON} transform={`scale(0.03)`} />
-        </g>
-        <g
-          className="no"
-          transform={`translate(${1 * this.ICON_GAP}, 0)`}
-          onClick={() => toggleHideFunc(true)}
-        >
-          <rect width={this.ICON_GAP} height={this.ICON_GAP} fill="white" />
-          <path d={NO_ICON} transform={`scale(0.03)`} />
+          <path d={isHide ? YES_ICON : NO_ICON} transform={`scale(0.03)`} />
         </g>
       </g>
     );
@@ -336,7 +328,7 @@ class PathMatrix extends React.Component<Props, State> {
                   NODE_WIDTH * nodes.length + EDGE_LENGTH * edges.length
                 }, 0)`}
               >
-                {this.getMetaIconGroup(toggleHideFunc)}
+                {this.getMetaIconGroup(toggleHideFunc, summary.hide)}
               </g>
             </g>
             <g className="metapaths">

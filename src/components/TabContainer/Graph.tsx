@@ -37,8 +37,8 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       d3
         .forceLink<INode, ILink>()
         .id((d) => d.id)
-        .distance(10)
-        .strength(0.3)
+        .distance(6)
+        .strength(0.6)
     )
     .force('collision', d3.forceCollide().radius(this.RADIUS + 2))
     .alphaMin(0.05); // force quick simulation
@@ -143,10 +143,10 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       const drugIdx = selectedDrugs.indexOf(node.nodeId);
       if (node.nodeId === selectedDisease) {
         node.fy = height / 2;
-        node.fx = width * 0.1;
+        node.fx = width * 0.2;
       } else if (drugIdx > -1) {
         node.fy = (height / (selectedDrugs.length + 1)) * (drugIdx + 1);
-        node.fx = width * 0.9;
+        node.fx = width * 0.8;
       }
     }
 
