@@ -4,10 +4,10 @@ import { StateConsumer } from 'stores';
 import { IState, IDispatch } from 'types';
 
 import AttentionTree from './AttentionTree';
-import Scatter from './Scatter';
 import Graph from './Graph';
 
 import './index.css';
+import PathMatrix from 'components/TabContainer/PathMatrix';
 
 const { TabPane } = Tabs;
 
@@ -29,7 +29,7 @@ class NodeLink extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      activeTab: 'embedding',
+      activeTab: 'metapath',
     };
   }
   changeActiveTab(key: string) {
@@ -63,8 +63,8 @@ class NodeLink extends React.Component<Props, State> {
       >
         <TabPane
           style={{ padding: this.padding }}
-          key="embedding"
-          tab="Node Embedding"
+          key="metapath"
+          tab="Meta-Path"
         >
           <div
             className="nodelink"
@@ -74,7 +74,7 @@ class NodeLink extends React.Component<Props, State> {
               overflowY: 'scroll',
             }}
           >
-            <Scatter {...props} />
+            <PathMatrix {...props} />
           </div>
         </TabPane>
 

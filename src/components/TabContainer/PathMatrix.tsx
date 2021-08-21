@@ -1,4 +1,4 @@
-import { Card, Tooltip, Modal } from 'antd';
+import { Tooltip, Modal } from 'antd';
 import {
   cropText,
   YES_ICON,
@@ -646,36 +646,19 @@ class PathMatrix extends React.Component<Props, State> {
     const content = metaPathSummary.length === 0 ? reminderText : metaPaths;
     return (
       <>
-        <Card
-          size="small"
-          title="Meta Paths"
-          style={{
-            width: width - 2 * this.MARGIN,
-            height: height,
-            margin: `0px ${this.MARGIN}px`,
-          }}
-          bodyStyle={{
-            padding: this.PADDING,
-            height: svgOuterHeight,
-            overflowY: 'auto',
-          }}
-          headStyle={{ height: this.TITLE_HEIGHT }}
-        >
-          <svg width={svgWidth} height={svgHeight}>
-            {content}
-            {/* overlap loading icon when it is loading */}
-            {isDrugLoading ||
-            (isAttentionLoading && this.state.expand.some((d) => d)) ? (
-              <g
-                transform={`translate(${svgWidth / 2}, ${svgOuterHeight / 2})`}
-              >
-                {LOADING_ICON}
-              </g>
-            ) : (
-              <></>
-            )}
-          </svg>
-        </Card>
+        <svg width={svgWidth} height={svgHeight}>
+          {content}
+          {/* overlap loading icon when it is loading */}
+          {isDrugLoading ||
+          (isAttentionLoading && this.state.expand.some((d) => d)) ? (
+            <g transform={`translate(${svgWidth / 2}, ${svgOuterHeight / 2})`}>
+              {LOADING_ICON}
+            </g>
+          ) : (
+            <></>
+          )}
+        </svg>
+
         <Modal
           title="Edit Explanation"
           visible={isModalVisible}

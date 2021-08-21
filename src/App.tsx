@@ -1,6 +1,6 @@
 import React from 'react';
-import PathMatrix from 'components/PathMatrix';
-import NodeLink from 'components/NodeLink';
+import PathMatrix from 'components/CardContainer';
+import NodeLink from 'components/TabContainer';
 import DrugSider from 'components/Sider';
 
 import { Layout } from 'antd';

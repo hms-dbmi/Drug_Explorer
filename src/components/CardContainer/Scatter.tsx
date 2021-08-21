@@ -1,6 +1,7 @@
 import React from 'react';
 import { requestEmbedding } from 'stores/DataService';
 import { IState, IDispatch } from 'types';
+import { StateConsumer } from 'stores';
 import * as d3 from 'd3';
 import { HIGHLIGHT_COLOR, SELECTED_COLOR } from 'helpers/color';
 import { LOADING_ICON } from 'helpers';
@@ -22,7 +23,7 @@ interface Props {
   dispatch: IDispatch;
 }
 
-export default class Scatter extends React.Component<Props, State> {
+class Scatter extends React.Component<Props, State> {
   circleRadius = 3;
   hoverTimeout: number = 0;
   WAIT = 500;
@@ -187,3 +188,5 @@ export default class Scatter extends React.Component<Props, State> {
     );
   }
 }
+
+export default StateConsumer(Scatter);

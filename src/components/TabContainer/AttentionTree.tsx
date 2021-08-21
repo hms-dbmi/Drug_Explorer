@@ -82,11 +82,13 @@ export default class AttentionTree extends React.Component<Props, {}> {
     let widthScale = d3.scaleLinear().domain([0, maxScore]).range([1, 5]);
 
     const links = root.links().map((link, i) => {
-      const edgeInfo = link.target.data.edgeInfo.replace('rev_', '');
-      const edgeType = edgeTypes[edgeInfo]['edgeInfo'] || edgeInfo;
+      let edgeInfo = link.target.data.edgeInfo.replace('rev_', '');
+      if (edgeTypes[edgeInfo]) {
+        edgeInfo = edgeTypes[edgeInfo]['edgeInfo'] || edgeInfo;
+      }
       return (
         <Tooltip
-          title={edgeType}
+          title={edgeInfo}
           key={`${link.source.data.nodeId}=>${link.target.data.nodeId}_link${i}`}
           destroyTooltipOnHide
         >

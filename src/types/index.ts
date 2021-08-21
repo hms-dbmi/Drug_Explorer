@@ -1,4 +1,4 @@
-import AttentionTree from 'components/NodeLink/AttentionTree';
+import AttentionTree from 'components/TabContainer/AttentionTree';
 
 export interface INode extends d3.SimulationNodeDatum {
   id: string;
