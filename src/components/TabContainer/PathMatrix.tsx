@@ -620,7 +620,11 @@ class PathMatrix extends React.Component<Props, State> {
 
     const svgOuterHeight = height - 2 * this.PADDING - this.TITLE_HEIGHT,
       svgHeight = Math.max(
-        this.offsetY + this.NODE_HEIGHT + this.VERTICAL_GAP + this.PADDING,
+        this.offsetY +
+          this.NODE_HEIGHT +
+          this.VERTICAL_GAP +
+          this.PADDING +
+          this.HEAD_HEIGHT,
         svgOuterHeight
       );
 
