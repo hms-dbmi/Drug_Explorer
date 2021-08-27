@@ -111,7 +111,7 @@ class PathMatrix extends React.Component<Props, State> {
     const doesExist = this.isPathSelected(nodes);
     return (
       <g className="feedback" cursor="pointer" style={{ fill: '#777' }}>
-        <g
+        {/* <g
           className="search"
           transform={`translate(0, 0)`}
           fill={doesExist ? 'red' : 'inherit'}
@@ -124,7 +124,7 @@ class PathMatrix extends React.Component<Props, State> {
             stroke="white"
           />
           <path d={SEARCH_ICON} transform={`scale(0.018)`} />
-        </g>
+        </g> */}
         {/* <g className="yes" transform={`translate(${this.ICON_GAP}, 0)`}>
           <rect width={this.ICON_GAP} height={this.ICON_GAP} fill="white" />
           <path d={YES_ICON} transform={`scale(0.03)`} />
@@ -257,6 +257,7 @@ class PathMatrix extends React.Component<Props, State> {
         let childrenOffsetY = 0;
         const showChildren = this.state.expand[summary.idx];
 
+        let lastMetaPath: IMetaPath | undefined = undefined;
         Object.keys(metaPathGroups).forEach((drugId) => {
           const metaPathGroup = metaPathGroups[drugId];
           const metaPaths =
@@ -265,7 +266,12 @@ class PathMatrix extends React.Component<Props, State> {
             )[0]?.metaPaths || [];
 
           const drugRank = drugPredictions.map((d) => d.id).indexOf(drugId);
-          const children = this.drawChildrenPaths(metaPaths, drugRank);
+          const children = this.drawChildrenPaths(
+            metaPaths,
+            drugRank,
+            lastMetaPath
+          );
+          lastMetaPath = metaPaths[metaPaths.length - 1];
           const childrenHeight =
             (NODE_HEIGHT + VERTICAL_GAP) * metaPaths.length;
           differentChildren.push(
@@ -468,7 +474,11 @@ class PathMatrix extends React.Component<Props, State> {
     );
   }
 
-  drawChildrenPaths(metaPaths: IMetaPath[], drugRank: number) {
+  drawChildrenPaths(
+    metaPaths: IMetaPath[],
+    drugRank: number,
+    prevPath: IMetaPath | undefined
+  ) {
     const { nodeNameDict, edgeTypes } = this.props.globalState;
     const COUNT_WIDTH = this.getCountWidth();
     const children = metaPaths.map((path, childIdx) => {
@@ -478,15 +488,18 @@ class PathMatrix extends React.Component<Props, State> {
 
         let prevNodeName = '';
         if (childIdx > 0) {
-          const { nodeId: prevNodeId, nodeType: prevNodeType } = metaPaths[
-            childIdx - 1
-          ].nodes[nodeIdx];
+          prevPath = metaPaths[childIdx - 1];
+        }
+        if (prevPath !== undefined) {
+          const { nodeId: prevNodeId, nodeType: prevNodeType } = prevPath.nodes[
+            nodeIdx
+          ];
           prevNodeName = nodeNameDict[prevNodeType][prevNodeId];
         }
 
         let shortNodeName =
           nodeName === prevNodeName
-            ? '---'
+            ? '〃'
             : cropText(nodeName, 14, this.NODE_WIDTH - 10) || 'undefined';
 
         let translate = `translate(${
@@ -524,6 +537,7 @@ class PathMatrix extends React.Component<Props, State> {
         let edgeName = edge.edgeInfo.replace('rev_', '');
         edgeName = edgeTypes[edgeName]?.edgeInfo || edgeName;
         edgeName = cropText(edgeName, 14, this.EDGE_LENGTH);
+        // let edgeName = edge.edgeInfo;
         return (
           <g key={`edge_${edgeIdx}`} transform={translate}>
             <line

@@ -22,6 +22,8 @@ interface INode extends d3.SimulationNodeDatum {
 interface ILink {
   source: string;
   target: string;
+  score: number;
+  edgeInfo: string;
 }
 
 export default class ModelNodeForce extends React.Component<Props, State> {
@@ -55,10 +57,28 @@ export default class ModelNodeForce extends React.Component<Props, State> {
     svgNodes.attr('transform', (d) => `translate(${d.x}, ${d.y})`);
 
     svgLinks
+      .select('line.link')
       .attr('x1', (d: any) => d.source.x)
       .attr('y1', (d: any) => d.source.y)
       .attr('x2', (d: any) => d.target.x)
       .attr('y2', (d: any) => d.target.y);
+
+    svgLinks
+      .select('line.mask')
+      .attr('x1', (d: any) => d.source.x)
+      .attr('y1', (d: any) => d.source.y)
+      .attr('x2', (d: any) => d.target.x)
+      .attr('y2', (d: any) => d.target.y);
+
+    svgLinks
+      .select('text')
+      .attr(
+        'transform',
+        (d: any) =>
+          `translate(${(d.target.x + d.source.x) / 2}, ${
+            (d.source.y + d.target.y) / 2
+          })`
+      );
   }
 
   dragstarted(d: INode) {
@@ -100,6 +120,7 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       attention,
       edgeThreshold,
       selectedDisease,
+      edgeTypes,
     } = this.props.globalState;
     const { width, height } = this.props;
     const selectedDrugs = drugPredictions
@@ -126,9 +147,13 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       const desLinks = rootNode.links().map((d) => {
         const sourceData = d.source.data,
           targetData = d.target.data;
+        let edgeInfo = targetData.edgeInfo.replace('rev_', '');
+        edgeInfo = edgeTypes[edgeInfo]?.edgeInfo || edgeInfo;
         return {
           source: `${sourceData.nodeType}:${sourceData.nodeId}`,
           target: `${targetData.nodeType}:${targetData.nodeId}`,
+          score: targetData.score,
+          edgeInfo,
         };
       });
       links = links.concat(desLinks);
@@ -161,19 +186,64 @@ export default class ModelNodeForce extends React.Component<Props, State> {
     const { nodes, links } = this.getNodeLinks();
     const { width, height } = this.props;
 
-    // d3.selectAll('g.nodeGroup').remove();
-    // d3.selectAll('line.link').remove();
+    const widthScale = d3
+      .scaleLinear()
+      .range([1, 4])
+      .domain(d3.extent(links.map((d) => d.score)) as [number, number]);
 
     let svgLinks: any = d3
       .select('svg.graph')
       .select('g.links')
-      .selectAll('.link')
+      .selectAll('g.link')
       .data(links)
-      .join('line')
+      .join((enter) => enter.append('g').attr('class', 'link'))
+      .on('mouseover', function () {
+        d3.select(this)
+          .select('text.edgeLabel')
+          .transition()
+          .delay(500)
+          .attr('class', 'edgeLabel');
+      })
+      .on('mouseout', function () {
+        d3.select(this)
+          .select('text.edgeLabel')
+          .transition()
+          .delay(500)
+          .attr('class', 'edgeLabel hidden');
+      });
+
+    svgLinks
+      .append('line')
+      .attr('x1', (d: any) => d.target.x)
+      .attr('y1', (d: any) => d.target.y)
+      .attr('x2', (d: any) => d.source.x)
+      .attr('y2', (d: any) => d.source.y)
       .attr('class', 'link')
-      .attr('stroke', '#333')
-      .attr('id', (d) => `${d.source}-${d.target}`)
-      .style('opacity', 0.2);
+      .attr('stroke', '#aaa')
+      .attr('stroke-width', (d: any) => widthScale(d.score))
+      .attr('id', (d: any) => d.id);
+
+    svgLinks
+      .append('line')
+      .attr('x1', (d: any) => d.target.x)
+      .attr('y1', (d: any) => d.target.y)
+      .attr('x2', (d: any) => d.source.x)
+      .attr('y2', (d: any) => d.source.y)
+      .attr('class', 'mask')
+      .attr('stroke-width', 4)
+      .attr('stroke', 'transparent');
+
+    svgLinks
+      .append('text')
+      .attr('class', 'edgeLabel hidden')
+      .attr(
+        'transform',
+        (d: any) =>
+          `translate(${(d.target.x + d.source.x) / 2}, ${
+            (d.source.y + d.target.y) / 2
+          })`
+      )
+      .text((d: any) => d.edgeInfo);
 
     let svgNodes = d3
       .select('svg.graph')
@@ -204,22 +274,6 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       );
 
     svgNodes
-      .append('title')
-      .text(
-        (d: INode) =>
-          `${d.nodeType}: ${nodeNameDict[d.nodeType][d.nodeId] || d.nodeId}`
-      );
-
-    d3.selectAll('text.targetLabel').remove();
-
-    svgNodes
-      .filter((d) => this.isTargetNode(d) || this.isHighlighted(d))
-      .append('text')
-      .attr('class', 'targetLabel')
-      .attr('transform', `translate(${-1 * this.RADIUS}, ${-2 * this.RADIUS} )`)
-      .text((d) => nodeNameDict[d.nodeType][d.nodeId]);
-
-    svgNodes
       .append('circle')
       // .filter(d=>!drugTargets.includes(d.id))
       .attr('r', this.RADIUS)
@@ -227,10 +281,27 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       .attr('class', 'node')
       .attr('id', (d) => d.id)
       .attr('fill', (d: INode) => getNodeColor(d.nodeType))
-      .attr('opacity', (d) =>
-        this.isTargetNode(d) ? 1 : this.isHighlighted(d) ? 0.8 : 0.3
-      )
-      .attr('stroke', 'none');
+      .attr('stroke', 'white');
+
+    // add label to all nodes
+    svgNodes
+      .append('text')
+      .attr('class', 'nodeLabel')
+      .attr('transform', `translate(${-1 * this.RADIUS}, ${-2 * this.RADIUS} )`)
+      .text((d) => nodeNameDict[d.nodeType][d.nodeId])
+      .classed('hidden', true);
+
+    svgNodes
+      .filter((d) => this.isTargetNode(d) || this.isHighlighted(d))
+      .select('text.nodeLabel')
+      .classed('hidden', false);
+
+    // toggle node visibility through click
+    svgNodes.on('click', function (d) {
+      const textlabel = d3.select(this).select('text.nodeLabel');
+      const isHidden = textlabel.classed('hidden');
+      textlabel.classed('hidden', !isHidden);
+    });
 
     this.simulation.nodes(nodes);
     this.simulation.force<d3.ForceLink<INode, ILink>>('link')!.links(links);
@@ -238,7 +309,6 @@ export default class ModelNodeForce extends React.Component<Props, State> {
   }
 
   updateNodeLabel() {
-    const { nodeNameDict } = this.props.globalState;
     let svgNodes: d3.Selection<
       SVGGElement,
       INode,
@@ -247,19 +317,9 @@ export default class ModelNodeForce extends React.Component<Props, State> {
     > = d3.select('svg.graph').select('g.nodes').selectAll('g.nodeGroup');
 
     svgNodes
-      .select('circle')
-      .attr('opacity', (d) =>
-        this.isTargetNode(d) ? 1 : this.isHighlighted(d) ? 0.8 : 0.3
-      );
-
-    d3.selectAll('text.targetLabel').remove();
-
-    svgNodes
       .filter((d) => this.isTargetNode(d) || this.isHighlighted(d))
-      .append('text')
-      .attr('class', 'targetLabel')
-      .attr('transform', `translate(${-1 * this.RADIUS}, ${-2 * this.RADIUS} )`)
-      .text((d: INode) => nodeNameDict[d.nodeType][d.nodeId]);
+      .select('text.nodeLabel')
+      .classed('hidden', false);
   }
 
   componentDidMount() {
@@ -300,8 +360,8 @@ export default class ModelNodeForce extends React.Component<Props, State> {
 
     return (
       <svg className="graph" width={width} height={height}>
-        <g className="nodes" />
         <g className="links" />
+        <g className="nodes" />
         {selectedDrugs.length === 0 ? reminderText : <></>}
       </svg>
     );

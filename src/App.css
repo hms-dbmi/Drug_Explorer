@@ -27,3 +27,8 @@ svg.main{
 g.wholeGraph{
   transform-origin: 50%;
 }
+
+.hidden {
+  display: none;
+}
+
