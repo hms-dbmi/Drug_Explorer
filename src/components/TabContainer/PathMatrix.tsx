@@ -536,22 +536,26 @@ class PathMatrix extends React.Component<Props, State> {
 
         let edgeName = edge.edgeInfo.replace('rev_', '');
         edgeName = edgeTypes[edgeName]?.edgeInfo || edgeName;
-        edgeName = cropText(edgeName, 14, this.EDGE_LENGTH);
-        // let edgeName = edge.edgeInfo;
+        const edgeShortName = cropText(edgeName, 14, this.EDGE_LENGTH);
         return (
-          <g key={`edge_${edgeIdx}`} transform={translate}>
-            <line
-              stroke="gray"
-              strokeWidth={1 + edge.score * 0.7}
-              x1={0}
-              y1={this.NODE_HEIGHT / 4}
-              x2={this.EDGE_LENGTH}
-              y2={this.NODE_HEIGHT / 4}
-            />
-            <text x={this.EDGE_LENGTH / 2} y={0} textAnchor="middle">
-              {edgeName}
-            </text>
-          </g>
+          <Tooltip
+            title={edgeShortName === edgeName ? '' : edgeName}
+            destroyTooltipOnHide
+          >
+            <g key={`edge_${edgeIdx}`} transform={translate}>
+              <line
+                stroke="gray"
+                strokeWidth={1 + edge.score * 0.7}
+                x1={0}
+                y1={this.NODE_HEIGHT / 4}
+                x2={this.EDGE_LENGTH}
+                y2={this.NODE_HEIGHT / 4}
+              />
+              <text x={this.EDGE_LENGTH / 2} y={0} textAnchor="middle">
+                {edgeName}
+              </text>
+            </g>
+          </Tooltip>
         );
       });
       return (

@@ -72,6 +72,7 @@ export default class ModelNodeForce extends React.Component<Props, State> {
 
     svgLinks
       .select('text')
+      .attr('text-anchor', 'middle')
       .attr(
         'transform',
         (d: any) =>
