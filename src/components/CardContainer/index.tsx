@@ -29,12 +29,15 @@ class Container extends React.Component<Props, {}> {
         }}
         bodyStyle={{
           padding: this.PADDING,
-          height: svgOuterHeight,
+          height: height - this.TITLE_HEIGHT,
           overflowY: 'auto',
         }}
         headStyle={{ height: this.TITLE_HEIGHT }}
       >
-        <Scatter width={width} height={height} />
+        <Scatter
+          width={width - 2 * this.PADDING - 2 * this.MARGIN}
+          height={svgOuterHeight}
+        />
       </Card>
     );
   }

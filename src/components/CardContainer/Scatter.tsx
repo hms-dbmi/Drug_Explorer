@@ -58,11 +58,11 @@ class Scatter extends React.Component<Props, State> {
     const xScale = d3
       .scaleLinear()
       .domain(xDomain)
-      .range([0, width - this.circleRadius * 2]);
+      .range([this.circleRadius, width - this.circleRadius]);
     const yScale = d3
       .scaleLinear()
       .domain(yDomain)
-      .range([0, height - this.circleRadius * 2]);
+      .range([this.circleRadius, height - this.circleRadius]);
 
     const drugIds = drugPredictions.map((d) => d.id);
     const selectedDrugIds = drugPredictions

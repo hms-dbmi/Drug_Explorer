@@ -121,7 +121,8 @@ class DrugSider extends React.Component<Props> {
                     <div>
                       <span>{name}</span>
                       <span style={{ float: 'right' }}>
-                        score: {score.toFixed(3)}
+                        {/* score: {score.toFixed(3)} */}
+                        rank: {idx + 1}
                       </span>
                     </div>
                   </Option>
