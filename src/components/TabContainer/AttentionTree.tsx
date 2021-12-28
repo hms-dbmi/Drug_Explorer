@@ -180,8 +180,9 @@ export default class AttentionTree extends React.Component<Props, {}> {
                 (this.nodeHeight - this.fontSize) / 2
               })`}
             >
-              {`${nodeShortName}
-                  ${node.depth > 0 ? ':' + node.data.score.toFixed(2) : ''}`}
+              {/* {`${nodeShortName}
+                  ${node.depth > 0 ? ':' + node.data.score.toFixed(2) : ''}`} */}
+              {nodeShortName}
             </text>
           </g>
         </Tooltip>
