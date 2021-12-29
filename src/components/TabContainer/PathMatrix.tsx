@@ -511,7 +511,19 @@ class PathMatrix extends React.Component<Props, State> {
             key={`node_${nodeIdx}`}
             title={shortNodeName.includes('.') ? nodeName : ''}
           >
-            <g transform={translate} className={`node_${nodeId}`}>
+            <g
+              transform={translate}
+              className={`node_${nodeId}`}
+              style={{ cursor: 'pointer' }}
+              onClick={() =>
+                nodeType === 'drug' &&
+                window.open(
+                  `https://go.drugbank.com/drugs/${nodeId}`,
+                  'windowName',
+                  'popup,right=10,top=10,width=320,height=600'
+                )
+              }
+            >
               <rect
                 width={this.NODE_WIDTH}
                 height={this.NODE_HEIGHT}
@@ -542,7 +554,11 @@ class PathMatrix extends React.Component<Props, State> {
             title={edgeShortName === edgeName ? '' : edgeName}
             destroyTooltipOnHide
           >
-            <g key={`edge_${edgeIdx}`} transform={translate}>
+            <g
+              key={`edge_${edgeIdx}`}
+              transform={translate}
+              style={{ cursor: 'pointer' }}
+            >
               <line
                 stroke="gray"
                 strokeWidth={1 + edge.score * 0.7}
