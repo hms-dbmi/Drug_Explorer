@@ -37,8 +37,8 @@ export const selectDrug = (
   dispatch: IDispatch
 ) => {
   if (selectedDisease) {
-    changeDrug(selectedDrug, dispatch);
     modifyAttentionPaths(selectedDrug, selectedDisease, isAdd, dispatch);
+    changeDrug(selectedDrug, dispatch);
   }
 };
 

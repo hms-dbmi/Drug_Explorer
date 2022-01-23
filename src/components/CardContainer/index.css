@@ -4,3 +4,22 @@ g.search:hover {
   stroke-width: 1px;
   transform: scale(1.2);
 }
+
+.lasso path {
+  stroke: rgb(80, 80, 80);
+  stroke-width: 2px;
+}
+
+.lasso .drawn {
+  fill-opacity: 0.05;
+}
+
+.lasso .loop_close {
+  fill: none;
+  stroke-dasharray: 4, 4;
+}
+
+.lasso .origin {
+  fill: #3399ff;
+  fill-opacity: 0.5;
+}

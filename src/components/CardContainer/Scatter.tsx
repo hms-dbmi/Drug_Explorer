@@ -7,6 +7,7 @@ import { HIGHLIGHT_COLOR, SELECTED_COLOR } from 'helpers/color';
 import { LOADING_ICON } from 'helpers';
 import { selectDrug } from 'stores/actions';
 import { isAddDrug } from 'stores/reducer';
+import lasso from './lasso.js';
 
 interface State {
   embedding: { [key: string]: [number, number] };
@@ -42,9 +43,69 @@ class Scatter extends React.Component<Props, State> {
   componentDidMount() {
     this.loadEmbedding();
   }
+
+  addLasso(width: number, height: number) {
+    const { drugPredictions } = this.props.globalState;
+    const selectedDrugIds = drugPredictions
+      .filter((d) => d.selected)
+      .map((d) => d.id);
+    // lasso draw
+    d3.selectAll('g.lasso').remove();
+    var svg = d3.select('svg.scatter');
+
+    var lasso_area = d3.select('rect.lasso');
+
+    // Lasso functions to execute while lassoing
+    var lasso_start = () => {
+      // (mylasso.items() as any).attr('r', 5); // reset size
+      // .attr('fill', 'white')
+    };
+
+    var lasso_draw = () => {
+      // Style the possible dots
+      // mylasso
+      // .possibleItems()
+      // .classed("possible", true)
+    };
+
+    var lasso_end = () => {
+      // mylasso.selectedItems()
+      //     .attr('fill', colors[this.selected.length])
+      //     .attr('r', '7')
+      //     .classed(`group_${this.selected.length}`, true)
+      // mylasso
+      // .items()
+      // .classed("possible", false)
+
+      (mylasso.selectedItems() as any)._groups[0].forEach((d: any) => {
+        const drugID = d.attributes.id.value;
+        if (!selectedDrugIds.includes(drugID)) {
+          selectDrug(
+            drugID,
+            this.props.globalState.selectedDisease,
+            true,
+            this.props.dispatch
+          );
+        }
+      });
+    };
+
+    var mylasso = lasso();
+    mylasso.items(svg.selectAll('circle.highlighted'));
+    mylasso
+      .targetArea(lasso_area) // area where the lasso can be started
+      .on('start', lasso_start) // lasso start function
+      .on('draw', lasso_draw) // lasso draw function
+      .on('end', lasso_end); // lasso end function
+
+    svg.call(mylasso);
+  }
   drawScatter() {
     const { drugPredictions } = this.props.globalState;
     const { width, height } = this.props;
+
+    this.addLasso(width, height);
+
     const { embedding } = this.state;
     const xDomain = d3.extent(Object.values(embedding).map((d) => d[0])) as [
         number,
@@ -77,28 +138,27 @@ class Scatter extends React.Component<Props, State> {
         const isHighlighted = drugRank > -1; // the top n predicted drugs
         const isSelected = selectedDrugIds.includes(drugId); // the drug selected by users
         return (
-          <g key={drugId}>
-            <circle
-              cx={xScale(x)}
-              cy={yScale(y)}
-              fill={
-                isSelected
-                  ? SELECTED_COLOR
-                  : isHighlighted
-                  ? HIGHLIGHT_COLOR
-                  : 'lightGray'
-              }
-              stroke={'white'}
-              r={isHighlighted ? this.circleRadius * 1.5 : this.circleRadius}
-              onClick={() => {
-                if (isHighlighted) this.onChangeDrug(drugId);
-              }}
-              onMouseEnter={() =>
-                this.showTooltip(drugId, [xScale(x), yScale(y)])
-              }
-              onMouseLeave={() => this.hideTooltip()}
-            />
-          </g>
+          <circle
+            cx={xScale(x)}
+            cy={yScale(y)}
+            key={drugId}
+            className={isHighlighted ? 'highlighted drug' : 'drug'}
+            id={drugId}
+            fill={
+              isSelected
+                ? SELECTED_COLOR
+                : isHighlighted
+                ? HIGHLIGHT_COLOR
+                : 'lightGray'
+            }
+            stroke={'white'}
+            r={isHighlighted ? this.circleRadius * 1.5 : this.circleRadius}
+            onDoubleClick={() => {
+              if (isHighlighted) this.onChangeDrug(drugId);
+            }}
+            onClick={() => this.showTooltip(drugId, [xScale(x), yScale(y)])}
+            // onMouseLeave={() => this.hideTooltip()}
+          />
         );
       });
     return nodes;
@@ -144,7 +204,13 @@ class Scatter extends React.Component<Props, State> {
 
     return (
       <div style={{ position: 'relative' }}>
-        <svg width={width} height={height}>
+        <svg width={width} height={height} className="scatter">
+          <rect
+            className="lasso area"
+            width={width}
+            height={height}
+            opacity={0}
+          />
           <g className="scatter">
             {selectedDisease ? (
               this.state.embedding ? (

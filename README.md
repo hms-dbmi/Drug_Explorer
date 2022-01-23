@@ -29,7 +29,7 @@ conda activate dgl
 python drug_server/application.py
 ```
 
-go to `localhost:8001` in your web browser
+go to `localhost:8002` in your web browser
 
 # run in development mode
 
