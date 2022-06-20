@@ -35,7 +35,8 @@ npm install
 ```
 
 run the front end
-```npm start
+```
+npm start
 ```
 
 ## back end
