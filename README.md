@@ -2,39 +2,46 @@
 - drug_server/ includes the python files to access backend ML models
 - src/ includes the typescript files to run the front-end visualization
 
-# install dependencies
-npm@6.14.5
-python@3.7
+This project is developed and tested using `node@16.10.0` `python@3.8.5`
 
-front-end dependencies
-```
-npm install
-```
+# Quick Start
 
-back-end server dependencies
+Download and unzip the [quickstart.zip](https://github.com/wangqianwen0418/Drug_Explorer/raw/master/drugExplorer_quickstart.zip)
+
 ```
-conda create --name dgl --file server/requirements.txt
+cd drugExplorer_quickstart
 ```
 
-# run in production mode
-
-build front end
+Create virtual environment and install python dependencies
 ```
-npm run build
+conda create --name dgl --file requirements.txt
 ```
 
 run the python server
 ```
 conda activate dgl
-python drug_server/application.py
+python application.py
 ```
 
 go to `localhost:8002` in your web browser
 
-# run in development mode
+# Run in Development Mode
+
+## front end
+
+install front-end dependencies
+```
+npm install
+```
 
 run the front end
 ```npm start
+```
+
+## back end
+back-end server dependencies
+```
+conda create --name dgl --file drug_server/requirements.txt
 ```
 
 run the python server
