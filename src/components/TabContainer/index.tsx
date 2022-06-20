@@ -78,7 +78,7 @@ class NodeLink extends React.Component<Props, State> {
           </div>
         </TabPane>
 
-        {/* <TabPane
+        <TabPane
           style={{ padding: this.padding }}
           key="attention"
           tab="Node Attention"
@@ -106,7 +106,7 @@ class NodeLink extends React.Component<Props, State> {
           >
             <Graph {...props} />
           </div>
-        </TabPane> */}
+        </TabPane>
       </Tabs>
     );
   }
