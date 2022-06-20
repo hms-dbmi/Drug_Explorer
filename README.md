@@ -1,6 +1,9 @@
 # A Visual Explanation Interface for GNN-based Drug Repurposing
 ![!interface](https://github.com/wangqianwen0418/Drug_Explorer/blob/master/imgs/interface.jpg)
 
+**Interactive Online Demo:** <http://drugexplorer.gehlenborglab.org>  
+**Preprint:** <https://osf.io/yhdpv>
+
 ## Code Structure
 - drug_server/ includes the python files to access backend ML models
 - src/ includes the typescript files to run the front-end visualization
