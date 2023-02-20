@@ -82,7 +82,7 @@ export interface IState {
   edgeThreshold: number;
   nodeTypes: string[];
   edgeTypes: IEdgeTypes;
-  diseaseOptions: string[];
+  diseaseOptions: [string, boolean][]; // [disease_id, is_treatable]
   drugPredictions: DrugPrediction[];
   selectedDisease: string | undefined;
   nodeNameDict: { [type: string]: { [id: string]: string } };

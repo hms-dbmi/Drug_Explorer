@@ -5,8 +5,10 @@ import { ACTION_TYPES, selectDisease, selectDrug } from 'stores/actions';
 
 import './Sider.css';
 
-import { Col, InputNumber, Layout, Row, Select, Slider } from 'antd';
+import { Col, InputNumber, Layout, Row, Select, Slider, Tooltip } from 'antd';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 import { getNodeColor } from 'helpers/color';
+import { color } from 'd3';
 const { Sider } = Layout;
 const { Option } = Select;
 
@@ -69,6 +71,12 @@ class DrugSider extends React.Component<Props> {
       .filter((d) => d.selected)
       .map((d) => d.id);
 
+    const no_drug_icon = (
+      <Tooltip title="we do not have a drug for treating this disease in the knowledge graph">
+        <QuestionCircleOutlined style={{ color: '#eb2f96' }} />
+      </Tooltip>
+    );
+
     let sider = (
       <Sider
         width={siderWidth}
@@ -85,10 +93,11 @@ class DrugSider extends React.Component<Props> {
         >
           {diseaseOptions.length > 0 ? (
             diseaseOptions.map((d) => {
-              const name = nodeNameDict['disease'][d];
+              const [id, treatable] = d;
+              const name = nodeNameDict['disease'][id];
               return (
-                <Option value={d} label={name} key={`diseaseID_${d}`}>
-                  {name}
+                <Option value={id} label={name} key={`diseaseID_${d}`}>
+                  {name} {!treatable && no_drug_icon}
                 </Option>
               );
             })
