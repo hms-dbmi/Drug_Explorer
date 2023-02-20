@@ -93,7 +93,7 @@ class App extends React.Component<Props, State> {
 
     let header = (
       <Header className="header" style={{ height: headerHeight }}>
-        DrugExplorer
+        TxGNNExplorer
       </Header>
     );
 

@@ -18,7 +18,7 @@ interface Props {
 
 class DrugSider extends React.Component<Props> {
   padding = 10;
-  listHeight = 150; // height of the open drug list
+  listHeight = 550; // height of the open drug list
   constructor(props: Props) {
     super(props);
     this.changeEdgeTHR = this.changeEdgeTHR.bind(this);
@@ -63,7 +63,7 @@ class DrugSider extends React.Component<Props> {
       nodeNameDict,
       selectedDisease,
     } = this.props.globalState;
-    const defaultDiseaseText = 'Select a disease';
+    const defaultDiseaseText = 'Search to Select a disease';
     const defaultDrugText = 'Select a drug from the prediction';
     const selectedDrugIds = drugPredictions
       .filter((d) => d.selected)
@@ -119,10 +119,12 @@ class DrugSider extends React.Component<Props> {
                 return (
                   <Option value={drug_id} key={`disease_${idx}`} label={name}>
                     <div>
-                      <span>{name}</span>
+                      <span>
+                        [{idx + 1}]{name}
+                      </span>
                       <span style={{ float: 'right' }}>
-                        {/* score: {score.toFixed(3)} */}
-                        rank: {idx + 1}
+                        score: {score.toFixed(3)}
+                        {/* rank: {idx + 1} */}
                       </span>
                     </div>
                   </Option>

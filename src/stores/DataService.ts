@@ -25,7 +25,7 @@ const requestEdgeTypes = async (): Promise<IEdgeTypes> => {
 };
 
 const requestNodeNameDict = async () => {
-  const url = './data/node_name_dict.json';
+  const url = './data/attention_node_name_dict.json';
   let response = await axiosInstance.get(url);
   return response.data;
 };
