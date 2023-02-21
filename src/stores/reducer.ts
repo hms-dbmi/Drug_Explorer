@@ -109,7 +109,7 @@ const toggleDrugSelection = (
 
 const updateMetaPathSummary = (
   oldSummary: IMetaPathSummary[],
-  newMetaPaths: IMetaPath[],
+  currentMetaPaths: IMetaPath[],
   drugId: number,
   isAdd: boolean
 ) => {
@@ -117,7 +117,7 @@ const updateMetaPathSummary = (
 
   // if add new drug
   if (isAdd) {
-    newMetaPaths.forEach((metaPath) => {
+    currentMetaPaths.forEach((metaPath) => {
       let count = metaPath.paths.length;
       let sharedMeta = newSummary.find(
         (d) => d.nodeTypes.join() === metaPath.nodeTypes.join()
@@ -139,11 +139,12 @@ const updateMetaPathSummary = (
     });
   } else {
     // if delete existing drug
-    newMetaPaths.forEach((metaPath) => {
-      newSummary.forEach((metaPath) => {
+
+    newSummary.forEach((metaPath) => {
+      if (drugId in metaPath.count) {
         metaPath.sum -= metaPath.count[drugId];
         delete metaPath.count[drugId];
-      });
+      }
     });
 
     newSummary = newSummary.filter((d) => d.sum > 0);
