@@ -65,7 +65,7 @@ const rootReducer = (state: IState, action: IAction): IState => {
           state.metaPathSummary,
           action.payload.metaPathGroups,
           action.payload.selectedDrug,
-          true
+          true // whether add new drug
         ),
       };
     }
@@ -85,7 +85,7 @@ const rootReducer = (state: IState, action: IAction): IState => {
           state.metaPathSummary,
           metaPathGroups[action.payload.selectedDrug],
           action.payload.selectedDrug,
-          false
+          false // whether add new drug
         ),
       };
     }

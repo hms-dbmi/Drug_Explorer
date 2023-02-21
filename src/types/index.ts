@@ -31,7 +31,7 @@ export interface IMetaPath {
 
 export interface IMetaPathSummary {
   nodeTypes: string[];
-  count: { [drug_id: string]: number };
+  count: { [drug_id: string]: number }; // only count for selected drugs whose count > 0
   sum: number;
   hide: boolean;
   idx: number;

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { IEdgeTypes } from 'types';
+import { IAttentionTree, IEdgeTypes, IPath } from 'types';
 import { SERVER_URL } from 'Const';
 
 const axiosInstance = axios.create({
@@ -36,7 +36,10 @@ const requestAttention = async (diseaseID: string, drugID: string) => {
   return response.data;
 };
 
-const requestAttentionPair = async (diseaseID: string, drugID: string) => {
+const requestAttentionPair = async (
+  diseaseID: string,
+  drugID: string
+): Promise<{ attention: { [k: string]: IAttentionTree }; paths: IPath[] }> => {
   const url = `./api/attention_pair?disease=${diseaseID}&drug=${drugID}`;
   let response = await axiosInstance.get(url);
   return response.data;

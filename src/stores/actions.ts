@@ -97,7 +97,7 @@ const modifyAttentionPaths = (
             payload: {
               attention: res.attention,
               selectedDrug,
-              metaPathGroups: { [selectedDrug]: groupMetaPaths(res.metapaths) },
+              metaPathGroups: { [selectedDrug]: groupMetaPaths(res.paths) },
             },
           });
         })
