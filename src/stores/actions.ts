@@ -1,8 +1,8 @@
 import {
   DrugPrediction,
   IDispatch,
+  IPath,
   IMetaPath,
-  IMetaPathGroup,
   IMetaPathSummary,
 } from 'types';
 import {
@@ -60,13 +60,13 @@ export const selectDisease = (selectedDisease: string, dispatch: IDispatch) => {
 
   requestDrugPredictions(selectedDisease)
     .then((res) => {
-      const { predictions, metapathSummary: metaPathSummary } = res;
+      const predictions = res;
       const drugPredictions = predictions.map((d: DrugPrediction) => {
         return { ...d, selected: false };
       });
       dispatch({
         type: ACTION_TYPES.Load_Drug_Options,
-        payload: { drugPredictions, metaPathSummary },
+        payload: { drugPredictions },
       });
     })
     .then(() => {
@@ -96,6 +96,7 @@ const modifyAttentionPaths = (
             type: ACTION_TYPES.Add_Attention_Paths,
             payload: {
               attention: res.attention,
+              selectedDrug,
               metaPathGroups: { [selectedDrug]: groupMetaPaths(res.metapaths) },
             },
           });
@@ -124,20 +125,20 @@ const changeDrug = (selectedDrug: string, dispatch: IDispatch) => {
   });
 };
 
-const groupMetaPaths = (metaPaths: IMetaPath[]): IMetaPathGroup[] => {
-  let groups: IMetaPathGroup[] = [];
+const groupMetaPaths = (paths: IPath[]): IMetaPath[] => {
+  let groups: IMetaPath[] = [];
   let groupDict: string[] = [];
-  metaPaths.forEach((metaPath) => {
-    metaPath.hide = false; // initi, show all metapaths
-    const nodeTypeString = metaPath.nodes.map((d) => d.nodeType).join('_');
+  paths.forEach((path) => {
+    path.hide = false; // initi, show all metapaths
+    const nodeTypeString = path.nodes.map((d) => d.nodeType).join('_');
     const groupIdx = groupDict.indexOf(nodeTypeString);
     if (groupIdx > -1) {
-      groups[groupIdx].metaPaths.push(metaPath);
+      groups[groupIdx].paths.push(path);
     } else {
       groupDict.push(nodeTypeString);
       groups.push({
-        nodeTypes: metaPath.nodes.map((d) => d.nodeType),
-        metaPaths: [metaPath],
+        nodeTypes: path.nodes.map((d) => d.nodeType),
+        paths: [path],
       });
     }
   });

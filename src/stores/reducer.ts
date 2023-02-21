@@ -1,4 +1,4 @@
-import { IState, IAction, IMetaPathSummary } from 'types';
+import { IState, IAction, IMetaPathSummary, IMetaPath } from 'types';
 import { ACTION_TYPES } from 'stores/actions';
 
 const rootReducer = (state: IState, action: IAction): IState => {
@@ -7,11 +7,6 @@ const rootReducer = (state: IState, action: IAction): IState => {
       return {
         ...state,
         drugPredictions: action.payload.drugPredictions,
-        metaPathSummary: action.payload.metaPathSummary.map(
-          (d: IMetaPathSummary, idx: number) => {
-            return { ...d, hide: false, idx };
-          }
-        ),
       };
 
     case ACTION_TYPES.Load_Disease_Options:
@@ -29,6 +24,7 @@ const rootReducer = (state: IState, action: IAction): IState => {
         selectedDisease: action.payload.selectedDisease,
         attention: {},
         metaPathGroups: {},
+        metaPathSummary: [],
       };
 
     case ACTION_TYPES.Change_Drug:
@@ -65,6 +61,12 @@ const rootReducer = (state: IState, action: IAction): IState => {
           ...state.metaPathGroups,
           ...action.payload.metaPathGroups,
         },
+        metaPathSummary: updateMetaPathSummary(
+          state.metaPathSummary,
+          action.payload.metaPathGroups,
+          action.payload.selectedDrug,
+          true
+        ),
       };
     }
 
@@ -79,6 +81,12 @@ const rootReducer = (state: IState, action: IAction): IState => {
         ...state,
         attention,
         metaPathGroups,
+        metaPathSummary: updateMetaPathSummary(
+          state.metaPathSummary,
+          metaPathGroups[action.payload.selectedDrug],
+          action.payload.selectedDrug,
+          false
+        ),
       };
     }
 
@@ -97,6 +105,51 @@ const toggleDrugSelection = (
       selected: selectedDrug === d.id ? !d.selected : d.selected,
     };
   });
+};
+
+const updateMetaPathSummary = (
+  oldSummary: IMetaPathSummary[],
+  newMetaPaths: IMetaPath[],
+  drugId: number,
+  isAdd: boolean
+) => {
+  let newSummary = oldSummary.map((d) => d);
+
+  // if add new drug
+  if (isAdd) {
+    newMetaPaths.forEach((metaPath) => {
+      let count = metaPath.paths.length;
+      let sharedMeta = newSummary.find(
+        (d) => d.nodeTypes.join() === metaPath.nodeTypes.join()
+      );
+      if (sharedMeta) {
+        // if shared meta path exists
+        sharedMeta.count[drugId] = count;
+        sharedMeta.sum += count;
+      } else {
+        // if shared meta path does not exist
+        newSummary.push({
+          nodeTypes: metaPath.nodeTypes,
+          count: { drugId: count },
+          sum: count,
+          hide: false,
+          idx: newSummary.length,
+        });
+      }
+    });
+  } else {
+    // if delete existing drug
+    newMetaPaths.forEach((metaPath) => {
+      newSummary.forEach((metaPath) => {
+        metaPath.sum -= metaPath.count[drugId];
+        delete metaPath.count[drugId];
+      });
+    });
+
+    newSummary = newSummary.filter((d) => d.sum > 0);
+  }
+
+  return newSummary;
 };
 
 export const isAddDrug = (

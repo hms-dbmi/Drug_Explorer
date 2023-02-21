@@ -15,7 +15,7 @@ export interface ILink {
   pathIdx?: number;
 }
 
-export interface IMetaPath {
+export interface IPath {
   edges: {
     edgeInfo: string;
     score: number;
@@ -24,14 +24,14 @@ export interface IMetaPath {
   hide: boolean;
 }
 
-export interface IMetaPathGroup {
+export interface IMetaPath {
   nodeTypes: string[];
-  metaPaths: IMetaPath[];
+  paths: IPath[];
 }
 
 export interface IMetaPathSummary {
   nodeTypes: string[];
-  count: number[];
+  count: { [drug_id: string]: number };
   sum: number;
   hide: boolean;
   idx: number;
@@ -60,7 +60,7 @@ export type IAction = {
 type TDispatchPayload = Partial<
   IState & {
     selectedDrug: string | undefined;
-    metaPathGroup: IMetaPathGroup[];
+    metaPathGroup: IMetaPath[];
     nodeAttention: AttentionTree;
   }
 >;
@@ -91,7 +91,7 @@ export interface IState {
   isDrugLoading: boolean;
   isDiseaseLoading: boolean;
   attention: { [nodeKey: string]: IAttentionTree }; // node key = ${node_type}:${node_id}
-  metaPathGroups: { [drugID: string]: IMetaPathGroup[] };
-  metaPathSummary: IMetaPathSummary[]; // summary of all drugs
-  selectedPathNodes: IMetaPath['nodes'];
+  metaPathGroups: { [drugID: string]: IMetaPath[] };
+  metaPathSummary: IMetaPathSummary[]; // each element is a group of paths with the same node types
+  selectedPathNodes: IPath['nodes'];
 }

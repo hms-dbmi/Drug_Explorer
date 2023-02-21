@@ -51,8 +51,8 @@ const requestDiseaseOptions = async () => {
 const requestDrugPredictions = async (diseaseID: string) => {
   const url = `./api/drug_predictions?disease_id=${diseaseID}`;
   const response = await axiosInstance.get(url);
-  const { predictions, metapath_summary: metapathSummary } = response.data;
-  return { predictions, metapathSummary };
+  const predictions = response.data;
+  return predictions;
 };
 
 const requestEmbedding = async () => {
