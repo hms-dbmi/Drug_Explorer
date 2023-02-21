@@ -411,51 +411,54 @@ class PathMatrix extends React.Component<Props, State> {
   ) {
     const { drugPredictions } = this.props.globalState;
     const { count, sum } = summary;
-    const vis = Object.keys(count).forEach((drugId, idx) => {
-      const num = count[drugId];
-      // const isSelected = drugPredictions[idx].selected;
-      const isSelected = true;
-      const content =
-        num === 0 ? (
-          <line
-            x1={0.5 * this.RADIUS}
-            x2={1.5 * this.RADIUS}
-            stroke={isSelected ? SELECTED_COLOR : 'lightgray'}
-          />
-        ) : (
-          <>
-            <circle
-              r={rScale(num)}
-              fill={isSelected ? SELECTED_COLOR : 'lightgray'}
-              xlinkTitle={num.toString()}
-              cx={this.RADIUS}
+    const vis = drugPredictions
+      .filter((d) => d.selected)
+      .map((drugPrediction, idx) => {
+        const { id: drugId } = drugPrediction;
+        const num = count[drugId] || 0;
+        // const isSelected = drugPredictions[idx].selected;
+        const isSelected = true;
+        const content =
+          num === 0 ? (
+            <line
+              x1={0.5 * this.RADIUS}
+              x2={1.5 * this.RADIUS}
+              stroke={isSelected ? SELECTED_COLOR : 'lightgray'}
             />
-            <text
-              textAnchor="middle"
-              transform={`
+          ) : (
+            <>
+              <circle
+                r={rScale(num)}
+                fill={isSelected ? SELECTED_COLOR : 'lightgray'}
+                xlinkTitle={num.toString()}
+                cx={this.RADIUS}
+              />
+              <text
+                textAnchor="middle"
+                transform={`
                 translate(${this.RADIUS}, ${rScale(num) / 2}) 
               scale(${rScale(num) / this.RADIUS})
               `}
-              fill={isSelected ? 'white' : 'black'}
-            >
-              {num}
-            </text>
-          </>
+                fill={isSelected ? 'white' : 'black'}
+              >
+                {num}
+              </text>
+            </>
+          );
+        return (
+          <g
+            key={idx}
+            className="count"
+            transform={`translate(${
+              idx * (2 * this.RADIUS + this.COUNT_GAP)
+            }, ${this.NODE_HEIGHT / 2})`}
+            cursor="pointer"
+            onClick={() => this.onChangeDrug(drugId)}
+          >
+            {content}
+          </g>
         );
-      return (
-        <g
-          key={idx}
-          className="count"
-          transform={`translate(${idx * (2 * this.RADIUS + this.COUNT_GAP)}, ${
-            this.NODE_HEIGHT / 2
-          })`}
-          cursor="pointer"
-          onClick={() => this.onChangeDrug(drugPredictions[idx]['id'])}
-        >
-          {content}
-        </g>
-      );
-    });
+      });
     return (
       <g className="metaCount" transform={`translate(${this.PADDING}, 0)`}>
         {vis}
