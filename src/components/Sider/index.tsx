@@ -6,7 +6,7 @@ import { ACTION_TYPES, selectDisease, selectDrug } from 'stores/actions';
 import './Sider.css';
 
 import { Col, InputNumber, Layout, Row, Select, Slider, Tooltip } from 'antd';
-import { QuestionCircleOutlined } from '@ant-design/icons';
+import { QuestionCircleOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { getNodeColor } from 'helpers/color';
 import { color } from 'd3';
 const { Sider } = Layout;
@@ -71,9 +71,15 @@ class DrugSider extends React.Component<Props> {
       .filter((d) => d.selected)
       .map((d) => d.id);
 
-    const no_drug_icon = (
-      <Tooltip title="we do not have a drug for treating this disease in the knowledge graph">
+    const untreatable_disease_icon = (
+      <Tooltip title="The knowledge graph contains no drug for treating this disease">
         <QuestionCircleOutlined style={{ color: '#eb2f96' }} />
+      </Tooltip>
+    );
+
+    const known_drug_icon = (
+      <Tooltip title="the knowledge graph contains this drug indication">
+        <CheckCircleOutlined style={{ color: '#52c41a' }} />
       </Tooltip>
     );
 
@@ -97,7 +103,7 @@ class DrugSider extends React.Component<Props> {
               const name = nodeNameDict['disease'][id];
               return (
                 <Option value={id} label={name} key={`diseaseID_${d}`}>
-                  {name} {!treatable && no_drug_icon}
+                  {name} {!treatable && untreatable_disease_icon}
                 </Option>
               );
             })
@@ -123,13 +129,13 @@ class DrugSider extends React.Component<Props> {
           {selectedDisease !== undefined ? (
             drugPredictions.length > 0 ? (
               drugPredictions.map((d, idx) => {
-                const { id: drug_id, score } = d;
+                const { id: drug_id, score, known } = d;
                 const name = nodeNameDict['drug'][drug_id];
                 return (
                   <Option value={drug_id} key={`disease_${idx}`} label={name}>
                     <div>
                       <span>
-                        [{idx + 1}]{name}
+                        [{idx + 1}] {name} {known && known_drug_icon}
                       </span>
                       <span style={{ float: 'right' }}>
                         score: {score.toFixed(3)}

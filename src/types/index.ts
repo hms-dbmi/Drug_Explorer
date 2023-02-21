@@ -75,6 +75,7 @@ export type IDispatch = ({
 export type DrugPrediction = {
   score: number;
   id: string;
+  known: boolean;
   selected: boolean;
 };
 
