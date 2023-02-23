@@ -135,7 +135,8 @@ class DrugSider extends React.Component<Props> {
           onChange={this.onChangeDrug}
           placeholder={defaultDrugText}
           value={selectedDrugIds}
-          menuItemSelectedIcon={<EyeOutlined />}
+          // menuItemSelectedIcon={<EyeOutlined />}
+          menuItemSelectedIcon={<></>}
         >
           {selectedDisease !== undefined ? (
             drugPredictions.length > 0 ? (
