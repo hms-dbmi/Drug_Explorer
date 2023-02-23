@@ -6,9 +6,13 @@ import { ACTION_TYPES, selectDisease, selectDrug } from 'stores/actions';
 import './Sider.css';
 
 import { Col, InputNumber, Layout, Row, Select, Slider, Tooltip } from 'antd';
-import { QuestionCircleOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import {
+  QuestionCircleOutlined,
+  CheckCircleOutlined,
+  EyeOutlined,
+} from '@ant-design/icons';
 import { getNodeColor } from 'helpers/color';
-import { color } from 'd3';
+
 const { Sider } = Layout;
 const { Option } = Select;
 
@@ -72,13 +76,19 @@ class DrugSider extends React.Component<Props> {
       .map((d) => d.id);
 
     const untreatable_disease_icon = (
-      <Tooltip title="The knowledge graph contains no drug for treating this disease">
+      <Tooltip
+        // title="The knowledge graph contains no drug for treating this disease"
+        title="Diseases with no known drug indications in the dataset"
+      >
         <QuestionCircleOutlined style={{ color: '#eb2f96' }} />
       </Tooltip>
     );
 
     const known_drug_icon = (
-      <Tooltip title="the knowledge graph contains this drug indication">
+      <Tooltip
+        // title="the knowledge graph contains this drug indication"
+        title="US FDA-approved drug indication"
+      >
         <CheckCircleOutlined style={{ color: '#52c41a' }} />
       </Tooltip>
     );
@@ -125,6 +135,7 @@ class DrugSider extends React.Component<Props> {
           onChange={this.onChangeDrug}
           placeholder={defaultDrugText}
           value={selectedDrugIds}
+          menuItemSelectedIcon={<EyeOutlined />}
         >
           {selectedDisease !== undefined ? (
             drugPredictions.length > 0 ? (
