@@ -13,19 +13,19 @@ const axiosInstance = axios.create({
 });
 
 const requestNodeTypes = async (): Promise<string[]> => {
-  const url = './data/node_types.json';
+  const url = './txgnn_data/node_types.json';
   let response = await axiosInstance.get(url);
   return response.data;
 };
 
 const requestEdgeTypes = async (): Promise<IEdgeTypes> => {
-  const url = './data/edge_types.json';
+  const url = './txgnn_data/edge_types.json';
   let response = await axiosInstance.get(url);
   return response.data;
 };
 
 const requestNodeNameDict = async () => {
-  const url = './data/attention_node_name_dict.json';
+  const url = './txgnn_data/node_name_dict.json';
   let response = await axiosInstance.get(url);
   return response.data;
 };
@@ -59,7 +59,7 @@ const requestDrugPredictions = async (diseaseID: string) => {
 };
 
 const requestEmbedding = async () => {
-  const url = './data/drug_tsne.json';
+  const url = './txgnn_data/drug_tsne.json';
   const response = await axiosInstance.get(url);
   return response.data;
 };
