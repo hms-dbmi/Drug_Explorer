@@ -130,13 +130,17 @@ class Scatter extends React.Component<Props, State> {
       .filter((d) => d.selected)
       .map((d) => d.id);
 
+    const getSortIndex = (drugId: string) =>
+      drugIds.indexOf(drugId) > -1 ? drugIds.indexOf(drugId) : drugIds.length; // sort by drug rank
+
     const nodes = Object.keys(embedding)
-      .sort((a, b) => drugIds.indexOf(a) - drugIds.indexOf(b))
+      .sort((a, b) => -getSortIndex(a) + getSortIndex(b)) // sort by drug rank
       .map((drugId) => {
         const [x, y] = embedding[drugId];
         const drugRank = drugIds.indexOf(drugId);
         const isHighlighted = drugRank > -1; // the top n predicted drugs
         const isSelected = selectedDrugIds.includes(drugId); // the drug selected by users
+
         return (
           <circle
             cx={xScale(x)}
@@ -151,8 +155,15 @@ class Scatter extends React.Component<Props, State> {
                 ? HIGHLIGHT_COLOR
                 : 'lightGray'
             }
+            opacity={isSelected ? 1 : 0.7}
             stroke={'white'}
-            r={isHighlighted ? this.circleRadius * 1.1 : this.circleRadius}
+            r={
+              isSelected
+                ? this.circleRadius * 1.5
+                : isHighlighted
+                ? this.circleRadius * 1.1
+                : this.circleRadius
+            }
             onDoubleClick={() => {
               if (isHighlighted) this.onChangeDrug(drugId);
             }}

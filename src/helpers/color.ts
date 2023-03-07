@@ -31,6 +31,6 @@ const getNodeColor = (nodeType: string) => {
 };
 
 const HIGHLIGHT_COLOR = '#1890ff';
-const SELECTED_COLOR = 'dark';
+const SELECTED_COLOR = 'black';
 
 export { setNodeColor, getNodeColor, HIGHLIGHT_COLOR, SELECTED_COLOR };
