@@ -36,8 +36,8 @@ class PathMatrix extends React.Component<Props, State> {
   EDGE_LENGTH = 120;
   NODE_WIDTH = 130;
   NODE_HEIGHT = 25;
-  VERTICAL_GAP = 5; // vertical gap between path
-  GROUP_GAP = 10; // vertical gap between path groups
+  VERTICAL_GAP = 2; // vertical gap between path
+  GROUP_GAP = 6; // vertical gap between path groups
   COUNT_GAP = 5; // horizontal gap between count circles
   RADIUS = this.NODE_HEIGHT / 2; // max radius of the count circle
   HEAD_HEIGHT = 70; // height of the header ()
@@ -108,7 +108,6 @@ class PathMatrix extends React.Component<Props, State> {
     );
   }
   getIconGroup(nodes: IPath['nodes']) {
-    const doesExist = this.isPathSelected(nodes);
     return (
       <g className="feedback" cursor="pointer" style={{ fill: '#777' }}>
         {/* <g
@@ -392,15 +391,16 @@ class PathMatrix extends React.Component<Props, State> {
       this.props.globalState.drugPredictions.filter((d) => d.selected).length
     ) {
       // update expended metapaths when selected drug changes
-      const { metaPathSummary, drugPredictions } = this.props.globalState;
+      const { metaPathSummary } = this.props.globalState;
 
-      const expandStatus = metaPathSummary.map(
-        (d) =>
-          Object.values(d.count).reduce(
-            (acc, cur, i) => acc + cur * (drugPredictions[i].selected ? 1 : 0),
-            0
-          ) > 0 && !d.hide
-      );
+      // const expandStatus = metaPathSummary.map(
+      //   (d) =>
+      //     Object.values(d.count).reduce(
+      //       (acc, cur, i) => acc + cur * (drugPredictions[i].selected ? 1 : 0),
+      //       0
+      //     ) > 0 && !d.hide
+      // );
+      const expandStatus = metaPathSummary.map((d) => false); // collapse all metapaths by default
       this.setState({ expand: expandStatus });
     }
   }
@@ -628,7 +628,7 @@ class PathMatrix extends React.Component<Props, State> {
   }
   render() {
     const { width, height } = this.props,
-      { isModalVisible } = this.state;
+      { isModalVisible, expand } = this.state;
     const {
       isDrugLoading,
       isAttentionLoading,
@@ -645,15 +645,19 @@ class PathMatrix extends React.Component<Props, State> {
         (this.EDGE_LENGTH + this.NODE_WIDTH) * 4
     );
 
+    const matrixRowsCount = Object.values(metaPathSummary)
+        .map((d, idx) => {
+          return expand[idx] ? d.sum : 0;
+        })
+        .reduce((a, b) => a + b, 0),
+      matrixGroupsCount = Object.keys(metaPathSummary).length,
+      matrixHeight =
+        matrixRowsCount * (this.NODE_HEIGHT + this.VERTICAL_GAP) +
+        this.PADDING +
+        matrixGroupsCount * (this.HEAD_HEIGHT + this.GROUP_GAP);
+
     const svgOuterHeight = height - 2 * this.PADDING - this.TITLE_HEIGHT,
-      svgHeight = Math.max(
-        this.offsetY +
-          this.NODE_HEIGHT +
-          this.VERTICAL_GAP +
-          this.PADDING +
-          this.HEAD_HEIGHT,
-        svgOuterHeight
-      );
+      svgHeight = Math.max(matrixHeight + this.HEAD_HEIGHT, svgOuterHeight);
 
     const reminderText = (
       <text x={width / 2} y={height / 2} fill="gray">
