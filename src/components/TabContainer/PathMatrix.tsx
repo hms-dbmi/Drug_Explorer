@@ -146,21 +146,21 @@ class PathMatrix extends React.Component<Props, State> {
   }
   drawHeader() {
     const { drugPredictions, nodeNameDict } = this.props.globalState;
-    const headerNames = drugPredictions.map(
-      (drug) => nodeNameDict['drug'][drug.id]
-    );
-    headerNames.push('SUM');
+    const headerNames = drugPredictions
+      .filter((d) => d.selected)
+      .map((drug) => nodeNameDict['drug'][drug.id]);
+    // headerNames.push('SUM');
 
     const header = headerNames.map((name, idx) => {
-      const isSelected =
-        idx > drugPredictions.length - 1
-          ? false
-          : drugPredictions[idx].selected;
+      // const isSelected =
+      //   idx > drugPredictions.length - 1
+      //     ? false
+      //     : drugPredictions[idx].selected;
       return (
         <text
           key={name}
           className={name}
-          fill={isSelected ? SELECTED_COLOR : 'gray'}
+          fill={'gray'}
           cursor="pointer"
           transform={`translate(
             ${idx * (this.RADIUS * 2 + this.COUNT_GAP) + this.RADIUS}, 
@@ -179,7 +179,7 @@ class PathMatrix extends React.Component<Props, State> {
   }
   getCountWidth() {
     const width =
-      (this.props.globalState.drugPredictions.length + 1) *
+      this.props.globalState.drugPredictions.filter((d) => d.selected).length *
         (this.RADIUS * 2 + this.COUNT_GAP) +
       this.COUNT_GAP;
     return width;
@@ -416,35 +416,20 @@ class PathMatrix extends React.Component<Props, State> {
       .map((drugPrediction, idx) => {
         const { id: drugId } = drugPrediction;
         const num = count[drugId] || 0;
-        // const isSelected = drugPredictions[idx].selected;
-        const isSelected = true;
-        const content =
-          num === 0 ? (
-            <line
-              x1={0.5 * this.RADIUS}
-              x2={1.5 * this.RADIUS}
-              stroke={isSelected ? SELECTED_COLOR : 'lightgray'}
-            />
-          ) : (
-            <>
-              <circle
-                r={rScale(num)}
-                fill={isSelected ? SELECTED_COLOR : 'lightgray'}
-                xlinkTitle={num.toString()}
-                cx={this.RADIUS}
-              />
-              <text
-                textAnchor="middle"
-                transform={`
-                translate(${this.RADIUS}, ${rScale(num) / 2}) 
-              scale(${rScale(num) / this.RADIUS})
-              `}
-                fill={isSelected ? 'white' : 'black'}
-              >
-                {num}
-              </text>
-            </>
-          );
+
+        const content = (
+          <text
+            textAnchor="middle"
+            transform={`
+                  translate(${this.RADIUS}, ${rScale(7) / 2})
+                scale(${rScale(7) / this.RADIUS})
+                `}
+            fontSize={30}
+            fill={'gray'}
+          >
+            {num}
+          </text>
+        );
         return (
           <g
             key={idx}
@@ -462,7 +447,7 @@ class PathMatrix extends React.Component<Props, State> {
     return (
       <g className="metaCount" transform={`translate(${this.PADDING}, 0)`}>
         {vis}
-        <g
+        {/* <g
           className="sum"
           transform={`translate(${
             count.length * (2 * this.RADIUS + this.COUNT_GAP)
@@ -474,9 +459,9 @@ class PathMatrix extends React.Component<Props, State> {
             textAnchor="middle"
           >
             {' '}
-            {`| ${sum}`}{' '}
+            {`${sum}`}{' '}
           </text>
-        </g>
+        </g> */}
       </g>
     );
   }

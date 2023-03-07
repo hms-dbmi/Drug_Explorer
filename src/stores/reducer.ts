@@ -63,7 +63,7 @@ const rootReducer = (state: IState, action: IAction): IState => {
         },
         metaPathSummary: updateMetaPathSummary(
           state.metaPathSummary,
-          action.payload.metaPathGroups,
+          action.payload.metaPathGroups[action.payload.selectedDrug],
           action.payload.selectedDrug,
           true // whether add new drug
         ),
@@ -130,7 +130,7 @@ const updateMetaPathSummary = (
         // if shared meta path does not exist
         newSummary.push({
           nodeTypes: metaPath.nodeTypes,
-          count: { drugId: count },
+          count: { [drugId]: count },
           sum: count,
           hide: false,
           idx: newSummary.length,
