@@ -409,22 +409,23 @@ class PathMatrix extends React.Component<Props, State> {
     summary: IMetaPathSummary,
     rScale: d3.ScaleLinear<number, number>
   ) {
-    const { drugPredictions } = this.props.globalState;
-    const { count, sum } = summary;
+    const { drugPredictions, isAttentionLoading } = this.props.globalState;
+    const { count } = summary;
     const vis = drugPredictions
       .filter((d) => d.selected)
       .map((drugPrediction, idx) => {
         const { id: drugId } = drugPrediction;
-        const num = count[drugId] || 0;
+        const num = count[drugId]
+          ? count[drugId]
+          : isAttentionLoading
+          ? '...'
+          : 0;
 
         const content = (
           <text
             textAnchor="middle"
-            transform={`
-                  translate(${this.RADIUS}, ${rScale(7) / 2})
-                scale(${rScale(7) / this.RADIUS})
-                `}
-            fontSize={30}
+            transform={`translate(${this.RADIUS}, ${this.RADIUS / 2})`}
+            fontSize={15}
             fill={'gray'}
           >
             {num}
@@ -677,10 +678,20 @@ class PathMatrix extends React.Component<Props, State> {
         <svg width={svgWidth} height={svgHeight}>
           {content}
           {/* overlap loading icon when it is loading */}
-          {isDrugLoading ||
-          (isAttentionLoading && this.state.expand.some((d) => d)) ? (
-            <g transform={`translate(${svgWidth / 2}, ${svgOuterHeight / 2})`}>
-              {LOADING_ICON}
+          {isDrugLoading || isAttentionLoading ? (
+            <g className="loading">
+              <rect
+                className="loading__background"
+                width={svgWidth}
+                height={svgOuterHeight}
+                fill="white"
+                opacity={0.5}
+              />
+              <g
+                transform={`translate(${svgWidth / 2}, ${svgOuterHeight / 2})`}
+              >
+                {LOADING_ICON}
+              </g>
             </g>
           ) : (
             <></>
