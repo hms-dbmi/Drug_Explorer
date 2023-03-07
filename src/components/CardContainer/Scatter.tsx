@@ -104,7 +104,7 @@ class Scatter extends React.Component<Props, State> {
     const { drugPredictions } = this.props.globalState;
     const { width, height } = this.props;
 
-    this.addLasso(width, height);
+    // this.addLasso(width, height);
 
     const { embedding } = this.state;
     const xDomain = d3.extent(Object.values(embedding).map((d) => d[0])) as [
@@ -152,7 +152,7 @@ class Scatter extends React.Component<Props, State> {
                 : 'lightGray'
             }
             stroke={'white'}
-            r={isHighlighted ? this.circleRadius * 1.5 : this.circleRadius}
+            r={isHighlighted ? this.circleRadius * 1.1 : this.circleRadius}
             onDoubleClick={() => {
               if (isHighlighted) this.onChangeDrug(drugId);
             }}
@@ -212,21 +212,15 @@ class Scatter extends React.Component<Props, State> {
             opacity={0}
           />
           <g className="scatter">
-            {selectedDisease ? (
-              this.state.embedding ? (
-                this.drawScatter()
-              ) : (
-                <g
-                  transform={`translate(${width / 2}, ${height / 2})`}
-                  textAnchor="middle"
-                >
-                  {LOADING_ICON}
-                </g>
-              )
+            {this.state.embedding ? (
+              this.drawScatter()
             ) : (
-              <text x={width / 2} y={height / 2} fill="gray">
-                Please select a disease first
-              </text>
+              <g
+                transform={`translate(${width / 2}, ${height / 2})`}
+                textAnchor="middle"
+              >
+                {LOADING_ICON}
+              </g>
             )}
             {/* overlap a loading icon when loading */}
             {isDrugLoading ? (
