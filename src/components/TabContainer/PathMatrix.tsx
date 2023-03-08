@@ -560,8 +560,13 @@ class PathMatrix extends React.Component<Props, State> {
                 x2={this.EDGE_LENGTH}
                 y2={this.NODE_HEIGHT / 4}
               />
-              <text x={this.EDGE_LENGTH / 2} y={0} textAnchor="middle">
-                {edgeName}
+              <text
+                x={this.EDGE_LENGTH / 2}
+                y={0}
+                textAnchor="middle"
+                fill="gray"
+              >
+                {edgeShortName}
               </text>
             </g>
           </Tooltip>
