@@ -29,14 +29,14 @@ export const sigmoid = (t: number) => {
 };
 
 export const removeDiseaseList = [
-  'Mendelian disease',
-  'Disease of cell nucleous',
-  'Hip region disease',
-  'Acute disease',
-  'Vector borne disease',
+  'mendelian disease',
+  'disease of cell nucleous',
+  'hip region disease',
+  'acute disease',
+  'vector borne disease',
   'cancer',
-  'Sex-linked disease',
-  'Movement disorder',
+  'sex-linked disease',
+  'movement disorder',
 ];
 
 export const sentenceCapitalizer = (str: string) => {
