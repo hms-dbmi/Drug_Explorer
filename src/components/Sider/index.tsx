@@ -11,7 +11,12 @@ import {
   CheckCircleOutlined,
   EyeOutlined,
 } from '@ant-design/icons';
-import { getNodeColor, sigmoid } from 'helpers';
+import {
+  getNodeColor,
+  sigmoid,
+  removeDiseaseList,
+  sentenceCapitalizer,
+} from 'helpers';
 
 const { Sider } = Layout;
 const { Option } = Select;
@@ -108,15 +113,21 @@ class DrugSider extends React.Component<Props> {
           optionFilterProp="label"
         >
           {diseaseOptions.length > 0 ? (
-            diseaseOptions.map((d) => {
-              const [id, treatable] = d;
-              const name = nodeNameDict['disease'][id];
-              return (
-                <Option value={id} label={name} key={`diseaseID_${d}`}>
-                  {name} {!treatable && untreatable_disease_icon}
-                </Option>
-              );
-            })
+            diseaseOptions
+              .filter(
+                (d) =>
+                  !removeDiseaseList.includes(nodeNameDict['disease'][d[0]]) // remove some diseases that are too general
+              )
+              .map((d) => {
+                const [id, treatable] = d;
+                const name = nodeNameDict['disease'][id];
+                return (
+                  <Option value={id} label={name} key={`diseaseID_${d}`}>
+                    {sentenceCapitalizer(name)}{' '}
+                    {!treatable && untreatable_disease_icon}
+                  </Option>
+                );
+              })
           ) : (
             <Option value="loading" label="loading" key="loading">
               data is loading..

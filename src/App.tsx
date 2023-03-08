@@ -95,7 +95,7 @@ class App extends React.Component<Props, State> {
   }
 
   render() {
-    let siderWidth = 300,
+    let siderWidth = 380,
       footHeight = 20,
       mainViewWidth = window.innerWidth - siderWidth,
       headerHeight = 64,
@@ -158,7 +158,15 @@ class App extends React.Component<Props, State> {
             &{' '}
             <a href="https://zitniklab.hms.harvard.edu/" target="_blank_">
               Zitnik Lab <LinkOutlined />
-            </a>
+            </a>{' '}
+            |
+            <span style={{ color: 'gray' }}>
+              {' '}
+              <b onClick={this.showModal} style={{ cursor: 'help' }}>
+                DISCLAIMER:
+              </b>
+              THIS WEBSITE DOES NOT PROVIDE MEDICAL ADVICE{' '}
+            </span>
           </Footer>
         </Layout>
 
@@ -168,6 +176,7 @@ class App extends React.Component<Props, State> {
           footer={null}
           onCancel={this.hideModal}
           zIndex={1099}
+          width={window.innerWidth * 0.5}
         >
           <h3>About</h3>
           <p>
@@ -203,6 +212,22 @@ class App extends React.Component<Props, State> {
             Shreyas Havaldar, Akhil Vaid, Jure Leskovec, Girish Nadkarni,
             Benjamin S. Glicksberg, Nils Gehlenborg, and Marinka Zitnik
             <h4>Contact: marinka@hms.harvard.edu</h4>
+          </p>
+
+          <h3>Medical Advice Disclaimer</h3>
+          <p>
+            DISCLAIMER: THIS WEBSITE DOES NOT PROVIDE MEDICAL ADVICE
+            <br />
+            The information, including but not limited to, text, graphics,
+            images and other material contained on this website are for
+            informational purposes only. No material on this site is intended to
+            be a substitute for professional medical advice, diagnosis or
+            treatment. Always seek the advice of your physician or other
+            qualified health care provider with any questions you may have
+            regarding a medical condition or treatment and before undertaking a
+            new health care regimen, and never disregard professional medical
+            advice or delay in seeking it because of something you have read on
+            this website.
           </p>
 
           <h3>More</h3>
