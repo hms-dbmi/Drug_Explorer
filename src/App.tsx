@@ -4,6 +4,7 @@ import NodeLink from 'components/TabContainer';
 import DrugSider from 'components/Sider';
 
 import { Layout } from 'antd';
+import { InfoCircleOutlined, LinkOutlined } from '@ant-design/icons';
 import './App.css';
 import { StateConsumer } from 'stores';
 import { IState, IDispatch } from 'types';
@@ -85,15 +86,33 @@ class App extends React.Component<Props, State> {
 
   render() {
     let siderWidth = 300,
+      footHeight = 20,
       mainViewWidth = window.innerWidth - siderWidth,
       headerHeight = 64,
-      mainViewHeight = window.innerHeight - headerHeight,
+      mainViewHeight = window.innerHeight - headerHeight - footHeight,
       NodeLinkHeight = mainViewHeight * 0.55,
       MatrixHeight = mainViewHeight - NodeLinkHeight;
 
     let header = (
       <Header className="header" style={{ height: headerHeight }}>
-        TxGNNExplorer
+        <img
+          src="favicon.ico"
+          style={{ height: headerHeight * 0.8, padding: '2px 10px' }}
+          alt="logo"
+        />
+        TxGNN Explorer
+        <span style={{ float: 'right' }}>
+          <InfoCircleOutlined style={{ height: headerHeight }} />
+          <span
+            style={{
+              fontSize: '20px',
+              height: headerHeight,
+              marginLeft: '4px',
+            }}
+          >
+            About
+          </span>{' '}
+        </span>
       </Header>
     );
 
@@ -108,6 +127,23 @@ class App extends React.Component<Props, State> {
             <NodeLink width={mainViewWidth} height={NodeLinkHeight} />
           </Content>
         </Layout>
+        <Footer
+          style={{
+            textAlign: 'center',
+            color: 'gray',
+            height: footHeight,
+            padding: 0,
+          }}
+        >
+          Copyright © {new Date().getFullYear()} Harvard.{' '}
+          <a href="http://gehlenborglab.org/" target="_blank_">
+            Gehlenborg Lab <LinkOutlined />
+          </a>{' '}
+          &{' '}
+          <a href="https://zitniklab.hms.harvard.edu/" target="_blank_">
+            Zitnik Lab <LinkOutlined />
+          </a>
+        </Footer>
       </Layout>
     );
   }

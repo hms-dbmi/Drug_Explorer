@@ -666,7 +666,7 @@ class PathMatrix extends React.Component<Props, State> {
       svgHeight = Math.max(matrixHeight + this.HEAD_HEIGHT, svgOuterHeight);
 
     const reminderText = (
-      <text x={width / 2} y={height / 2} fill="gray">
+      <text x={width / 2} y={height / 2} fill="gray" textAnchor="middle">
         {isDrugLoading || isAttentionLoading
           ? ''
           : typeof selectedDisease == 'string' &&

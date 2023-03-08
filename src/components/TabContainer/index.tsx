@@ -50,8 +50,9 @@ class NodeLink extends React.Component<Props, State> {
         activeKey={this.state.activeTab}
         style={{
           width: width - 2 * this.margin,
-          height: height - 2 * this.margin,
+          height: height - this.margin,
           margin: this.margin,
+          marginBottom: 0,
           backgroundColor: 'white',
         }}
         tabBarStyle={{
