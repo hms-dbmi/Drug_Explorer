@@ -11,7 +11,7 @@ import {
   CheckCircleOutlined,
   EyeOutlined,
 } from '@ant-design/icons';
-import { getNodeColor } from 'helpers/color';
+import { getNodeColor, sigmoid } from 'helpers';
 
 const { Sider } = Layout;
 const { Option } = Select;
@@ -24,7 +24,7 @@ interface Props {
 
 class DrugSider extends React.Component<Props> {
   padding = 10;
-  listHeight = 550; // height of the open drug list
+  listHeight = 450; // height of the open drug list
   constructor(props: Props) {
     super(props);
     this.changeEdgeTHR = this.changeEdgeTHR.bind(this);
@@ -150,7 +150,7 @@ class DrugSider extends React.Component<Props> {
                         [{idx + 1}] {name} {known && known_drug_icon}
                       </span>
                       <span style={{ float: 'right' }}>
-                        score: {score.toFixed(3)}
+                        score: {sigmoid(score).toFixed(3)}
                         {/* rank: {idx + 1} */}
                       </span>
                     </div>
