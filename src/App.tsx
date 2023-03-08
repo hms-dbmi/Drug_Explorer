@@ -111,7 +111,10 @@ class App extends React.Component<Props, State> {
           alt="logo"
         />
         <b style={{ fontSize: '30px' }}>TxGNN Explorer</b>
-        <span style={{ float: 'right' }} onClick={this.showModal}>
+        <span
+          style={{ float: 'right', cursor: 'pointer' }}
+          onClick={this.showModal}
+        >
           <InfoCircleOutlined
             style={{ height: headerHeight, fontSize: '20px' }}
           />
