@@ -666,12 +666,18 @@ class PathMatrix extends React.Component<Props, State> {
       svgHeight = Math.max(matrixHeight + this.HEAD_HEIGHT, svgOuterHeight);
 
     const reminderText = (
-      <text x={width / 2} y={height / 2} fill="gray" textAnchor="middle">
-        {isDrugLoading || isAttentionLoading
+      <text
+        x={width / 2}
+        y={height / 2}
+        fill="gray"
+        textAnchor="middle"
+        fontSize={20}
+      >
+        {isAttentionLoading
           ? ''
           : typeof selectedDisease == 'string' &&
             drugPredictions.filter((d) => d.selected).length > 0
-          ? 'There is no meta path'
+          ? 'Sorry, we find no meta path'
           : 'Please select a disease and at least one drug'}
       </text>
     );
@@ -683,7 +689,7 @@ class PathMatrix extends React.Component<Props, State> {
         <svg width={svgWidth} height={svgHeight}>
           {content}
           {/* overlap loading icon when it is loading */}
-          {isDrugLoading || isAttentionLoading ? (
+          {isAttentionLoading ? (
             <g className="loading">
               <rect
                 className="loading__background"

@@ -12,8 +12,6 @@ import {
   sigmoid,
   wheterRemoveDisease,
   sentenceCapitalizer,
-  getTextWidth,
-  cropText,
 } from 'helpers';
 
 const { Sider } = Layout;
@@ -119,8 +117,8 @@ class DrugSider extends React.Component<Props> {
                 const [id, treatable] = d;
                 const name = nodeNameDict['disease'][id];
                 const cropName =
-                  getTextWidth(name, 14) > siderWidth * 0.8
-                    ? cropText(name, 14, siderWidth * 0.8)
+                  name.length * 10 > siderWidth * 0.8
+                    ? name.slice(0, 40) + '...'
                     : name;
                 return (
                   <Option value={id} label={name} key={`diseaseID_${d}`}>
@@ -156,8 +154,8 @@ class DrugSider extends React.Component<Props> {
                 const { id: drug_id, score, known } = d;
                 const name = nodeNameDict['drug'][drug_id];
                 const cropName =
-                  getTextWidth(name, 14) > siderWidth * 0.4
-                    ? cropText(name, 14, siderWidth * 0.4)
+                  name.length * 10 > siderWidth * 0.5
+                    ? name.slice(0, 20) + '...'
                     : name;
                 return (
                   <Option value={drug_id} key={`disease_${idx}`} label={name}>
