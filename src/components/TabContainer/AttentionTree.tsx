@@ -252,11 +252,14 @@ export default class AttentionTree extends React.Component<Props, {}> {
           </text>
         )}
         {isAttentionLoading ? (
-          <g
-            transform={`translate(${width / 2}, ${height / 2})`}
-            textAnchor="middle"
-          >
-            {LOADING_ICON}
+          <g>
+            <rect width={width} height={height} fill="white" opacity={0.5} />
+            <g
+              transform={`translate(${width / 2}, ${height / 2})`}
+              textAnchor="middle"
+            >
+              {LOADING_ICON}
+            </g>
           </g>
         ) : (
           <g />
