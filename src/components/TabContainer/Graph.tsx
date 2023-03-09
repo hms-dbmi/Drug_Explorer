@@ -363,6 +363,12 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       <svg className="graph" width={width} height={height}>
         <g className="links" />
         <g className="nodes" />
+        <text x={0} y={height - 15} fill="lightgray" fontSize={10}>
+          Drag & Drop to move nodes.
+        </text>
+        <text x={0} y={height - 5} fill="lightgray" fontSize={10}>
+          Click on nodes to show/hide labels.
+        </text>
         {selectedDrugs.length === 0 ? reminderText : <></>}
       </svg>
     );

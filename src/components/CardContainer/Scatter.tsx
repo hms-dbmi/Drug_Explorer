@@ -245,6 +245,12 @@ class Scatter extends React.Component<Props, State> {
               <g />
             )}
           </g>{' '}
+          <text x={0} y={height - 15} fontSize={10} fill="lightgray">
+            Click to reveal the drug name.
+          </text>
+          <text x={0} y={height - 5} fontSize={10} fill="lightgray">
+            Double click to select the drug.
+          </text>
         </svg>
         <div
           className={`tooltip tooltip-${tooltip.visible ? 'show' : 'hide'}`}
