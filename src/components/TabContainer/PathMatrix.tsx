@@ -589,7 +589,7 @@ class PathMatrix extends React.Component<Props, State> {
               this.PADDING
             }
             cy={this.NODE_HEIGHT / 2}
-            fill="drakgray"
+            fill="gray"
             r={this.RADIUS / 4}
           />
           <g transform={`translate(${COUNT_WIDTH + this.ICON_GAP}, 0)`}>
@@ -680,7 +680,7 @@ class PathMatrix extends React.Component<Props, State> {
           ? ''
           : typeof selectedDisease == 'string' &&
             drugPredictions.filter((d) => d.selected).length > 0
-          ? 'Sorry, we find no meta path'
+          ? 'Sorry, we find no meta path with current computational resources.'
           : 'Please select a disease and at least one drug'}
       </text>
     );

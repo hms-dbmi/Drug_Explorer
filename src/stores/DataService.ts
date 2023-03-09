@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { IAttentionTree, IEdgeTypes, IPath } from 'types';
+import { IAttentionTree, IEdgeTypes, IPath, IState } from 'types';
 import { SERVER_URL } from 'Const';
 
 const axiosInstance = axios.create({
@@ -46,9 +46,20 @@ const requestAttentionPair = async (
 };
 
 const requestDiseaseOptions = async () => {
-  const url = './api/diseases';
-  let response = await axiosInstance.get(url);
-  return response.data;
+  // // // the ranking is too costy
+  // const url = './api/diseases';
+  // const response = await axiosInstance.get(url);
+  // const diseaseOptions: IState['diseaseOptions'] = response.data;
+
+  // const urlRanking = './txgnn_data/disease_ranking.json';
+  // let rank = await axiosInstance.get(urlRanking);
+  // const ranking = rank.data;
+
+  // diseaseOptions.sort((a, b) => ranking.indexOf(a[0]) - ranking.indexOf(b[0]));
+  const urlRanking = './txgnn_data/disease_options.json'; // ranking is too costy, use pre-processed data
+  let res = await axiosInstance.get(urlRanking);
+
+  return res.data;
 };
 
 const requestDrugPredictions = async (diseaseID: string) => {
