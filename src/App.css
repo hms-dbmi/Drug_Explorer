@@ -32,3 +32,9 @@ g.wholeGraph{
   display: none;
 }
 
+.about-modal a {
+  color: black;
+  text-decoration: underline;
+  background-color: transparent;
+}
+

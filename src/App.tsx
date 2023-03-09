@@ -172,6 +172,7 @@ class App extends React.Component<Props, State> {
 
         <Modal
           title="About TxGNN Explorer"
+          className="about-modal"
           visible={this.state.isModalVisible}
           footer={null}
           onCancel={this.hideModal}
@@ -211,7 +212,18 @@ class App extends React.Component<Props, State> {
             Kexin Huang<sup>*</sup>, Payal Chandak<sup>*</sup>, Qianwen Wang,
             Shreyas Havaldar, Akhil Vaid, Jure Leskovec, Girish Nadkarni,
             Benjamin S. Glicksberg, Nils Gehlenborg, and Marinka Zitnik
-            <h4>Contact: marinka@hms.harvard.edu</h4>
+            <br />
+            <b>
+              Contact:
+              <a href="https://zitniklab.hms.harvard.edu/bio/" target="_blank_">
+                Marinka Zitnik (marinka@hms.harvard.edu)
+              </a>
+            </b>
+            <br />
+            This website is developed and maintained by{' '}
+            <a href="https://qianwen.info" target="_blank_">
+              Qianwen Wang
+            </a>
           </p>
 
           <h3>Medical Advice Disclaimer</h3>
