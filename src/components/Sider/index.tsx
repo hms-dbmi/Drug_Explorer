@@ -12,6 +12,8 @@ import {
   sigmoid,
   wheterRemoveDisease,
   sentenceCapitalizer,
+  getTextWidth,
+  cropText,
 } from 'helpers';
 
 const { Sider } = Layout;
@@ -116,9 +118,13 @@ class DrugSider extends React.Component<Props> {
               .map((d) => {
                 const [id, treatable] = d;
                 const name = nodeNameDict['disease'][id];
+                const cropName =
+                  getTextWidth(name, 14) > siderWidth * 0.8
+                    ? cropText(name, 14, siderWidth * 0.8)
+                    : name;
                 return (
                   <Option value={id} label={name} key={`diseaseID_${d}`}>
-                    {sentenceCapitalizer(name)}{' '}
+                    <span title={name}> {sentenceCapitalizer(cropName)} </span>
                     {!treatable && untreatable_disease_icon}
                   </Option>
                 );
@@ -149,11 +155,16 @@ class DrugSider extends React.Component<Props> {
               drugPredictions.map((d, idx) => {
                 const { id: drug_id, score, known } = d;
                 const name = nodeNameDict['drug'][drug_id];
+                const cropName =
+                  getTextWidth(name, 14) > siderWidth * 0.4
+                    ? cropText(name, 14, siderWidth * 0.4)
+                    : name;
                 return (
                   <Option value={drug_id} key={`disease_${idx}`} label={name}>
                     <div>
                       <span>
-                        [{idx + 1}] {name} {known && known_drug_icon}
+                        [{idx + 1}] <span title={name}>{cropName}</span>{' '}
+                        {known && known_drug_icon}
                       </span>
                       <span style={{ float: 'right' }}>
                         score: {sigmoid(score).toFixed(3)}
