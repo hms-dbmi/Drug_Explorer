@@ -6,15 +6,11 @@ import { ACTION_TYPES, selectDisease, selectDrug } from 'stores/actions';
 import './Sider.css';
 
 import { Col, InputNumber, Layout, Row, Select, Slider, Tooltip } from 'antd';
-import {
-  QuestionCircleOutlined,
-  CheckCircleOutlined,
-  EyeOutlined,
-} from '@ant-design/icons';
+import { QuestionCircleOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import {
   getNodeColor,
   sigmoid,
-  removeDiseaseList,
+  wheterRemoveDisease,
   sentenceCapitalizer,
 } from 'helpers';
 
@@ -115,8 +111,7 @@ class DrugSider extends React.Component<Props> {
           {diseaseOptions.length > 0 ? (
             diseaseOptions
               .filter(
-                (d) =>
-                  !removeDiseaseList.includes(nodeNameDict['disease'][d[0]]) // remove some diseases that are too general
+                (d) => !wheterRemoveDisease(nodeNameDict['disease'][d[0]]) // remove some diseases that are too general
               )
               .map((d) => {
                 const [id, treatable] = d;

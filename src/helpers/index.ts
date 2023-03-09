@@ -39,6 +39,10 @@ export const removeDiseaseList = [
   'movement disorder',
 ];
 
+export const wheterRemoveDisease = (disease: string): boolean => {
+  return removeDiseaseList.includes(disease.toLowerCase());
+};
+
 export const sentenceCapitalizer = (str: string) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
