@@ -266,7 +266,10 @@ class PathMatrix extends React.Component<Props, State> {
               (d) => d.nodeTypes.join('') === summary.nodeTypes.join('')
             )[0]?.paths || [];
 
-          const drugRank = drugPredictions.map((d) => d.id).indexOf(drugId);
+          const drugRank = drugPredictions
+            .filter((d) => d.selected)
+            .map((d) => d.id)
+            .indexOf(drugId);
           const children = this.drawChildrenPaths(
             metaPaths,
             drugRank,
@@ -586,8 +589,8 @@ class PathMatrix extends React.Component<Props, State> {
               this.PADDING
             }
             cy={this.NODE_HEIGHT / 2}
-            fill={SELECTED_COLOR}
-            r={this.RADIUS / 3}
+            fill="drakgray"
+            r={this.RADIUS / 4}
           />
           <g transform={`translate(${COUNT_WIDTH + this.ICON_GAP}, 0)`}>
             {nodes}
