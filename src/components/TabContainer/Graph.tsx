@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as d3 from 'd3';
 import { IAttentionTree, IState } from 'types';
-import { flatTree, getNodeColor, pruneEdge } from 'helpers';
+import { flatTree, getNodeColor, pruneEdge, LOADING_ICON } from 'helpers';
 
 interface Props {
   height: number;
@@ -119,7 +119,7 @@ export default class ModelNodeForce extends React.Component<Props, State> {
     const {
       drugPredictions,
       attention,
-      edgeThreshold,
+      // edgeThreshold,
       selectedDisease,
       edgeTypes,
     } = this.props.globalState;
@@ -132,8 +132,8 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       links: ILink[] = [];
 
     Object.values(attention).forEach((nodeAttention: IAttentionTree) => {
-      let nodeAttentionFiltered = pruneEdge(nodeAttention, edgeThreshold);
-      const rootNode = d3.hierarchy(nodeAttentionFiltered);
+      // let nodeAttentionFiltered = pruneEdge(nodeAttention, edgeThreshold);
+      const rootNode = d3.hierarchy(nodeAttention);
       let desNodes: INode[] = [];
       rootNode.descendants().forEach((d) => {
         const node = {
@@ -307,6 +307,8 @@ export default class ModelNodeForce extends React.Component<Props, State> {
     this.simulation.nodes(nodes);
     this.simulation.force<d3.ForceLink<INode, ILink>>('link')!.links(links);
     this.simulation.on('tick', () => this.ticked(svgNodes, svgLinks));
+
+    this.updateVisibility();
   }
 
   updateNodeLabel() {
@@ -323,7 +325,8 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       .classed('hidden', false);
   }
 
-  updateEdges() {
+  updateVisibility() {
+    // update visibility of nodes and edges based on threshold
     const { attention, edgeThreshold } = this.props.globalState;
 
     d3.select('svg.graph')
@@ -331,9 +334,7 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       .style('opacity', (d: any) => (d.score > edgeThreshold ? 1 : 0));
 
     var visibleNodes: string[] = [];
-
     Object.values(attention).forEach((d) => {
-      console.info('flatTree', flatTree(pruneEdge(d, edgeThreshold)));
       visibleNodes = visibleNodes.concat(flatTree(pruneEdge(d, edgeThreshold)));
     });
 
@@ -342,8 +343,7 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       .selectAll('g.nodeGroup')
       .select('circle')
       .style('opacity', (d: any) => {
-        console.info(d);
-        return visibleNodes.includes(d.id.split(':')[1]) ? 1 : 0;
+        return visibleNodes.includes(d.nodeId) ? 1 : 0;
       });
   }
 
@@ -374,13 +374,14 @@ export default class ModelNodeForce extends React.Component<Props, State> {
     }
 
     if (prevThreshold !== currThreshold) {
-      this.updateEdges();
+      this.updateVisibility();
     }
     return false;
   }
 
   render() {
     const { width, height } = this.props;
+    const { isAttentionLoading } = this.props.globalState;
 
     const selectedDrugs = Object.keys(this.props.globalState.metaPathGroups);
     const reminderText = (
@@ -400,6 +401,22 @@ export default class ModelNodeForce extends React.Component<Props, State> {
           Click on nodes to show/hide labels.
         </text>
         {selectedDrugs.length === 0 ? reminderText : <></>}
+        {isAttentionLoading ? (
+          <g className="loading">
+            <rect
+              className="loading__background"
+              width={width}
+              height={height}
+              fill="white"
+              opacity={0.5}
+            />
+            <g transform={`translate(${width / 2}, ${height / 2})`}>
+              {LOADING_ICON}
+            </g>
+          </g>
+        ) : (
+          <></>
+        )}
       </svg>
     );
   }
