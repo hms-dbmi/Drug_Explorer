@@ -184,14 +184,14 @@ class DrugSider extends React.Component<Props> {
           )}
         </Select>
         <div className="dummy" style={{ height: this.listHeight + 20 }} />
-        Edge Threshold:
+        Attention Weight Filter:
         <Row>
           <Col span={16}>
             <Slider
               step={0.1}
               value={edgeThreshold}
               min={0}
-              max={1.5}
+              max={1}
               onChange={this.changeEdgeTHR}
             />
           </Col>
@@ -200,6 +200,8 @@ class DrugSider extends React.Component<Props> {
               value={edgeThreshold}
               onChange={this.changeEdgeTHR}
               step={0.1}
+              min={0}
+              max={1}
             />
           </Col>
         </Row>
