@@ -11,6 +11,7 @@ const initialState: IState = {
   attention: {},
   selectedDisease: undefined,
   nodeNameDict: {},
+  isInitializing: true,
   isDrugLoading: false,
   isAttentionLoading: false,
   isDiseaseLoading: false,

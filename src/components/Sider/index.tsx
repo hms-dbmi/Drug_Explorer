@@ -5,13 +5,24 @@ import { ACTION_TYPES, selectDisease, selectDrug } from 'stores/actions';
 
 import './Sider.css';
 
-import { Col, InputNumber, Layout, Row, Select, Slider, Tooltip } from 'antd';
+import {
+  Col,
+  InputNumber,
+  Layout,
+  Row,
+  Select,
+  Skeleton,
+  Slider,
+  Tooltip,
+} from 'antd';
 import { QuestionCircleOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import {
   getNodeColor,
   sigmoid,
   wheterRemoveDisease,
   sentenceCapitalizer,
+  INIT_DISEASE,
+  INIT_DRUGS,
 } from 'helpers';
 
 const { Sider } = Layout;
@@ -102,7 +113,7 @@ class DrugSider extends React.Component<Props> {
       >
         Disease:
         <Select
-          defaultValue={defaultDiseaseText}
+          defaultValue={INIT_DISEASE}
           style={{ width: siderWidth - 2 * this.padding }}
           onChange={this.onChangeDisease}
           showSearch
@@ -135,54 +146,47 @@ class DrugSider extends React.Component<Props> {
         </Select>
         <br />
         Drug:
-        <Select
-          mode="multiple"
-          style={{ width: siderWidth - 2 * this.padding }}
-          open
-          showSearch
-          optionFilterProp="label"
-          listHeight={this.listHeight}
-          onChange={this.onChangeDrug}
-          placeholder={defaultDrugText}
-          value={selectedDrugIds}
-          // menuItemSelectedIcon={<EyeOutlined />}
-          menuItemSelectedIcon={<></>}
-        >
-          {selectedDisease !== undefined ? (
-            drugPredictions.length > 0 ? (
-              drugPredictions.map((d, idx) => {
-                const { id: drug_id, score, known } = d;
-                const name = nodeNameDict['drug'][drug_id];
-                const cropName =
-                  name.length * 10 > siderWidth * 0.5
-                    ? name.slice(0, 20) + '...'
-                    : name;
-                return (
-                  <Option value={drug_id} key={`disease_${idx}`} label={name}>
-                    <div>
-                      <span>
-                        [{idx + 1}] <span title={name}>{cropName}</span>{' '}
-                        {known && known_drug_icon}
-                      </span>
-                      <span style={{ float: 'right' }}>
-                        score: {sigmoid(score).toFixed(3)}
-                        {/* rank: {idx + 1} */}
-                      </span>
-                    </div>
-                  </Option>
-                );
-              })
-            ) : (
-              <Option value="loading" label="loading" key="loading">
-                data is loading..
-              </Option>
-            )
-          ) : (
-            <Option value="noDisease" label="noDisease" key="noDisease">
-              please select a disease first
-            </Option>
-          )}
-        </Select>
+        {drugPredictions.length === 0 ? (
+          // <span>Data is Loading.. </span>
+          <Skeleton />
+        ) : (
+          <Select
+            mode="multiple"
+            style={{ width: siderWidth - 2 * this.padding }}
+            open
+            showSearch
+            optionFilterProp="label"
+            listHeight={this.listHeight}
+            onChange={this.onChangeDrug}
+            defaultValue={INIT_DRUGS}
+            value={selectedDrugIds}
+            // menuItemSelectedIcon={<EyeOutlined />}
+            menuItemSelectedIcon={<></>}
+          >
+            {drugPredictions.map((d, idx) => {
+              const { id: drug_id, score, known } = d;
+              const name = nodeNameDict['drug'][drug_id];
+              const cropName =
+                name.length * 10 > siderWidth * 0.5
+                  ? name.slice(0, 20) + '...'
+                  : name;
+              return (
+                <Option value={drug_id} key={`disease_${idx}`} label={name}>
+                  <div>
+                    <span>
+                      [{idx + 1}] <span title={name}>{cropName}</span>{' '}
+                      {known && known_drug_icon}
+                    </span>
+                    <span style={{ float: 'right' }}>
+                      score: {sigmoid(score).toFixed(3)}
+                      {/* rank: {idx + 1} */}
+                    </span>
+                  </div>
+                </Option>
+              );
+            })}
+          </Select>
+        )}
         <div className="dummy" style={{ height: this.listHeight + 20 }} />
         Attention Weight Filter:
         <Row>

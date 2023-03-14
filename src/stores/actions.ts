@@ -58,7 +58,7 @@ export const selectDisease = (selectedDisease: string, dispatch: IDispatch) => {
     payload: { selectedDrug: undefined },
   });
 
-  requestDrugPredictions(selectedDisease)
+  return requestDrugPredictions(selectedDisease)
     .then((res) => {
       const predictions = res;
       const drugPredictions = predictions.map((d: DrugPrediction) => {

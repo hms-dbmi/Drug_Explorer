@@ -87,6 +87,7 @@ export interface IState {
   drugPredictions: DrugPrediction[];
   selectedDisease: string | undefined;
   nodeNameDict: { [type: string]: { [id: string]: string } };
+  isInitializing: boolean;
   isAttentionLoading: boolean;
   isDrugLoading: boolean;
   isDiseaseLoading: boolean;

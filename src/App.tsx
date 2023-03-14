@@ -8,14 +8,14 @@ import { InfoCircleOutlined, LinkOutlined } from '@ant-design/icons';
 import './App.css';
 import { StateConsumer } from 'stores';
 import { IState, IDispatch } from 'types';
-import { ACTION_TYPES } from 'stores/actions';
+import { ACTION_TYPES, selectDisease, selectDrug } from 'stores/actions';
 import {
   requestNodeTypes,
   requestEdgeTypes,
   requestNodeNameDict,
   requestDiseaseOptions,
 } from 'stores/DataService';
-import { setNodeColor } from 'helpers/color';
+import { setNodeColor, LOADING_ICON, INIT_DISEASE, INIT_DRUGS } from 'helpers';
 
 const { Header, Footer, Content } = Layout;
 
@@ -87,6 +87,25 @@ class App extends React.Component<Props, State> {
           type: ACTION_TYPES.Load_Disease_Options,
           payload: { diseaseOptions },
         });
+      })
+      .then(() => selectDisease(INIT_DISEASE, this.props.dispatch))
+      .then(() =>
+        selectDrug(INIT_DRUGS[0], INIT_DISEASE, true, this.props.dispatch)
+      )
+      .then(() =>
+        selectDrug(INIT_DRUGS[1], INIT_DISEASE, true, this.props.dispatch)
+      )
+      .then(() =>
+        selectDrug(INIT_DRUGS[2], INIT_DISEASE, true, this.props.dispatch)
+      )
+      .then(() =>
+        selectDrug(INIT_DRUGS[3], INIT_DISEASE, true, this.props.dispatch)
+      )
+      .then(() => {
+        this.props.dispatch({
+          type: ACTION_TYPES.Set_Loading_Status,
+          payload: { isInitializing: false },
+        });
       });
   }
 
@@ -102,6 +121,8 @@ class App extends React.Component<Props, State> {
       mainViewHeight = window.innerHeight - headerHeight - footHeight,
       NodeLinkHeight = mainViewHeight * 0.55,
       MatrixHeight = mainViewHeight - NodeLinkHeight;
+
+    const { isInitializing } = this.props.globalState;
 
     let header = (
       <Header className="header" style={{ height: headerHeight }}>
@@ -169,6 +190,31 @@ class App extends React.Component<Props, State> {
             </span>
           </Footer>
         </Layout>
+
+        {isInitializing && (
+          <svg
+            width={window.innerWidth}
+            height={window.innerHeight}
+            style={{ position: 'absolute', left: 0, top: 0 }}
+          >
+            <g className="loading">
+              <rect
+                className="loading__background"
+                width={window.innerWidth}
+                height={window.innerHeight}
+                fill="white"
+                opacity={0.5}
+              />
+              <g
+                transform={`translate(${window.innerWidth / 2}, ${
+                  window.innerHeight / 2
+                })`}
+              >
+                {LOADING_ICON}
+              </g>
+            </g>
+          </svg>
+        )}
 
         <Modal
           title="About TxGNN Explorer"

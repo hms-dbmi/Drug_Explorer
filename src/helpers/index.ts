@@ -54,3 +54,7 @@ export const wheterRemoveDisease = (disease: string): boolean => {
 export const sentenceCapitalizer = (str: string) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
+
+export const INIT_DISEASE =
+  '5090_13498_8414_10897_33312_10943_11552_14092_12054_11960_11280_11294_11295_11298_11307_11498_12879_13089_13506';
+export const INIT_DRUGS = ['DB08815', 'DB01239', 'DB00933', 'DB00363'];

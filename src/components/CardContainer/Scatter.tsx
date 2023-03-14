@@ -209,7 +209,7 @@ class Scatter extends React.Component<Props, State> {
     });
   }
   render() {
-    const { isDrugLoading, selectedDisease } = this.props.globalState;
+    const { isDrugLoading, isInitializing } = this.props.globalState;
     const { width, height } = this.props;
     const { tooltip } = this.state;
 
@@ -234,7 +234,7 @@ class Scatter extends React.Component<Props, State> {
               </g>
             )}
             {/* overlap a loading icon when loading */}
-            {isDrugLoading ? (
+            {isDrugLoading && !isInitializing ? (
               <g
                 transform={`translate(${width / 2}, ${height / 2})`}
                 textAnchor="middle"
