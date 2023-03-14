@@ -162,33 +162,33 @@ class App extends React.Component<Props, State> {
             <Content className="main" style={{ height: mainViewHeight }}>
               <PathMatrix width={mainViewWidth} height={MatrixHeight} />
               <NodeLink width={mainViewWidth} height={NodeLinkHeight} />
+              <Footer
+                style={{
+                  textAlign: 'center',
+                  color: 'gray',
+                  height: footHeight,
+                  padding: 0,
+                }}
+              >
+                Copyright © {new Date().getFullYear()} Harvard.{' '}
+                <a href="http://gehlenborglab.org/" target="_blank_">
+                  Gehlenborg Lab <LinkOutlined />
+                </a>{' '}
+                &{' '}
+                <a href="https://zitniklab.hms.harvard.edu/" target="_blank_">
+                  Zitnik Lab <LinkOutlined />
+                </a>{' '}
+                |
+                <span style={{ color: 'gray' }}>
+                  {' '}
+                  <b onClick={this.showModal} style={{ cursor: 'help' }}>
+                    DISCLAIMER:
+                  </b>
+                  THIS WEBSITE DOES NOT PROVIDE MEDICAL ADVICE{' '}
+                </span>
+              </Footer>
             </Content>
           </Layout>
-          <Footer
-            style={{
-              textAlign: 'center',
-              color: 'gray',
-              height: footHeight,
-              padding: 0,
-            }}
-          >
-            Copyright © {new Date().getFullYear()} Harvard.{' '}
-            <a href="http://gehlenborglab.org/" target="_blank_">
-              Gehlenborg Lab <LinkOutlined />
-            </a>{' '}
-            &{' '}
-            <a href="https://zitniklab.hms.harvard.edu/" target="_blank_">
-              Zitnik Lab <LinkOutlined />
-            </a>{' '}
-            |
-            <span style={{ color: 'gray' }}>
-              {' '}
-              <b onClick={this.showModal} style={{ cursor: 'help' }}>
-                DISCLAIMER:
-              </b>
-              THIS WEBSITE DOES NOT PROVIDE MEDICAL ADVICE{' '}
-            </span>
-          </Footer>
         </Layout>
 
         {isInitializing && (
