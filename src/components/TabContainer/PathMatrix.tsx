@@ -1,18 +1,12 @@
 import { Tooltip, Modal } from 'antd';
-import {
-  cropText,
-  YES_ICON,
-  NO_ICON,
-  SEARCH_ICON,
-  LOADING_ICON,
-} from 'helpers';
-import { getNodeColor, SELECTED_COLOR } from 'helpers/color';
+import { cropText, YES_ICON, NO_ICON, LOADING_ICON } from 'helpers';
+import { getNodeColor } from 'helpers/color';
 import { ACTION_TYPES, selectDrug, toggleMetaPathHide } from 'stores/actions';
 import { isAddDrug } from 'stores/reducer';
 import React from 'react';
 
 import { StateConsumer } from 'stores';
-import { IPath, IMetaPath, IMetaPathSummary, IState, IDispatch } from 'types';
+import { IPath, IMetaPathSummary, IState, IDispatch } from 'types';
 import * as d3 from 'd3';
 
 import './index.css';
@@ -475,138 +469,144 @@ class PathMatrix extends React.Component<Props, State> {
     drugRank: number,
     prevPath: IPath | undefined
   ) {
-    const { nodeNameDict, edgeTypes } = this.props.globalState;
+    const { nodeNameDict, edgeTypes, edgeThreshold } = this.props.globalState;
     const COUNT_WIDTH = this.getCountWidth();
-    const children = metaPaths.map((path, childIdx) => {
-      const nodes = path.nodes.map((node, nodeIdx) => {
-        const { nodeId, nodeType } = node;
-        const nodeName = nodeNameDict[nodeType][nodeId];
+    const children = metaPaths
+      .filter((metaPath) =>
+        metaPath.edges.every((e) => e.score >= edgeThreshold)
+      )
+      .map((metaPath, childIdx) => {
+        const nodes = metaPath.nodes.map((node, nodeIdx) => {
+          const { nodeId, nodeType } = node;
+          const nodeName = nodeNameDict[nodeType][nodeId];
 
-        let prevNodeName = '';
-        if (childIdx > 0) {
-          prevPath = metaPaths[childIdx - 1];
-        }
-        if (prevPath !== undefined) {
-          const { nodeId: prevNodeId, nodeType: prevNodeType } = prevPath.nodes[
-            nodeIdx
-          ];
-          prevNodeName = nodeNameDict[prevNodeType][prevNodeId];
-        }
+          let prevNodeName = '';
+          if (childIdx > 0) {
+            prevPath = metaPaths[childIdx - 1];
+          }
+          if (prevPath !== undefined) {
+            const {
+              nodeId: prevNodeId,
+              nodeType: prevNodeType,
+            } = prevPath.nodes[nodeIdx];
+            prevNodeName = nodeNameDict[prevNodeType][prevNodeId];
+          }
 
-        let shortNodeName =
-          nodeName === prevNodeName
-            ? '〃'
-            : cropText(nodeName, 14, this.NODE_WIDTH - 10) || 'undefined';
+          let shortNodeName =
+            nodeName === prevNodeName
+              ? '〃'
+              : cropText(nodeName, 14, this.NODE_WIDTH - 10) || 'undefined';
 
-        let translate = `translate(${
-          (this.EDGE_LENGTH + this.NODE_WIDTH) * nodeIdx
-        }, ${0})`;
+          let translate = `translate(${
+            (this.EDGE_LENGTH + this.NODE_WIDTH) * nodeIdx
+          }, ${0})`;
 
+          return (
+            <Tooltip
+              key={`node_${nodeIdx}`}
+              title={shortNodeName.includes('.') ? nodeName : ''}
+            >
+              <g
+                transform={translate}
+                className={`node_${nodeId}`}
+                style={{ cursor: 'pointer' }}
+                onClick={() =>
+                  nodeType === 'drug' &&
+                  window.open(
+                    `https://go.drugbank.com/drugs/${nodeId}`,
+                    'windowName',
+                    'popup,right=10,top=10,width=320,height=600'
+                  )
+                }
+              >
+                <rect
+                  width={this.NODE_WIDTH}
+                  height={this.NODE_HEIGHT}
+                  fill={getNodeColor(nodeType)}
+                />
+                <text
+                  textAnchor="middle"
+                  y={this.NODE_HEIGHT / 2 + 6}
+                  x={this.NODE_WIDTH / 2}
+                  fill="white"
+                >
+                  {shortNodeName}
+                </text>
+              </g>
+            </Tooltip>
+          );
+        });
+        const edges = metaPath.edges.map((edge, edgeIdx) => {
+          const translate = `translate(${
+            this.NODE_WIDTH + (this.EDGE_LENGTH + this.NODE_WIDTH) * edgeIdx
+          }, ${+this.NODE_HEIGHT / 2})`;
+
+          let edgeName = edge.edgeInfo.replace('rev_', '');
+          edgeName = edgeTypes[edgeName]?.edgeInfo || edgeName;
+          const edgeShortName = cropText(edgeName, 14, this.EDGE_LENGTH);
+          return (
+            <Tooltip
+              title={edgeShortName === edgeName ? '' : edgeName}
+              destroyTooltipOnHide
+            >
+              <g
+                key={`edge_${edgeIdx}`}
+                transform={translate}
+                style={{ cursor: 'pointer' }}
+              >
+                <line
+                  stroke="gray"
+                  strokeWidth={1 + edge.score * 0.7}
+                  x1={0}
+                  y1={this.NODE_HEIGHT / 4}
+                  x2={this.EDGE_LENGTH}
+                  y2={this.NODE_HEIGHT / 4}
+                />
+                <text
+                  x={this.EDGE_LENGTH / 2}
+                  y={0}
+                  textAnchor="middle"
+                  fill="gray"
+                >
+                  {edgeShortName}
+                </text>
+              </g>
+            </Tooltip>
+          );
+        });
         return (
-          <Tooltip
-            key={`node_${nodeIdx}`}
-            title={shortNodeName.includes('.') ? nodeName : ''}
+          <g
+            key={childIdx}
+            transform={`translate(0, ${
+              (this.NODE_HEIGHT + this.VERTICAL_GAP) * (1 + childIdx)
+            })`}
           >
-            <g
-              transform={translate}
-              className={`node_${nodeId}`}
-              style={{ cursor: 'pointer' }}
-              onClick={() =>
-                nodeType === 'drug' &&
-                window.open(
-                  `https://go.drugbank.com/drugs/${nodeId}`,
-                  'windowName',
-                  'popup,right=10,top=10,width=320,height=600'
-                )
+            <circle
+              cx={
+                drugRank * (2 * this.RADIUS + this.COUNT_GAP) +
+                this.RADIUS +
+                this.PADDING
               }
-            >
-              <rect
-                width={this.NODE_WIDTH}
-                height={this.NODE_HEIGHT}
-                fill={getNodeColor(nodeType)}
-              />
-              <text
-                textAnchor="middle"
-                y={this.NODE_HEIGHT / 2 + 6}
-                x={this.NODE_WIDTH / 2}
-                fill="white"
+              cy={this.NODE_HEIGHT / 2}
+              fill="gray"
+              r={this.RADIUS / 4}
+            />
+            <g transform={`translate(${COUNT_WIDTH + this.ICON_GAP}, 0)`}>
+              {nodes}
+              {edges}
+              <g
+                className="iconGroup"
+                transform={`translate(${
+                  this.NODE_WIDTH * nodes.length +
+                  this.EDGE_LENGTH * edges.length
+                }, 0)`}
               >
-                {shortNodeName}
-              </text>
-            </g>
-          </Tooltip>
-        );
-      });
-      const edges = path.edges.map((edge, edgeIdx) => {
-        const translate = `translate(${
-          this.NODE_WIDTH + (this.EDGE_LENGTH + this.NODE_WIDTH) * edgeIdx
-        }, ${+this.NODE_HEIGHT / 2})`;
-
-        let edgeName = edge.edgeInfo.replace('rev_', '');
-        edgeName = edgeTypes[edgeName]?.edgeInfo || edgeName;
-        const edgeShortName = cropText(edgeName, 14, this.EDGE_LENGTH);
-        return (
-          <Tooltip
-            title={edgeShortName === edgeName ? '' : edgeName}
-            destroyTooltipOnHide
-          >
-            <g
-              key={`edge_${edgeIdx}`}
-              transform={translate}
-              style={{ cursor: 'pointer' }}
-            >
-              <line
-                stroke="gray"
-                strokeWidth={1 + edge.score * 0.7}
-                x1={0}
-                y1={this.NODE_HEIGHT / 4}
-                x2={this.EDGE_LENGTH}
-                y2={this.NODE_HEIGHT / 4}
-              />
-              <text
-                x={this.EDGE_LENGTH / 2}
-                y={0}
-                textAnchor="middle"
-                fill="gray"
-              >
-                {edgeShortName}
-              </text>
-            </g>
-          </Tooltip>
-        );
-      });
-      return (
-        <g
-          key={childIdx}
-          transform={`translate(0, ${
-            (this.NODE_HEIGHT + this.VERTICAL_GAP) * (1 + childIdx)
-          })`}
-        >
-          <circle
-            cx={
-              drugRank * (2 * this.RADIUS + this.COUNT_GAP) +
-              this.RADIUS +
-              this.PADDING
-            }
-            cy={this.NODE_HEIGHT / 2}
-            fill="gray"
-            r={this.RADIUS / 4}
-          />
-          <g transform={`translate(${COUNT_WIDTH + this.ICON_GAP}, 0)`}>
-            {nodes}
-            {edges}
-            <g
-              className="iconGroup"
-              transform={`translate(${
-                this.NODE_WIDTH * nodes.length + this.EDGE_LENGTH * edges.length
-              }, 0)`}
-            >
-              {this.getIconGroup(path.nodes)}
+                {this.getIconGroup(metaPath.nodes)}
+              </g>
             </g>
           </g>
-        </g>
-      );
-    });
+        );
+      });
     return children;
   }
   showModal() {
