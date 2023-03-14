@@ -24,6 +24,14 @@ export const pruneEdge = (
   return node;
 };
 
+export const flatTree = (node: IAttentionTree): string[] => {
+  let res = [node.nodeId];
+  if (node.children.length > 0) {
+    res = res.concat(...node.children.map((d) => flatTree(d)));
+  }
+  return res;
+};
+
 export const sigmoid = (t: number) => {
   return 1 / (1 + Math.pow(Math.E, -t));
 };
