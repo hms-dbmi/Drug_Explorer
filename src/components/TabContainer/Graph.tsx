@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as d3 from 'd3';
 import { IAttentionTree, IState } from 'types';
-import { getNodeColor, pruneEdge } from 'helpers';
+import { flatTree, getNodeColor, pruneEdge } from 'helpers';
 
 interface Props {
   height: number;
@@ -323,6 +323,30 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       .classed('hidden', false);
   }
 
+  updateEdges() {
+    const { attention, edgeThreshold } = this.props.globalState;
+
+    d3.select('svg.graph')
+      .selectAll('g.link')
+      .style('opacity', (d: any) => (d.score > edgeThreshold ? 1 : 0));
+
+    var visibleNodes: string[] = [];
+
+    Object.values(attention).forEach((d) => {
+      console.info('flatTree', flatTree(pruneEdge(d, edgeThreshold)));
+      visibleNodes = visibleNodes.concat(flatTree(pruneEdge(d, edgeThreshold)));
+    });
+
+    d3.select('svg.graph')
+      .select('g.nodes')
+      .selectAll('g.nodeGroup')
+      .select('circle')
+      .style('opacity', (d: any) => {
+        console.info(d);
+        return visibleNodes.includes(d.id.split(':')[1]) ? 1 : 0;
+      });
+  }
+
   componentDidMount() {
     this.drawGraph();
   }
@@ -331,10 +355,12 @@ export default class ModelNodeForce extends React.Component<Props, State> {
     const {
       metaPathGroups: prevGroups,
       selectedPathNodes: prevNodes,
+      edgeThreshold: prevThreshold,
     } = prevProps.globalState;
     const {
       metaPathGroups: currGroups,
       selectedPathNodes: currNodes,
+      edgeThreshold: currThreshold,
     } = this.props.globalState;
     if (Object.keys(prevGroups).length !== Object.keys(currGroups).length) {
       this.drawGraph();
@@ -345,6 +371,10 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       currNodes.map((d) => d.nodeId).join()
     ) {
       this.updateNodeLabel();
+    }
+
+    if (prevThreshold !== currThreshold) {
+      this.updateEdges();
     }
     return false;
   }
