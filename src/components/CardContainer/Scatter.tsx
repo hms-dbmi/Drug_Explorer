@@ -245,10 +245,10 @@ class Scatter extends React.Component<Props, State> {
               <g />
             )}
           </g>{' '}
-          <text x={0} y={height - 15} fontSize={10} fill="lightgray">
+          <text x={0} y={height - 25} fontSize={12} fill="gray">
             Click to reveal the drug name.
           </text>
-          <text x={0} y={height - 5} fontSize={10} fill="lightgray">
+          <text x={0} y={height - 10} fontSize={12} fill="gray">
             Double click to select the drug.
           </text>
         </svg>

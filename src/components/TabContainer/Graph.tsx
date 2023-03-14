@@ -385,7 +385,11 @@ export default class ModelNodeForce extends React.Component<Props, State> {
 
     const selectedDrugs = Object.keys(this.props.globalState.metaPathGroups);
     const reminderText = (
-      <text transform={`translate(${width / 2}, ${height / 2})`} fill="gray">
+      <text
+        transform={`translate(${width / 2}, ${height / 2})`}
+        fill="gray"
+        fontSize={20}
+      >
         Please select a drug first
       </text>
     );
@@ -394,10 +398,10 @@ export default class ModelNodeForce extends React.Component<Props, State> {
       <svg className="graph" width={width} height={height}>
         <g className="links" />
         <g className="nodes" />
-        <text x={0} y={height - 15} fill="lightgray" fontSize={10}>
+        <text x={0} y={height - 25} fill="gray" fontSize={12}>
           Drag & Drop to move nodes.
         </text>
-        <text x={0} y={height - 5} fill="lightgray" fontSize={10}>
+        <text x={0} y={height - 10} fill="gray" fontSize={12}>
           Click on nodes to show/hide labels.
         </text>
         {selectedDrugs.length === 0 ? reminderText : <></>}
