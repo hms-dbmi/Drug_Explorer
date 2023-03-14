@@ -40,6 +40,7 @@ class DrugSider extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
     this.changeEdgeTHR = this.changeEdgeTHR.bind(this);
+    this.changeRevEdgeTHR = this.changeRevEdgeTHR.bind(this);
     this.onChangeDisease = this.onChangeDisease.bind(this);
     this.onChangeDrug = this.onChangeDrug.bind(this);
   }
@@ -64,6 +65,15 @@ class DrugSider extends React.Component<Props> {
       this.props.dispatch({
         type: ACTION_TYPES.Change_Edge_THR,
         payload: { edgeThreshold: value },
+      });
+    }
+  }
+
+  changeRevEdgeTHR(value: number | undefined | string) {
+    if (typeof value == 'number') {
+      this.props.dispatch({
+        type: ACTION_TYPES.Change_Edge_THR,
+        payload: { edgeThreshold: Math.round(10 - 10 * value) / 10 },
       });
     }
   }
@@ -188,24 +198,30 @@ class DrugSider extends React.Component<Props> {
           </Select>
         )}
         <div className="dummy" style={{ height: this.listHeight + 20 }} />
-        Attention Weight Filter:
-        <Row>
-          <Col span={16}>
-            <Slider
-              step={0.1}
-              value={edgeThreshold}
-              min={0}
-              max={1}
-              onChange={this.changeEdgeTHR}
-            />
-          </Col>
-          <Col span={4}>
+        Minimum self-explaining edge score:
+        <Row gutter={20}>
+          <Col span={5}>
             <InputNumber
               value={edgeThreshold}
               onChange={this.changeEdgeTHR}
+              style={{ width: '100%' }}
               step={0.1}
               min={0}
               max={1}
+            />
+          </Col>
+          <Col span={16}>
+            <Slider
+              step={0.1}
+              value={1 - edgeThreshold}
+              min={0}
+              max={1}
+              onChange={this.changeRevEdgeTHR}
+              marks={{ 0: '1.0', 1: '0.0' }}
+              reverse={true}
+              tipFormatter={(value?: number) => {
+                return value && (1 - value).toFixed(1);
+              }}
             />
           </Col>
         </Row>
