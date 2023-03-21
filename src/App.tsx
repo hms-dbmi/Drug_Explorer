@@ -228,9 +228,15 @@ class App extends React.Component<Props, State> {
           <h3>About</h3>
           <p>
             TxGNN Explorer provides a visual interface to interact with the
-            predicitons and explanations of TXGNN, a model for identifying
-            therapeutic opportunities for diseases with limited treatment
-            options and minimal molecular understanding.
+            predicitons and explanations of{' '}
+            <a
+              href="https://www.medrxiv.org/content/10.1101/2023.03.19.23287458v1"
+              target="_blank_"
+            >
+              TXGNN
+            </a>
+            , a model for identifying therapeutic opportunities for diseases
+            with limited treatment options and minimal molecular understanding.
           </p>
           <p>
             TxGNN is a graph neural network pre-trained on a comprehensive
@@ -289,13 +295,13 @@ class App extends React.Component<Props, State> {
           </p>
 
           <h3>More</h3>
-          <a href="https://github.com/mims-harvard/TxGNN" target="_blank">
+          <a href="https://github.com/mims-harvard/TxGNN" target="_blank_">
             Github Repo: TxGNN <LinkOutlined />
           </a>
           <br />
           <a
             href="https://github.com/hms-dbmi/drug_explorer/tree/TxGNN"
-            target="_blank"
+            target="_blank_"
           >
             Github Repo: TxGNN Explorer <LinkOutlined />
           </a>
