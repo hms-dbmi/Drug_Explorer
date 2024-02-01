@@ -6,4 +6,6 @@ const STATIC_URL =
 const SERVER_URL =
   process.env.NODE_ENV === 'development' ? `http://localhost:8002` : './';
 
-export { STATIC_URL, SERVER_URL };
+const DATA_URL = 'txgnn_data_v2';
+
+export { STATIC_URL, SERVER_URL, DATA_URL };

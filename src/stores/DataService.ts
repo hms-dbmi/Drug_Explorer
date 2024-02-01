@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { IAttentionTree, IEdgeTypes, IPath, IState } from 'types';
-import { SERVER_URL } from 'Const';
+import { SERVER_URL, DATA_URL } from 'Const';
 
 const axiosInstance = axios.create({
   baseURL: `${SERVER_URL}/`,
@@ -13,19 +13,19 @@ const axiosInstance = axios.create({
 });
 
 const requestNodeTypes = async (): Promise<string[]> => {
-  const url = './txgnn_data/node_types.json';
+  const url = `./${DATA_URL}/node_types.json`;
   let response = await axiosInstance.get(url);
   return response.data;
 };
 
 const requestEdgeTypes = async (): Promise<IEdgeTypes> => {
-  const url = './txgnn_data/edge_types.json';
+  const url = `./${DATA_URL}/edge_types.json`;
   let response = await axiosInstance.get(url);
   return response.data;
 };
 
 const requestNodeNameDict = async () => {
-  const url = './txgnn_data/node_name_dict.json';
+  const url = `./${DATA_URL}/node_name_dict.json`;
   let response = await axiosInstance.get(url);
   return response.data;
 };
@@ -51,12 +51,12 @@ const requestDiseaseOptions = async () => {
   // const response = await axiosInstance.get(url);
   // const diseaseOptions: IState['diseaseOptions'] = response.data;
 
-  // const urlRanking = './txgnn_data/disease_ranking.json';
+  // const urlRanking = `./${DATA_URL}/disease_ranking.json`;
   // let rank = await axiosInstance.get(urlRanking);
   // const ranking = rank.data;
 
   // diseaseOptions.sort((a, b) => ranking.indexOf(a[0]) - ranking.indexOf(b[0]));
-  const urlRanking = './txgnn_data/disease_options.json'; // ranking is too costy, use pre-processed data
+  const urlRanking = `./${DATA_URL}/disease_options.json`; // ranking is too costy, use pre-processed data
   let res = await axiosInstance.get(urlRanking);
 
   return res.data;
@@ -70,7 +70,7 @@ const requestDrugPredictions = async (diseaseID: string) => {
 };
 
 const requestEmbedding = async () => {
-  const url = './txgnn_data/drug_tsne.json';
+  const url = `./${DATA_URL}/drug_tsne.json`;
   const response = await axiosInstance.get(url);
   return response.data;
 };
