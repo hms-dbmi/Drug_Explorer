@@ -3,8 +3,12 @@ import PathMatrix from 'components/CardContainer';
 import NodeLink from 'components/TabContainer';
 import DrugSider from 'components/Sider';
 
-import { Layout, Modal } from 'antd';
-import { InfoCircleOutlined, LinkOutlined } from '@ant-design/icons';
+import { Layout, Modal, Dropdown, Menu, Space } from 'antd';
+import {
+  InfoCircleOutlined,
+  LinkOutlined,
+  DownOutlined,
+} from '@ant-design/icons';
 import './App.css';
 import { StateConsumer } from 'stores';
 import { IState, IDispatch } from 'types';
@@ -124,6 +128,13 @@ class App extends React.Component<Props, State> {
 
     const { isInitializing } = this.props.globalState;
 
+    const menu = (
+      <Menu>
+        <Menu.Item>item 1</Menu.Item>
+        <Menu.Item>item 2</Menu.Item>
+      </Menu>
+    );
+
     let header = (
       <Header className="header" style={{ height: headerHeight }}>
         <img
@@ -132,22 +143,20 @@ class App extends React.Component<Props, State> {
           alt="logo"
         />
         <b style={{ fontSize: '30px' }}>TxGNN Explorer</b>
-        <span
-          style={{ float: 'right', cursor: 'pointer' }}
-          onClick={this.showModal}
-        >
-          <InfoCircleOutlined
-            style={{ height: headerHeight, fontSize: '20px' }}
-          />
-          <span
-            style={{
-              paddingLeft: '5px',
-              fontSize: '18px',
-              height: headerHeight,
-            }}
-          >
-            About
-          </span>{' '}
+        <span style={{ float: 'right', cursor: 'pointer', fontSize: '20px' }}>
+          <Space size={15}>
+            <Dropdown overlay={menu} arrow>
+              <Space size={2}>
+                Case Studies
+                <DownOutlined />
+              </Space>
+            </Dropdown>
+
+            <Space size={4} onClick={this.showModal}>
+              About
+              <InfoCircleOutlined />
+            </Space>
+          </Space>
         </span>
       </Header>
     );
