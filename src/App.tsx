@@ -20,6 +20,7 @@ import {
   requestDiseaseOptions,
 } from 'stores/DataService';
 import { setNodeColor, LOADING_ICON, INIT_DISEASE, INIT_DRUGS } from 'helpers';
+import { CASES } from 'Const';
 
 const { Header, Footer, Content } = Layout;
 
@@ -126,12 +127,23 @@ class App extends React.Component<Props, State> {
       NodeLinkHeight = mainViewHeight * 0.55,
       MatrixHeight = mainViewHeight - NodeLinkHeight;
 
-    const { isInitializing } = this.props.globalState;
+    const { isInitializing, nodeNameDict } = this.props.globalState;
 
-    const menu = (
+    const menu = isInitializing ? (
+      <Menu />
+    ) : (
       <Menu>
-        <Menu.Item>item 1</Menu.Item>
-        <Menu.Item>item 2</Menu.Item>
+        {CASES.map((oneCase, idx) => {
+          let { disease, drug } = oneCase;
+          return (
+            <Menu.Item
+              key={`case${idx + 1}`}
+              onClick={() => console.log(idx)}
+            >{`case ${idx + 1}: ${nodeNameDict['disease'][disease]} --- ${
+              nodeNameDict['drug'][drug]
+            }`}</Menu.Item>
+          );
+        })}
       </Menu>
     );
 
