@@ -124,6 +124,7 @@ class DrugSider extends React.Component<Props> {
         Disease:
         <Select
           defaultValue={INIT_DISEASE}
+          value={selectedDisease}
           style={{ width: siderWidth - 2 * this.padding }}
           onChange={this.onChangeDisease}
           showSearch

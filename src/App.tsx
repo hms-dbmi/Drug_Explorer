@@ -129,6 +129,13 @@ class App extends React.Component<Props, State> {
 
     const { isInitializing, nodeNameDict } = this.props.globalState;
 
+    const selectCase = (caseObj: typeof CASES[0]) => {
+      const { disease, drug } = caseObj;
+      selectDisease(disease, this.props.dispatch).then(() => {
+        selectDrug(drug, disease, true, this.props.dispatch);
+      });
+    };
+
     const menu = isInitializing ? (
       <Menu />
     ) : (
@@ -138,7 +145,7 @@ class App extends React.Component<Props, State> {
           return (
             <Menu.Item
               key={`case${idx + 1}`}
-              onClick={() => console.log(idx)}
+              onClick={() => selectCase(oneCase)}
             >{`case ${idx + 1}: ${nodeNameDict['disease'][disease]} --- ${
               nodeNameDict['drug'][drug]
             }`}</Menu.Item>
