@@ -131,9 +131,22 @@ class App extends React.Component<Props, State> {
 
     const selectCase = (caseObj: typeof CASES[0]) => {
       const { disease, drug } = caseObj;
-      selectDisease(disease, this.props.dispatch).then(() => {
-        selectDrug(drug, disease, true, this.props.dispatch);
+
+      this.props.dispatch({
+        type: ACTION_TYPES.Set_Loading_Status,
+        payload: { isInitializing: true },
       });
+
+      selectDisease(disease, this.props.dispatch)
+        .then(() => {
+          selectDrug(drug, disease, true, this.props.dispatch);
+        })
+        .then(() => {
+          this.props.dispatch({
+            type: ACTION_TYPES.Set_Loading_Status,
+            payload: { isInitializing: false },
+          });
+        });
     };
 
     const menu = isInitializing ? (

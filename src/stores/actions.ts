@@ -45,7 +45,7 @@ export const selectDrug = (
 export const selectDisease = (selectedDisease: string, dispatch: IDispatch) => {
   dispatch({
     type: ACTION_TYPES.Set_Loading_Status,
-    payload: { isDrugLoading: true },
+    payload: { isDrugLoading: true, isAttentionLoading: true },
   });
 
   dispatch({
@@ -72,7 +72,7 @@ export const selectDisease = (selectedDisease: string, dispatch: IDispatch) => {
     .then(() => {
       dispatch({
         type: ACTION_TYPES.Set_Loading_Status,
-        payload: { isDrugLoading: false },
+        payload: { isDrugLoading: false, isAttentionLoading: false },
       });
     });
 };
