@@ -11,14 +11,16 @@ export {
 
 export const pruneEdge = (
   node: IAttentionTree,
-  threshold: number
+  threshold: number,
+  childeNum?: number
 ): IAttentionTree => {
   if (node.children.length > 0) {
     node = {
       ...node,
       children: node.children
         .filter((d) => d.score >= threshold)
-        .map((node) => pruneEdge(node, threshold)),
+        .map((node) => pruneEdge(node, threshold, childeNum))
+        .slice(0, childeNum), // only keep top 7 children
     };
   }
   return node;

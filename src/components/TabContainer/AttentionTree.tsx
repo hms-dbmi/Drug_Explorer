@@ -34,7 +34,7 @@ export default class AttentionTree extends React.Component<Props, {}> {
       selectedPathNodes,
     } = this.props.globalState;
 
-    let nodeAttentionFiltered = pruneEdge(nodeAttention, edgeThreshold);
+    let nodeAttentionFiltered = pruneEdge(nodeAttention, edgeThreshold, 7);
 
     const rootNode = d3.hierarchy(nodeAttentionFiltered);
     const d3Tree = d3
