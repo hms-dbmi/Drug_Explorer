@@ -176,7 +176,11 @@ class DrugSider extends React.Component<Props> {
           >
             {drugPredictions.map((d, idx) => {
               const { id: drug_id, score, known } = d;
+
               const name = nodeNameDict['drug'][drug_id];
+              if (name === undefined) {
+                return <></>;
+              }
               const cropName =
                 name.length * 10 > siderWidth * 0.5
                   ? name.slice(0, 20) + '...'
