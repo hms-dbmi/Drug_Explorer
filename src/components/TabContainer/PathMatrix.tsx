@@ -1,4 +1,4 @@
-import { Tooltip, Modal } from 'antd';
+import { Tooltip, Modal, Skeleton } from 'antd';
 import { cropText, YES_ICON, NO_ICON, LOADING_ICON } from 'helpers';
 import { getNodeColor } from 'helpers/color';
 import { ACTION_TYPES, selectDrug, toggleMetaPathHide } from 'stores/actions';
@@ -652,6 +652,7 @@ class PathMatrix extends React.Component<Props, State> {
       { isModalVisible, expand } = this.state;
     const {
       isDrugLoading,
+      isInitializing,
       isAttentionLoading,
       metaPathSummary,
       selectedDisease,
@@ -677,7 +678,7 @@ class PathMatrix extends React.Component<Props, State> {
         this.PADDING +
         matrixGroupsCount * (this.HEAD_HEIGHT + this.GROUP_GAP);
 
-    const svgOuterHeight = height - 2 * this.PADDING - this.TITLE_HEIGHT,
+    const svgOuterHeight = height - this.TITLE_HEIGHT,
       svgHeight = Math.max(matrixHeight + this.HEAD_HEIGHT, svgOuterHeight);
 
     const reminderText = (
@@ -699,6 +700,9 @@ class PathMatrix extends React.Component<Props, State> {
 
     const metaPaths = this.drawSummary();
     const content = metaPathSummary.length === 0 ? reminderText : metaPaths;
+    if (isInitializing) {
+      return <Skeleton active />;
+    }
     return (
       <>
         <svg width={svgWidth} height={svgHeight}>

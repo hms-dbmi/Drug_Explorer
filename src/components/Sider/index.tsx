@@ -90,6 +90,7 @@ class DrugSider extends React.Component<Props> {
       drugPredictions,
       nodeNameDict,
       selectedDisease,
+      isInitializing,
     } = this.props.globalState;
     const defaultDiseaseText = 'Search to Select a disease';
     const defaultDrugText = 'Select a drug from the prediction';
@@ -157,7 +158,7 @@ class DrugSider extends React.Component<Props> {
         </Select>
         <br />
         Drug:
-        {drugPredictions.length === 0 ? (
+        {drugPredictions.length === 0 || isInitializing ? (
           // <span>Data is Loading.. </span>
           <Skeleton />
         ) : (
