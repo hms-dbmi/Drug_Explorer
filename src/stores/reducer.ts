@@ -25,6 +25,7 @@ const rootReducer = (state: IState, action: IAction): IState => {
         attention: {},
         metaPathGroups: {},
         metaPathSummary: [],
+        caseDescription: undefined,
       };
 
     case ACTION_TYPES.Change_Drug:
@@ -68,6 +69,10 @@ const rootReducer = (state: IState, action: IAction): IState => {
           true // whether add new drug
         ),
       };
+    }
+
+    case ACTION_TYPES.Update_Case_Description: {
+      return { ...state, caseDescription: action.payload.caseDescription };
     }
 
     case ACTION_TYPES.Del_Attention_Paths: {
@@ -133,6 +138,7 @@ const updateMetaPathSummary = (
           count: { [drugId]: count },
           sum: count,
           hide: false,
+          expand: false,
           idx: newSummary.length,
         });
       }

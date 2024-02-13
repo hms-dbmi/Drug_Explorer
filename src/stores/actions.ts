@@ -9,6 +9,7 @@ import {
   requestAttentionPair,
   requestDrugPredictions,
 } from 'stores/DataService';
+import { Descriptions } from 'antd';
 
 export const ACTION_TYPES = {
   Load_Node_Types: 'Load_Node_Types',
@@ -28,6 +29,8 @@ export const ACTION_TYPES = {
   Select_Path_Noes: 'Select_Path_Nodes',
 
   Toggle_Meta_Path_Hide: 'Toggle_Meta_Path_Hide',
+  Toggle_Meta_Path_Expand: 'Toggle_Meta_Path_Expand',
+  Update_Case_Description: 'Update_Case_Description',
 };
 
 export const selectDrug = (
@@ -37,9 +40,19 @@ export const selectDrug = (
   dispatch: IDispatch
 ) => {
   if (selectedDisease) {
-    modifyAttentionPaths(selectedDrug, selectedDisease, isAdd, dispatch);
     changeDrug(selectedDrug, dispatch);
+    return modifyAttentionPaths(selectedDrug, selectedDisease, isAdd, dispatch);
   }
+};
+
+export const updateCaseDescription = (
+  caseDescription: string | undefined,
+  dispatch: IDispatch
+) => {
+  dispatch({
+    type: ACTION_TYPES.Update_Case_Description,
+    payload: { caseDescription },
+  });
 };
 
 export const selectDisease = (selectedDisease: string, dispatch: IDispatch) => {
@@ -90,7 +103,7 @@ const modifyAttentionPaths = (
         payload: { isAttentionLoading: true },
       });
 
-      requestAttentionPair(selectedDisease, selectedDrug)
+      return requestAttentionPair(selectedDisease, selectedDrug)
         .then((res) => {
           dispatch({
             type: ACTION_TYPES.Add_Attention_Paths,
@@ -114,6 +127,8 @@ const modifyAttentionPaths = (
           selectedDrug,
         },
       });
+
+      return Promise.resolve();
     }
   }
 };
@@ -148,10 +163,24 @@ const groupMetaPaths = (paths: IPath[]): IMetaPath[] => {
 export const toggleMetaPathHide = (
   metaPathSummary: IMetaPathSummary[],
   idx: number,
-  hide: boolean,
   dispatch: IDispatch
 ) => {
-  metaPathSummary[idx]['hide'] = hide;
+  metaPathSummary[idx]['hide'] = !metaPathSummary[idx]['hide'];
+  if (metaPathSummary[idx]['hide']) {
+    metaPathSummary[idx]['expand'] = false; // if hide, then collapse
+  }
+  dispatch({
+    type: ACTION_TYPES.Toggle_Meta_Path_Hide,
+    payload: { metaPathSummary },
+  });
+};
+
+export const toggleMetaPathExpand = (
+  metaPathSummary: IMetaPathSummary[],
+  idx: number,
+  dispatch: IDispatch
+) => {
+  metaPathSummary[idx]['expand'] = !metaPathSummary[idx]['expand'];
   dispatch({
     type: ACTION_TYPES.Toggle_Meta_Path_Hide,
     payload: { metaPathSummary },

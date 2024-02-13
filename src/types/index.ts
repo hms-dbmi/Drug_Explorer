@@ -34,6 +34,7 @@ export interface IMetaPathSummary {
   count: { [drug_id: string]: number }; // only count for selected drugs whose count > 0
   sum: number;
   hide: boolean;
+  expand: boolean;
   idx: number;
 }
 
@@ -95,4 +96,5 @@ export interface IState {
   metaPathGroups: { [drugID: string]: IMetaPath[] };
   metaPathSummary: IMetaPathSummary[]; // each element is a group of paths with the same node types
   selectedPathNodes: IPath['nodes'];
+  caseDescription: string | undefined;
 }

@@ -1,7 +1,13 @@
-import { Tooltip, Modal, Skeleton } from 'antd';
+import { Tooltip, Modal, Skeleton, Popover, Button } from 'antd';
+import { InfoCircleOutlined } from '@ant-design/icons';
 import { cropText, YES_ICON, NO_ICON, LOADING_ICON } from 'helpers';
 import { getNodeColor } from 'helpers/color';
-import { ACTION_TYPES, selectDrug, toggleMetaPathHide } from 'stores/actions';
+import {
+  ACTION_TYPES,
+  selectDrug,
+  toggleMetaPathHide,
+  toggleMetaPathExpand,
+} from 'stores/actions';
 import { isAddDrug } from 'stores/reducer';
 import React from 'react';
 
@@ -19,7 +25,6 @@ interface Props {
 }
 
 interface State {
-  expand: boolean[];
   isModalVisible: boolean;
 }
 
@@ -36,27 +41,17 @@ class PathMatrix extends React.Component<Props, State> {
   RADIUS = this.NODE_HEIGHT / 2; // max radius of the count circle
   HEAD_HEIGHT = 70; // height of the header ()
   ICON_GAP = 20; // width of the expand triangle icon
-  offsetY = 0; // record the height of the expanded meta paths
+  offsetY = 0; // record the height of the expand meta paths
 
   constructor(prop: Props) {
     super(prop);
     this.state = {
-      expand: this.props.globalState.metaPathSummary.map((d) => false),
       isModalVisible: false,
     };
 
     this.showModal = this.showModal.bind(this);
     this.hideModal = this.hideModal.bind(this);
     this.filterMetaPathGroups = this.filterMetaPathGroups.bind(this);
-  }
-  toggleExpand(idx: number, flag: undefined | boolean) {
-    let { expand } = this.state;
-    if (flag === undefined) {
-      expand[idx] = !expand[idx];
-    } else {
-      expand[idx] = flag;
-    }
-    this.setState({ expand });
   }
 
   isPathSelected(nodes: IPath['nodes']) {
@@ -82,7 +77,7 @@ class PathMatrix extends React.Component<Props, State> {
       });
     }
   }
-  getMetaIconGroup(toggleHideFunc: (hide: boolean) => void, isHide: boolean) {
+  getMetaIconGroup(toggleHideFunc: () => void, isHide: boolean) {
     return (
       <g
         className="feedback"
@@ -93,7 +88,7 @@ class PathMatrix extends React.Component<Props, State> {
         <g
           className="yes"
           transform={`translate(${0 * this.ICON_GAP}, 0)`}
-          onClick={() => toggleHideFunc(!isHide)}
+          onClick={() => toggleHideFunc()}
         >
           <rect width={this.ICON_GAP} height={this.ICON_GAP} fill="white" />
           <path d={isHide ? YES_ICON : NO_ICON} transform={`scale(0.03)`} />
@@ -250,7 +245,7 @@ class PathMatrix extends React.Component<Props, State> {
 
         let differentChildren: JSX.Element[] = [];
         let childrenOffsetY = 0;
-        const showChildren = this.state.expand[summary.idx];
+        const showChildren = summary.expand;
 
         let lastMetaPath: IPath | undefined = undefined;
         Object.keys(metaPathGroups).forEach((drugId) => {
@@ -289,16 +284,16 @@ class PathMatrix extends React.Component<Props, State> {
           this.offsetY += this.GROUP_GAP;
         });
 
-        const toggleHideFunc = (hide: boolean) => {
-          toggleMetaPathHide(
+        const toggleHideFunc = () => {
+          toggleMetaPathHide(metaPathSummary, summary.idx, this.props.dispatch);
+        };
+
+        const toggleExpandFunc = () => {
+          toggleMetaPathExpand(
             metaPathSummary,
             summary.idx,
-            hide,
             this.props.dispatch
           );
-          if (hide) {
-            this.toggleExpand(summary.idx, false);
-          }
         };
 
         return (
@@ -313,9 +308,7 @@ class PathMatrix extends React.Component<Props, State> {
                 d={showChildren ? triangelBottom : triangleRight}
                 transform={`translate(${COUNT_WIDTH}, 0)`}
                 fill="gray"
-                onClick={() => {
-                  if (!summary.hide) this.toggleExpand(summary.idx, undefined);
-                }}
+                onClick={toggleExpandFunc}
                 cursor="pointer"
               />
             </g>
@@ -373,33 +366,34 @@ class PathMatrix extends React.Component<Props, State> {
     );
   }
 
-  componentDidUpdate(prevProps: Props) {
-    if (
-      // when disease changed, collapse all meta paths
-      prevProps.globalState.selectedDisease !==
-      this.props.globalState.selectedDisease
-    ) {
-      this.setState({
-        expand: this.props.globalState.metaPathSummary.map((d) => false),
-      });
-    } else if (
-      prevProps.globalState.drugPredictions.filter((d) => d.selected).length !==
-      this.props.globalState.drugPredictions.filter((d) => d.selected).length
-    ) {
-      // update expended metapaths when selected drug changes
-      const { metaPathSummary } = this.props.globalState;
+  // componentDidUpdate(prevProps: Props) {
+  //   // if (
+  //   //   // when disease changed, collapse all meta paths
+  //   //   prevProps.globalState.selectedDisease !==
+  //   //   this.props.globalState.selectedDisease
+  //   // ) {
+  //   //   this.setState({
+  //   //     expand: this.props.globalState.metaPathSummary.map((d) => false),
+  //   //   });
+  //   // } else
 
-      // const expandStatus = metaPathSummary.map(
-      //   (d) =>
-      //     Object.values(d.count).reduce(
-      //       (acc, cur, i) => acc + cur * (drugPredictions[i].selected ? 1 : 0),
-      //       0
-      //     ) > 0 && !d.hide
-      // );
-      const expandStatus = metaPathSummary.map((d) => false); // collapse all metapaths by default
-      this.setState({ expand: expandStatus });
-    }
-  }
+  //   if (
+  //     prevProps.globalState.drugPredictions.filter((d) => d.selected).length !==
+  //     this.props.globalState.drugPredictions.filter((d) => d.selected).length
+  //   ) {
+  //     // update expended metapaths when selected drug changes
+  //     const { metaPathSummary } = this.props.globalState;
+
+  //     // const expandStatus = metaPathSummary.map(
+  //     //   (d) =>
+  //     //     Object.values(d.count).reduce(
+  //     //       (acc, cur, i) => acc + cur * (drugPredictions[i].selected ? 1 : 0),
+  //     //       0
+  //     //     ) > 0 && !d.hide
+  //     // );
+
+  //   }
+  // }
 
   drawMetaCount(
     summary: IMetaPathSummary,
@@ -649,7 +643,7 @@ class PathMatrix extends React.Component<Props, State> {
   }
   render() {
     const { width, height } = this.props,
-      { isModalVisible, expand } = this.state;
+      { isModalVisible } = this.state;
     const {
       isDrugLoading,
       isInitializing,
@@ -669,7 +663,7 @@ class PathMatrix extends React.Component<Props, State> {
 
     const matrixRowsCount = Object.values(metaPathSummary)
         .map((d, idx) => {
-          return expand[idx] ? d.sum : 0;
+          return d['expand'] ? d.sum : 0;
         })
         .reduce((a, b) => a + b, 0),
       matrixGroupsCount = Object.keys(metaPathSummary).length,
@@ -703,6 +697,8 @@ class PathMatrix extends React.Component<Props, State> {
     if (isInitializing) {
       return <Skeleton active />;
     }
+
+    const { caseDescription } = this.props.globalState;
     return (
       <>
         <svg width={svgWidth} height={svgHeight}>
@@ -727,6 +723,16 @@ class PathMatrix extends React.Component<Props, State> {
             <></>
           )}
         </svg>
+        {caseDescription && (
+          <Popover content={this.props.globalState.caseDescription}>
+            <Button
+              type="primary"
+              style={{ position: 'fixed', bottom: '25px' }}
+            >
+              Read more about this case
+            </Button>
+          </Popover>
+        )}
 
         <Modal
           title="Edit Explanation"
