@@ -35,6 +35,11 @@ const CASES = [
       ],
     ],
   },
+  {
+    disease: '19567_19568_7522',
+    drug: 'DB00755',
+    paths: [],
+  },
 ];
 
 export { STATIC_URL, SERVER_URL, DATA_URL, CASES };
