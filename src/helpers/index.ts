@@ -1,6 +1,7 @@
 import { IAttentionTree } from 'types';
 export { cropText, getTextWidth } from './text';
 export * from './icon';
+export { CASES } from './cases';
 
 export {
   setNodeColor,

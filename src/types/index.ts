@@ -96,5 +96,5 @@ export interface IState {
   metaPathGroups: { [drugID: string]: IMetaPath[] };
   metaPathSummary: IMetaPathSummary[]; // each element is a group of paths with the same node types
   selectedPathNodes: IPath['nodes'];
-  caseDescription: string | undefined;
+  caseDescription: JSX.Element | undefined;
 }

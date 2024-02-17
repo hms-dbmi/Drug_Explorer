@@ -26,7 +26,7 @@ import {
   requestDiseaseOptions,
 } from 'stores/DataService';
 import { setNodeColor, LOADING_ICON, INIT_DISEASE, INIT_DRUGS } from 'helpers';
-import { CASES } from 'Const';
+import { CASES } from 'helpers';
 
 const { Header, Footer, Content } = Layout;
 

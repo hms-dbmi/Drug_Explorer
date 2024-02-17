@@ -46,7 +46,7 @@ export const selectDrug = (
 };
 
 export const updateCaseDescription = (
-  caseDescription: string | undefined,
+  caseDescription: JSX.Element | undefined,
   dispatch: IDispatch
 ) => {
   dispatch({
