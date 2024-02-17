@@ -133,7 +133,7 @@ const updateMetaPathSummary = (
         sharedMeta.sum += count;
       } else {
         // if shared meta path does not exist
-        newSummary.push({
+        newSummary.unshift({
           nodeTypes: metaPath.nodeTypes,
           count: { [drugId]: count },
           sum: count,
@@ -152,10 +152,8 @@ const updateMetaPathSummary = (
         delete metaPath.count[drugId];
       }
     });
-
-    newSummary = newSummary.filter((d) => d.sum > 0);
   }
-
+  newSummary = newSummary.filter((d) => d.sum > 0);
   return newSummary;
 };
 

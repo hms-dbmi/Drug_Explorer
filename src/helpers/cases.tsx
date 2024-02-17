@@ -66,7 +66,7 @@ export const CASES = [
   {
     disease: '19567_19568_7522',
     drug: 'DB00755',
-    open_list: [4],
+    open_list: [1, 3],
     description: (
       <span>
         Ehlers-Danlos syndrome is a rare inherited connective tissue disorder
