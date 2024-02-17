@@ -4,7 +4,7 @@ export const CASES = [
   {
     disease: '10356.0',
     drug: 'DB01612',
-    open_list: [2, 4],
+    open_list: [1, 3],
     description: (
       <span>
         NSIAD is a rare genetic disorder of water and sodium imbalance that has
@@ -109,7 +109,7 @@ export const CASES = [
   {
     disease: '27407_54701_12455',
     drug: 'DB00425',
-    open_list: [2],
+    open_list: [0, 3],
     description: (
       <span>
         Kleefstra syndrome is a rare genetic, intellectual disability syndrome
