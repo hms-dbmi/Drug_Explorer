@@ -17,3 +17,7 @@ g.node {
 .tooltip-show {
   opacity: 0.6;
 }
+
+.ant-popover {
+  z-index: 1100;
+}

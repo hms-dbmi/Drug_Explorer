@@ -105,9 +105,9 @@ class App extends React.Component<Props, State> {
 
         selectDrug(INIT_DRUGS[1], INIT_DISEASE, true, this.props.dispatch);
 
-        selectDrug(INIT_DRUGS[2], INIT_DISEASE, true, this.props.dispatch);
+        // selectDrug(INIT_DRUGS[2], INIT_DISEASE, true, this.props.dispatch);
 
-        selectDrug(INIT_DRUGS[3], INIT_DISEASE, true, this.props.dispatch);
+        // selectDrug(INIT_DRUGS[3], INIT_DISEASE, true, this.props.dispatch);
       })
       .then(() => {
         this.props.dispatch({

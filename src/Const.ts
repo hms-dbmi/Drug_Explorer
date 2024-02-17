@@ -14,7 +14,7 @@ const CASES = [
     drug: 'DB01612',
     open_list: [2, 4],
     description: `NSIAD is a rare genetic disorder of water and sodium imbalance that has prevalence of less than one in a million [Orphanet]. 
-      A mutation in the AVPR2 gene confirms diagnosis [Orphanet]. 
+      A mutation in the AVPR2 gene confirms diagnosis <a>Orphanet</a>. 
       Patients with congestive heart failure also experience similar challenges with fluid retention. 
       Congestive heart failure is strongly associated with both AVPR2 and NPR1 genes [Open targets]. 
       The AVPR2 and NPR1 genes regulate fluid and electrolyte balance in the body through complementary but different pathways. 
@@ -30,6 +30,22 @@ const CASES = [
         'drug:DB01612', // drug_protein -> Amyl Nitrite
       ],
     ],
+  },
+
+  {
+    disease: '19567_19568_7522',
+    drug: 'DB00755',
+    open_list: [4],
+    description: `Ehlers-Danlos syndrome is a rare inherited connective tissue disorder caused by mutations 
+    in genes that code for collagen (such as COL1A1, COL1A2) with a prevalence of 1-9 / 100 000 [Orphanet]. 
+    Key symptoms include impaired wound healing and formation of form atypical scars on the skin. 
+    Tretnoin is a vitamin A derivative used to treat acne and is carrier by albumin (ALB) and targets 
+    ALDH1A1 to prevents collagen loss and reduce inflammation [Drugbank]. 
+    Tretinoin may help in Ehlers-Danlos Syndrome by potentially enhancing wound healing and improving 
+    the appearance of scars due to its ability to stimulate collagen production in the skin. 
+    Some subtypes of Elhers-Danlos Syndrome are associated with a pathogenic mutation in the ALB gene in ClinVar and weakly 
+    linked to ALDH1AI in Europe PMC [Opentargets]`,
+    paths: [],
   },
   {
     disease: '27407_54701_12455',
@@ -56,21 +72,6 @@ const CASES = [
         'drug:DB00425', // -> drug_protein -> Zolpidemm
       ],
     ],
-  },
-  {
-    disease: '19567_19568_7522',
-    drug: 'DB00755',
-    open_list: [4],
-    description: `Ehlers-Danlos syndrome is a rare inherited connective tissue disorder caused by mutations 
-    in genes that code for collagen (such as COL1A1, COL1A2) with a prevalence of 1-9 / 100 000 [Orphanet]. 
-    Key symptoms include impaired wound healing and formation of form atypical scars on the skin. 
-    Tretnoin is a vitamin A derivative used to treat acne and is carrier by albumin (ALB) and targets 
-    ALDH1A1 to prevents collagen loss and reduce inflammation [Drugbank]. 
-    Tretinoin may help in Ehlers-Danlos Syndrome by potentially enhancing wound healing and improving 
-    the appearance of scars due to its ability to stimulate collagen production in the skin. 
-    Some subtypes of Elhers-Danlos Syndrome are associated with a pathogenic mutation in the ALB gene in ClinVar and weakly 
-    linked to ALDH1AI in Europe PMC [Opentargets]`,
-    paths: [],
   },
 ];
 

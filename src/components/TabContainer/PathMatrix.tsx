@@ -701,6 +701,32 @@ class PathMatrix extends React.Component<Props, State> {
     const { caseDescription } = this.props.globalState;
     return (
       <>
+        {caseDescription && (
+          <div
+            className="caseReadmore"
+            style={{
+              position: 'fixed',
+              bottom: height,
+            }}
+          >
+            <Popover
+              content={
+                <div style={{ wordWrap: 'break-word' }}>
+                  {this.props.globalState.caseDescription}
+                </div>
+              }
+              placement="topLeft"
+              overlayStyle={{
+                width: '60vw',
+                left: '20vw',
+              }}
+              trigger="click"
+            >
+              <Button type="primary">Read more about this case</Button>
+            </Popover>
+          </div>
+        )}
+
         <svg width={svgWidth} height={svgHeight}>
           {content}
           {/* overlap loading icon when it is loading */}
@@ -723,16 +749,6 @@ class PathMatrix extends React.Component<Props, State> {
             <></>
           )}
         </svg>
-        {caseDescription && (
-          <Popover content={this.props.globalState.caseDescription}>
-            <Button
-              type="primary"
-              style={{ position: 'fixed', bottom: '25px' }}
-            >
-              Read more about this case
-            </Button>
-          </Popover>
-        )}
 
         <Modal
           title="Edit Explanation"
