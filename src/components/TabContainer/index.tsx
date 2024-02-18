@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tabs } from 'antd';
+import { Tabs, Spin } from 'antd';
 import { StateConsumer } from 'stores';
 import { IState, IDispatch } from 'types';
 
@@ -37,7 +37,7 @@ class NodeLink extends React.Component<Props, State> {
   }
 
   render() {
-    const { width, height } = this.props;
+    const { width, height, globalState } = this.props;
     const cardWidth = width - 2 * this.margin - 2 * this.padding,
       cardHeight =
         height - 2 * this.padding - this.titleHeight - 2 * this.margin;
@@ -67,16 +67,24 @@ class NodeLink extends React.Component<Props, State> {
           key="metapath"
           tab="Meta-Path"
         >
-          <div
-            className="nodelink"
-            style={{
-              width: cardWidth,
-              height: cardHeight,
-              overflowY: 'scroll',
-            }}
+          <Spin
+            tip="loading"
+            size="large"
+            spinning={
+              globalState.isAttentionLoading && !globalState.isInitializing
+            }
           >
-            <PathMatrix {...props} />
-          </div>
+            <div
+              className="nodelink"
+              style={{
+                width: cardWidth,
+                height: cardHeight,
+                overflowY: 'scroll',
+              }}
+            >
+              <PathMatrix {...props} />
+            </div>
+          </Spin>
         </TabPane>
 
         <TabPane

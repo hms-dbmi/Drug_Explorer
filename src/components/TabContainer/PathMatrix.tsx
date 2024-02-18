@@ -1,6 +1,5 @@
 import { Tooltip, Modal, Skeleton, Popover, Button } from 'antd';
-import { InfoCircleOutlined } from '@ant-design/icons';
-import { cropText, YES_ICON, NO_ICON, LOADING_ICON } from 'helpers';
+import { cropText, YES_ICON, NO_ICON } from 'helpers';
 import { getNodeColor } from 'helpers/color';
 import {
   ACTION_TYPES,
@@ -729,25 +728,6 @@ class PathMatrix extends React.Component<Props, State> {
 
         <svg width={svgWidth} height={svgHeight}>
           {content}
-          {/* overlap loading icon when it is loading */}
-          {isAttentionLoading ? (
-            <g className="loading">
-              <rect
-                className="loading__background"
-                width={svgWidth}
-                height={svgOuterHeight}
-                fill="white"
-                opacity={0.5}
-              />
-              <g
-                transform={`translate(${svgWidth / 2}, ${svgOuterHeight / 2})`}
-              >
-                {LOADING_ICON}
-              </g>
-            </g>
-          ) : (
-            <></>
-          )}
         </svg>
 
         <Modal

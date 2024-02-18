@@ -3,7 +3,7 @@ import PathMatrix from 'components/CardContainer';
 import NodeLink from 'components/TabContainer';
 import DrugSider from 'components/Sider';
 
-import { Layout, Modal, Dropdown, Menu, Space } from 'antd';
+import { Layout, Modal, Dropdown, Menu, Space, Spin } from 'antd';
 import {
   InfoCircleOutlined,
   LinkOutlined,
@@ -27,6 +27,7 @@ import {
 } from 'stores/DataService';
 import { setNodeColor, LOADING_ICON, INIT_DISEASE, INIT_DRUGS } from 'helpers';
 import { CASES } from 'helpers';
+import { rgb } from 'd3';
 
 const { Header, Footer, Content } = Layout;
 
@@ -206,67 +207,44 @@ class App extends React.Component<Props, State> {
 
     return (
       <>
-        <Layout>
-          {header}
-
+        <Spin tip="loading..." size="large" spinning={isInitializing}>
           <Layout>
-            <DrugSider siderWidth={siderWidth} />
-            <Content className="main" style={{ height: mainViewHeight }}>
-              <PathMatrix width={mainViewWidth} height={MatrixHeight} />
-              <NodeLink width={mainViewWidth} height={NodeLinkHeight} />
-              <Footer
-                style={{
-                  textAlign: 'center',
-                  color: 'gray',
-                  height: footHeight,
-                  padding: 0,
-                }}
-              >
-                Copyright © {new Date().getFullYear()} Harvard.{' '}
-                <a href="http://gehlenborglab.org/" target="_blank_">
-                  Gehlenborg Lab <LinkOutlined />
-                </a>{' '}
-                &{' '}
-                <a href="https://zitniklab.hms.harvard.edu/" target="_blank_">
-                  Zitnik Lab <LinkOutlined />
-                </a>{' '}
-                |
-                <span style={{ color: 'gray' }}>
-                  {' '}
-                  <b onClick={this.showModal} style={{ cursor: 'help' }}>
-                    DISCLAIMER:
-                  </b>
-                  THIS WEBSITE DOES NOT PROVIDE MEDICAL ADVICE{' '}
-                </span>
-              </Footer>
-            </Content>
-          </Layout>
-        </Layout>
+            {header}
 
-        {isInitializing && (
-          <svg
-            width={window.innerWidth}
-            height={window.innerHeight}
-            style={{ position: 'absolute', left: 0, top: 0 }}
-          >
-            <g className="loading">
-              <rect
-                className="loading__background"
-                width={window.innerWidth}
-                height={window.innerHeight}
-                fill="white"
-                opacity={0.5}
-              />
-              <g
-                transform={`translate(${window.innerWidth / 2}, ${
-                  window.innerHeight / 2
-                })`}
-              >
-                {LOADING_ICON}
-              </g>
-            </g>
-          </svg>
-        )}
+            <Layout>
+              <DrugSider siderWidth={siderWidth} />
+              <Content className="main" style={{ height: mainViewHeight }}>
+                <PathMatrix width={mainViewWidth} height={MatrixHeight} />
+                <NodeLink width={mainViewWidth} height={NodeLinkHeight} />
+                <Footer
+                  style={{
+                    textAlign: 'center',
+                    color: 'gray',
+                    height: footHeight,
+                    padding: 0,
+                  }}
+                >
+                  Copyright © {new Date().getFullYear()} Harvard.{' '}
+                  <a href="http://gehlenborglab.org/" target="_blank_">
+                    Gehlenborg Lab <LinkOutlined />
+                  </a>{' '}
+                  &{' '}
+                  <a href="https://zitniklab.hms.harvard.edu/" target="_blank_">
+                    Zitnik Lab <LinkOutlined />
+                  </a>{' '}
+                  |
+                  <span style={{ color: 'gray' }}>
+                    {' '}
+                    <b onClick={this.showModal} style={{ cursor: 'help' }}>
+                      DISCLAIMER:
+                    </b>
+                    THIS WEBSITE DOES NOT PROVIDE MEDICAL ADVICE{' '}
+                  </span>
+                </Footer>
+              </Content>
+            </Layout>
+          </Layout>
+        </Spin>
 
         <Modal
           title="About TxGNN Explorer"
