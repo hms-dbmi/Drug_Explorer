@@ -224,21 +224,20 @@ class App extends React.Component<Props, State> {
                     padding: 0,
                   }}
                 >
-                  Copyright © {new Date().getFullYear()} Harvard.{' '}
+                  Copyright © {new Date().getFullYear()} Harvard.
                   <a href="http://gehlenborglab.org/" target="_blank_">
                     Gehlenborg Lab <LinkOutlined />
-                  </a>{' '}
-                  &{' '}
+                  </a>
+                  &
                   <a href="https://zitniklab.hms.harvard.edu/" target="_blank_">
                     Zitnik Lab <LinkOutlined />
-                  </a>{' '}
+                  </a>
                   |
                   <span style={{ color: 'gray' }}>
-                    {' '}
                     <b onClick={this.showModal} style={{ cursor: 'help' }}>
                       DISCLAIMER:
                     </b>
-                    THIS WEBSITE DOES NOT PROVIDE MEDICAL ADVICE{' '}
+                    THIS WEBSITE DOES NOT PROVIDE MEDICAL ADVICE
                   </span>
                 </Footer>
               </Content>
@@ -253,28 +252,56 @@ class App extends React.Component<Props, State> {
           footer={null}
           onCancel={this.hideModal}
           zIndex={1099}
-          width={window.innerWidth * 0.5}
+          width={window.innerWidth * 0.7}
         >
           <h3>About</h3>
           <p>
-            TxGNN Explorer provides a visual interface to interact with the
-            predicitons and explanations of{' '}
+            TxGNN Explorer provides a visual interface for our paper titled{' '}
             <a
               href="https://www.medrxiv.org/content/10.1101/2023.03.19.23287458v1"
               target="_blank_"
             >
-              TXGNN
+              Zero-shot drug repurposing with geometric deep learning and
+              clinician centered design
             </a>
-            , a model for identifying therapeutic opportunities for diseases
-            with limited treatment options and minimal molecular understanding.
+            , which propose TxGNN for identifying therapeutic opportunities for
+            diseases with limited treatment options and minimal molecular
+            understanding.
           </p>
           <p>
-            TxGNN is a graph neural network pre-trained on a comprehensive
+            {/* TxGNN is a graph neural network pre-trained on a comprehensive
             knowledge graph of 17,080 clinically-recognized diseases and 7,957
             therapeutic candidates. The model can process various therapeutic
             tasks in a unified formulation. Once trained, we show that TXGNN can
             perform zero-shot inference on new diseases without the need for
-            additional parameters or fine-tuning on ground truth labels.
+            additional parameters or fine-tuning on ground truth labels. */}
+            Historically, drug repurposing identifying new therapeutic uses for
+            approved drugs has been attributed to serendipity. While recent
+            advances have leveraged knowledge graphs and deep learning to
+            identify potential therapeutic candidates, their clinical utility
+            remains limited because they focus on diseases with available
+            existing treatments and rich molecular knowledge. Here, we introduce
+            TxGNN, a geometric deep learning approach designed for "zero-shot"
+            drug repurposing, enabling therapeutic predictions even for diseases
+            with no existing medicines. Trained on a medical knowledge graph,
+            TxGNN utilizes a graph neural network and metric-learning module to
+            rank therapeutic candidates as potential indications and
+            contraindications across 17,080 diseases. When benchmarked against
+            eight leading methods, TxGNN significantly improves prediction
+            accuracy for indications by 49.2% and contraindications by 35.1%
+            under stringent zero-shot evaluation. To facilitate interpretation
+            and analysis of the model's predictions, TxGNN's Explainer module
+            offers transparent insights into the multi-hop paths that form
+            TxGNN's predictive rationale. Clinicians and scientists found
+            TxGNN's explanations instrumental in contextualizing and validating
+            its predicted therapeutic candidates during our user study. Many of
+            TxGNN's novel predictions have shown remarkable alignment with
+            off-label prescriptions made by clinicians within a large healthcare
+            system, affirming their real-world utility. TxGNN provides drug
+            repurposing predictions that are more accurate than existing
+            methods, consistent with off-label prescription decisions made by
+            clinicians, and can be investigated through multi-hop interpretable
+            explanations.
           </p>
 
           <p>
@@ -285,22 +312,82 @@ class App extends React.Component<Props, State> {
               target="_blank_"
             >
               paper
-            </a>{' '}
+            </a>
             (honorable mention) for more details about the design,
             implementation, and evaluation of TxGNN Explorer.
           </p>
+
           <h3>Team</h3>
           <p>
-            Kexin Huang<sup>*</sup>, Payal Chandak<sup>*</sup>, Qianwen Wang,
-            Shreyas Havaldar, Akhil Vaid, Jure Leskovec, Girish Nadkarni,
-            Benjamin S. Glicksberg, Nils Gehlenborg, and Marinka Zitnik
-            <br />
-            <b>
-              Contact:
-              <a href="https://zitniklab.hms.harvard.edu/bio/" target="_blank_">
-                Marinka Zitnik (marinka@hms.harvard.edu)
-              </a>
-            </b>
+            <ul>
+              <li>
+                <a href="https://www.kexinhuang.com/" target="_blank_">
+                  Kexin Huang<sup>*</sup>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://scholar.google.com/citations?user=i6T8EOQAAAAJ&hl=en"
+                  target="_blank_"
+                >
+                  Payal Chandak<sup>*</sup>
+                </a>
+              </li>
+              <li>
+                <a href="https://qianwen.info/" target="_blank_">
+                  Qianwen Wang
+                </a>
+              </li>
+              <li>
+                <a> Shreyas Havaldar</a>
+              </li>
+              <li>
+                <a
+                  href="https://scholar.google.com/citations?user=zYkgms4AAAAJ&hl=en"
+                  target="_blank_"
+                >
+                  Akhil Vaid
+                </a>
+              </li>
+              <li>
+                <a href="https://cs.stanford.edu/~jure/" target="_blank_">
+                  Jure Leskovec
+                </a>
+              </li>
+              <li>
+                <a href="https://www.nadkarnilab.com/girish" target="_blank_">
+                  Girish Nadkarni
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.hpims.org/labs/ben-glicksberg-lab"
+                  target="_blank_"
+                >
+                  Benjamin S. Glicksberg
+                </a>
+              </li>
+              <li>
+                <a href="http://gehlenborglab.org/" target="_blank_">
+                  Nils Gehlenborg
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://zitniklab.hms.harvard.edu/bio/"
+                  target="_blank_"
+                >
+                  Marinka Zitnik
+                </a>
+              </li>
+            </ul>
+          </p>
+
+          <p>
+            <h3>Contact:</h3>
+            <a href="https://zitniklab.hms.harvard.edu/bio/" target="_blank_">
+              Marinka Zitnik (marinka@hms.harvard.edu)
+            </a>
             <br />
             This website is developed and maintained by{' '}
             <a href="https://qianwen.info" target="_blank_">
