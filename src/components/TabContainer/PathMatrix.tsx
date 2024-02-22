@@ -706,6 +706,7 @@ class PathMatrix extends React.Component<Props, State> {
             style={{
               position: 'fixed',
               bottom: height,
+              right: '20px',
             }}
           >
             <Popover
@@ -717,7 +718,7 @@ class PathMatrix extends React.Component<Props, State> {
               placement="topLeft"
               overlayStyle={{
                 width: '60vw',
-                left: '20vw',
+                right: '20vw',
               }}
               trigger="click"
             >
